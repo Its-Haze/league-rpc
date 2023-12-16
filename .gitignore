@@ -20,3 +20,4 @@ build/
 instance/
 .coverage
 htmlcov/
+*.spec
