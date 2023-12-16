@@ -70,13 +70,19 @@ Alternatively, install the executable Python package directly from the [releases
 
 1. Download the executable file found in [releases page](https://github.com/Its-Haze/league-rpc-linux/releases)
 
-2.
+2. Make the file executable
 
+   ```bash
+   chmod +x ./league_rpc_linux
    ```
+
+3. Run it
+
+   ```bash
    ./league_rpc_linux
    ```
 
-3. Yup.. that's pretty much it! Enjoy
+4. Yup.. that's pretty much it! Enjoy
 
 ## Features
 
