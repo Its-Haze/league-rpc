@@ -9,8 +9,8 @@ def wait_until_exists(
     custom_message: str = "",
     expected_response_code: int = 200,
     timeout: int = 30,
-    n_sleep: float | int = 0,  # Not needed, but good to have.
-    n_total_amount: int = 5,
+    n_sleep: float | int = 5,  # Not needed, but good to have.
+    n_total_amount: int = 20,
 ) -> requests.Response | None:
     """
     Polling on the local riot api until success is returned.

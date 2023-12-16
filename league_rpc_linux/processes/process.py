@@ -1,3 +1,4 @@
+import sys
 import time
 
 import psutil
@@ -27,60 +28,60 @@ def process_exists(process_name: str) -> bool:
     return False
 
 
-def check_league_client_process(colors: Colors):
+def check_league_client_process():
     """
     Checks league client processes.
     """
-    print(colors.yellow + "Checking if LeagueClient.exe is running...")
+    print(Colors.yellow + "Checking if LeagueClient.exe is running...")
     time.sleep(1)
 
     league_processes = ["LeagueClient.exe", "LeagueClientUx.exe"]
 
     if processes_exists(process_names=league_processes):
         print(
-            colors.green
+            Colors.green
             + "League client is running!"
-            + colors.dgray
+            + Colors.dgray
             + "(3/3)"
-            + colors.reset
+            + Colors.reset
         )
     else:
-        print(colors.red + "League client is not running!" + colors.reset)
+        print(Colors.red + "League client is not running!" + Colors.reset)
         time.sleep(1)
-        exit()
+        sys.exit()
 
 
-def check_riot_games_service_process(colors: Colors):
+def check_riot_games_service_process() -> None:
     """
     Checks that the Riot Games launcher is running.
     """
-    print(colors.yellow + "Checking if Riot Games Launcher is running...")
+    print(Colors.yellow + "Checking if Riot Games Launcher is running...")
     time.sleep(2)
     if process_exists("RiotClientServi"):
         print(
-            colors.green
+            Colors.green
             + "Riot Games Service is running!"
-            + colors.dgray
+            + Colors.dgray
             + "(2/3)"
-            + colors.reset
+            + Colors.reset
         )
     else:
-        print(colors.red + "Riot Games Service is not running!" + colors.reset)
+        print(Colors.red + "Riot Games Service is not running!" + Colors.reset)
         time.sleep(1)
-        exit()
+        sys.exit()
 
 
-def check_discord_process(colors: Colors, process_names: list[str]) -> Presence:
+def check_discord_process(process_names: list[str]) -> Presence:
     """
     Checks if discord process is running.
     Connects to Discord Rich Presence if it is found.
     """
 
-    print(colors.yellow + "Checking if Discord is running...")
+    print(Colors.yellow + "Checking if Discord is running...")
     time.sleep(1)
     if processes_exists(process_names=process_names):
         print(
-            colors.green + "Discord is running!" + colors.dgray + "(1/3)" + colors.reset
+            Colors.green + "Discord is running!" + Colors.dgray + "(1/3)" + Colors.reset
         )
         rpc = Presence("1185274747836174377")
         # League of linux: 1185274747836174377
@@ -88,8 +89,8 @@ def check_discord_process(colors: Colors, process_names: list[str]) -> Presence:
 
         rpc.connect()
     else:
-        print(colors.red + "Discord not running!" + colors.reset)
-        exit()
+        print(Colors.red + "Discord not running!" + Colors.reset)
+        sys.exit()
     return rpc
 
 

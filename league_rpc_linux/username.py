@@ -5,7 +5,7 @@ from league_rpc_linux.polling import wait_until_exists
 urllib3.disable_warnings()
 
 
-def summoner_name(with_discriminator: bool = False) -> str:
+def get_summoner_name(with_discriminator: bool = False) -> str:
     """
     Gets the current summoner name.
 

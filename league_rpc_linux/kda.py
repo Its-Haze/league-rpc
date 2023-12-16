@@ -1,7 +1,7 @@
 import urllib3
 
 from league_rpc_linux.polling import wait_until_exists
-from league_rpc_linux.username import summoner_name
+from league_rpc_linux.username import get_summoner_name
 
 urllib3.disable_warnings()
 
@@ -12,7 +12,7 @@ def get_kda() -> str:
 
     creepScore is updated every 10cs by Riot.
     """
-    your_summoner_name = summoner_name()
+    your_summoner_name = get_summoner_name()
     if your_summoner_name:
         # If the summoner name is not found, we don't want the KDA.
 

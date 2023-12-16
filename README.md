@@ -1,5 +1,5 @@
 
-![Logo](https://github.com/daglaroglou/league-rpc-linux/blob/main/assets/league-rpc.png?raw=true)
+![Logo](https://github.com/its-haze/league-rpc-linux/blob/master/assets/league-rpc.png?raw=true)
 
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black) ![Python](https://img.shields.io/badge/Python-FCC624?style=for-the-badge&logo=python&logoColor=blue)
 
