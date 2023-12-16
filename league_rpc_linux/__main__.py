@@ -93,9 +93,8 @@ def main():
                 case "InLobby":
                     rpc.update(  # type:ignore
                         large_image=league_of_legends_logo,
-                        large_text="In Lobby",
-                        details="What the hell am i suppose to write here?",
-                        state="In Lobby",
+                        large_text="github.com/Its-Haze/league-rpc-linux",
+                        state="In Client",
                         start=start_time,
                     )
                     time.sleep(10)
