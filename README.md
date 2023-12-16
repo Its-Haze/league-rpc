@@ -38,7 +38,7 @@ Just pick a skin in champ select and the script will automagically detect it and
 
 ### TFT (Teamfight tactics)
 
-TFT is supported and will show a cute image of a pingu ^^
+TFT is supported and will show a cuter image than windows ever will! :)
 
 ![Teamfight-Tactics-example](https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/tft-rpc-example.jpeg?raw=true)
 
