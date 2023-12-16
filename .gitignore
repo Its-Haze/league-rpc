@@ -1,0 +1,22 @@
+# Just typicall stuff u want ignored.
+__pycache__/
+*.py[cod]
+.env
+venv/
+env/
+*.log
+*.sqlite3
+*.db
+*.egg-info/
+dist/
+build/
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+.pytest_cache/
+*.egg
+instance/
+.coverage
+htmlcov/
