@@ -133,7 +133,7 @@ A: Yes! TFT is supported as of v0.0.2. Just start a TFT game, and the script wil
 A: It might work with some adjustments, but Windows already has native support for this feature. Although their discord rich presense is not as beautiful as this one.. seriously!
 
 **Q: Why doesn't the minnions (cs) update live?**
-A: Trust me it's annoying for me as well.. This is thanks to Riot Games now updating their API for every minnion killed, but rather updates every (10th) minnion killed. So this is sadly out of my control.
+A: Trust me it's annoying for me as well.. This is thanks to Riot Games not updating their API for every minnion killed, but rather updates every (10th) minnion killed. So this is sadly out of my control.
 
 ## Contact and Support
 
