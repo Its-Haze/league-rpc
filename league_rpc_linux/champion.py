@@ -138,7 +138,9 @@ def get_skin_asset(champion_name: str, skin_id: int) -> str:
         url = f"https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/{champion_name}_{skin_id}.jpg"
         try:
             if requests.get(url=url, verify=False, timeout=15).status_code == 200:
-                print(f"{Colors.green}Successfully found skin art.{Colors.reset}")
+                print(
+                    f"{Colors.green}Skin image will now be set on Discord RPC{Colors.reset}"
+                )
         except requests.RequestException as exc:
             print(
                 f"{Colors.red}Caught exception while trying to find skin image. {exc}\nThe URL was {url}{Colors.reset}"

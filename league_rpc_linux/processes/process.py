@@ -1,8 +1,10 @@
+import glob
+import os
 import sys
 import time
 
 import psutil
-from pypresence import Presence
+import pypresence
 
 from league_rpc_linux.colors import Colors
 
@@ -71,27 +73,82 @@ def check_riot_games_service_process() -> None:
         sys.exit()
 
 
-def check_discord_process(process_names: list[str]) -> Presence:
+def check_discord_process(
+    process_names: list[str],
+    client_id: str,
+) -> pypresence.Presence:
     """
     Checks if discord process is running.
     Connects to Discord Rich Presence if it is found.
     """
 
     print(Colors.yellow + "Checking if Discord is running...")
-    time.sleep(1)
-    if processes_exists(process_names=process_names):
-        print(
-            Colors.green + "Discord is running!" + Colors.dgray + "(1/3)" + Colors.reset
-        )
-        rpc = Presence("1185274747836174377")
-        # League of linux: 1185274747836174377
-        # League of Legends: 401518684763586560
 
-        rpc.connect()
-    else:
+    look_for_processes = f"({Colors.green}{', '.join(process_names)}{Colors.blue})"
+
+    time.sleep(1)
+    if not processes_exists(process_names=process_names):
         print(Colors.red + "Discord not running!" + Colors.reset)
+
+        print(
+            f"{Colors.blue}Could not find any process with the names {look_for_processes} running on your system.{Colors.reset}"
+        )
+        print(
+            f"{Colors.blue}Is your Discord process named something else? Try --add-process <name>{Colors.reset}"
+        )
         sys.exit()
+
+    print(f"{Colors.green}Discord is running! {Colors.dgray}(1/3){Colors.reset}")
+    try:
+        rpc = pypresence.Presence(client_id)
+        rpc.connect()
+
+    except Exception as exc:
+        print(
+            f"{Colors.red}PyPresence encountered some problems, and could not connect to your Discord's RPC{Colors.reset}"
+        )
+        print(
+            f"""{Colors.blue}Reasons for this:
+    1. One or more of the processes this script was looking for was found {look_for_processes}
+        But Pypresence still was unable to detect a running discord-ipc
+    2. You may not have a discord ipc running. Try {Colors.reset}``{Colors.green}ls /run/user/*/ | grep discord-ipc-{Colors.reset}``{Colors.blue} There should only be one result {Colors.reset}``{Colors.green}discord-ipc-0={Colors.reset}``
+    {Colors.blue}3. Try restarting Discord. (Make sure the process is stopped before doing that.){Colors.reset}
+            """
+        )
+        # If process names were not found, but ipc exists. Try removing them & restarting
+        if len((val := check_discord_ipc())) > 1:
+            print(
+                f"""
+{Colors.red}Detected multiple ipc's running.{Colors.reset}
+    You seem to have more than 1 ipc running (which is unusual).
+    If you know that discord is running, but pypresence keep failing to connect.
+    It might be cause you have multiple ipc's running. try removing the following ipc's and {Colors.green}restart discord.{Colors.reset}
+    {Colors.yellow}ipc's: {' , '.join(val)}{Colors.reset}
+    run: ``{Colors.green}rm  {' '.join(val)}{Colors.reset}``
+    Or you just don't have discord up and running..
+            """
+            )
+        print(
+            f"{Colors.red}Raising Exception found by PyPresence, and exiting..{Colors.reset}"
+        )
+
+        raise exc
     return rpc
+
+
+def check_discord_ipc() -> list[str]:
+    """
+    Checks if there are any discord-ipc's running.
+    """
+    # Paths to check for Discord IPC sockets
+    paths_to_check = ["/tmp", "/run/user/*/"]
+    ipc_pattern = "discord-ipc-*"
+    list_of_ipcs: list[str] = []
+    for path in paths_to_check:
+        for ipc_socket in glob.glob(os.path.join(path, ipc_pattern)):
+            if os.path.exists(ipc_socket):
+                list_of_ipcs.append(ipc_socket)
+    return list_of_ipcs
 
 
 def player_state() -> str | None:

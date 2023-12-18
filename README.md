@@ -14,6 +14,7 @@
   - [Source Code](#source-code)
   - [Package](#package)
 - [Features](#features)
+- [Command Line Arguments](#command-line-arguments)
 - [FAQ](#faq)
 - [Contact and Support](#contact-and-support)
 - [Credits](#credits)
@@ -88,12 +89,34 @@ Alternatively, install the executable Python package directly from the [releases
 
 4. Yup.. that's pretty much it! Enjoy
 
+## Command Line Arguments
+
+This application now supports various command-line arguments to enhance flexibility and user customization.
+
+- **`--client-id`**: Specify a custom Discord client ID for the RPC connection. Defaults to `1185274747836174377` if not provided. Which is the "League of Linux" Application
+  - *Example*: `./league_rpc_linux --client-id 123456789123456789`
+
+- **`--no-stats`**: Opt out of displaying in-game KDA and minion (creep score) statistics in your Discord Rich Presence. By default, these stats are shown.
+  - *Example*: `./league_rpc_linux --no-stats`
+
+- **`--add-process`**: Add custom Discord process names to the search list. This is useful if your Discord client is running under a different process name.
+  - *Example*: `./league_rpc_linux --add-process CustomDiscord AnotherProcess`
+
+Each of these arguments can be combined to tailor the Discord RPC to your preferences.
+
+```bash
+./league_rpc_linux --client-id 123456789123456789 --no-stats --add-process CustomDiscord AnotherProcess
+```
+
+NOTE: All of these arguments are optional. None is needed for the script to function properly. But in case you want to change something, you now can.
+
 ## Features
 
 1. **Dynamic Champion Skin Display**: The Discord Rich Presence will now show the champion skin you're using as the large image, a feature unique to this Linux version.
 2. **Live KDA Stats**: Keep track of your Kills, Deaths, and Assists updated live during the game. (Future update will include an option to toggle this feature.)
 3. **Creep Score**: Your minions (creep score) are displayed, providing a comprehensive view of your in-game performance.
 4. **Precise In-Game Time Tracking**: The in-game time is calculated with precision. Even if the script stops, when restarted, it will display the correct in-game time, ensuring continuous and accurate representation of your game status.
+5. **Discord Reconnection Window**: While the script only works while Discord is up and running. There are instances where discord could crash.. This program will attempt to reconnect to Discord's RPC even if the app is not running. For a period of time, and only exit when too much time has passed.. Default is (50) seconds to restart/reconnect Discord.
 
 ## FAQ
 
@@ -108,6 +131,9 @@ A: Yes! TFT is supported as of v0.0.2. Just start a TFT game, and the script wil
 
 **Q: Can it run on Windows?**
 A: It might work with some adjustments, but Windows already has native support for this feature. Although their discord rich presense is not as beautiful as this one.. seriously!
+
+**Q: Why doesn't the minnions (cs) update live?**
+A: Trust me it's annoying for me as well.. This is thanks to Riot Games now updating their API for every minnion killed, but rather updates every (10th) minnion killed. So this is sadly out of my control.
 
 ## Contact and Support
 

@@ -1,3 +1,4 @@
+import argparse
 import sys
 import time
 
@@ -14,16 +15,52 @@ from league_rpc_linux.processes.process import (
     player_state,
 )
 
+# Discord Application: League of Linux
+DEFAULT_CLIENT_ID = "1185274747836174377"
+DISCORD_PROCESS_NAMES = ["Discord", "DiscordPTB", "DiscordCanary", "electron"]
+
+
+parser = argparse.ArgumentParser(description="Script with Discord RPC.")
+parser.add_argument(
+    "--client-id",
+    type=str,
+    default=DEFAULT_CLIENT_ID,
+    help="Client ID for Discord RPC. Default is 1185274747836174377. which will show 'League of Linux' on discord",
+)
+parser.add_argument(
+    "--no-stats",
+    action="store_true",
+    help="use '--no-stats' to Opt out of showing in-game stats (KDA, minions) in Discord RPC",
+)
+parser.add_argument(
+    "--add-process",
+    nargs="+",
+    default=[],
+    help="Add custom Discord process names to the search list.",
+)
+
+
+args = parser.parse_args()
+
 
 def main():
     """
     main program.
     """
-    # Initialize
     print(Colors().logo)
 
-    discord_process_names = ["Discord", "DiscordPTB", "DiscordCanary", "electron"]
-    rpc = check_discord_process(discord_process_names)
+    if args.no_stats:
+        print(
+            f"{Colors.green}Argument --no-stats detected.. Will {Colors.red}not {Colors.green}show InGame stats{Colors.reset}"
+        )
+    if args.add_process:
+        print(
+            f"{Colors.green}Argument --add-process detected.. Will add {Colors.blue}{args.add_process}{Colors.green} to the list of Discord processes to look for.{Colors.reset}"
+        )
+
+    rpc = check_discord_process(
+        process_names=DISCORD_PROCESS_NAMES + args.add_process, client_id=args.client_id
+    )
 
     check_riot_games_service_process()
     check_league_client_process()
@@ -56,7 +93,7 @@ def main():
                                 large_image=skin_asset,
                                 large_text=champ_name,
                                 details=gamemode,
-                                state=f"In Game {get_kda()}",
+                                state=f"In Game {get_kda() if not args.no_stats else ''}",
                                 small_image=league_of_legends_logo,
                                 small_text="github.com/Its-Haze/league-rpc-linux",
                                 start=int(time.time())
@@ -64,7 +101,7 @@ def main():
                             )
                             if champ_name == "???" or gamemode == "???":
                                 print(
-                                    f"{Colors.red}Failed to load in data.. {Colors.lgrey}will try again shortly.\n{Colors.dcyan}(Reason: Someone has potato PC){Colors.reset}"
+                                    f"{Colors.red}Failed to load in data.. {Colors.lgrey}will try again shortly.\n{Colors.dcyan}(Reason: Someone has potato PC, meaning that RITOs API isn't fully initialized yet but the script sees that game has started.){Colors.reset}"
                                 )
                                 break
                             time.sleep(10)
@@ -103,12 +140,38 @@ def main():
                     print(
                         f"{Colors.red}LeagueOfLegends.exe was terminated. rpc shuting down..{Colors.reset}."
                     )
+                    rpc.close()
                     sys.exit()
         except pypresence.exceptions.PipeClosed:
+            # If the program crashes because pypresence failed to connect to a pipe. (Typically if Discord is closed.)
+            # The script will automatically try to reconnect..
+            # if it fails it will keep going until you either reconnect or after a long enough period of time has passed
             print(
-                f"{Colors.red} Discord seems to be closed. Reconnect, and restart this script. {Colors.reset}"
+                f"{Colors.red}Discord seems to be closed, will attempt to reconnect!{Colors.reset}"
             )
-            sys.exit()
+            amount_of_tries = 10
+            amount_of_waiting = 5
+
+            for i in range(amount_of_tries):
+                try:
+                    time.sleep(amount_of_waiting)
+                    print(f"{Colors.yellow}{i}. Attempting to reconect..{Colors.reset}")
+                    rpc = pypresence.Presence(args.client_id)
+                    rpc.connect()
+                    print(
+                        f"{Colors.green}Successfully reconnected.. Proceeding as normal.{Colors.reset}"
+                    )
+                    break
+
+                except Exception:  # pylint:disable=broad-exception-caught
+                    print(
+                        f"{Colors.red}Exception caught but continuing..{Colors.reset}"
+                    )
+            else:
+                print(
+                    f"{Colors.red}Was unable to reconnect to discord. after trying for {amount_of_tries * amount_of_waiting} seconds.{Colors.reset}"
+                )
+                sys.exit()
 
 
 if __name__ == "__main__":
