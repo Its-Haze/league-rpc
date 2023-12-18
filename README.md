@@ -72,7 +72,7 @@ Alternatively, install the executable Python package directly from the [releases
 1. Download the executable file found in [releases page](https://github.com/Its-Haze/league-rpc-linux/releases)
 
    ```bash
-   wget https://github.com/Its-Haze/league-rpc-linux/releases/download/v0.0.4/league_rpc_linux
+   wget https://github.com/Its-Haze/league-rpc-linux/releases/download/v0.0.5/league_rpc_linux
    ```
 
 2. Make the file executable
