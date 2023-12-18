@@ -155,7 +155,7 @@ def main():
             for i in range(amount_of_tries):
                 try:
                     time.sleep(amount_of_waiting)
-                    print(f"{Colors.yellow}{i}. Attempting to reconect..{Colors.reset}")
+                    print(f"{Colors.yellow}{i}. Attempting to reconnect..{Colors.reset}")
                     rpc = pypresence.Presence(args.client_id)
                     rpc.connect()
                     print(
