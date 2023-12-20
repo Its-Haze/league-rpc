@@ -10,6 +10,10 @@ from league_rpc_linux.username import get_summoner_name
 urllib3.disable_warnings()
 
 
+BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
+BASE_CHAMPION_URL = "http://ddragon.leagueoflegends.com/cdn/"
+
+
 champion_name_convert_map = {
     "Aurelion Sol": "AurelionSol",
     "Cho'Gath": "Chogath",
@@ -127,35 +131,39 @@ def gather_tft_data(parsed_data: dict[str, Any]) -> Optional[int]:
     return level
 
 
-def get_skin_asset(champion_name: str, skin_id: int) -> str:
+def check_url(url: str) -> bool:
+    """
+    Just a simple url checker. expecting an OK.
+    """
+    try:
+        return requests.get(url=url, verify=False, timeout=15).status_code == 200
+    except requests.RequestException:
+        return False
+
+
+def get_skin_asset(
+    champion_name: str,
+    skin_id: int,
+    patch: str,
+    fallback_asset: str,
+) -> str:
     """
     Returns either a default champion art
     or the selected skin for that specific champion.
     """
-
     if skin_id != 0:
-        # Return the skin art
-        url = f"https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/{champion_name}_{skin_id}.jpg"
-        try:
-            if requests.get(url=url, verify=False, timeout=15).status_code == 200:
-                print(
-                    f"{Colors.green}Skin image will now be set on Discord RPC{Colors.reset}"
-                )
-        except requests.RequestException as exc:
-            print(
-                f"{Colors.red}Caught exception while trying to find skin image. {exc}\nThe URL was {url}{Colors.reset}"
-            )
-        return url
+        url = f"{BASE_SKIN_URL}{champion_name}_{skin_id}.jpg"
+    else:
+        url = f"{BASE_CHAMPION_URL}{patch}/img/champion/{champion_name}.png"
 
-    # Otherwise return the default champion art.
-    url = f"http://ddragon.leagueoflegends.com/cdn/13.24.1/img/champion/{champion_name}.png"
-    try:
-        if requests.get(url=url, verify=False, timeout=15).status_code == 200:
-            print(
-                f"{Colors.green}Default skin detected on {champion_name}{Colors.reset}"
-            )
-    except requests.RequestException as exc:
+    if not check_url(url):
         print(
-            f"{Colors.red}Caught exception while trying to find default skin for {champion_name}. {exc}\nThe URL was {url}{Colors.reset}"
+            f"""{Colors.red}Failed to request the champion/skin image for {Colors.orange}{champion_name}
+{Colors.blue}(1)You are playing a champion, that does not have an artwork yet.
+(2)Your version of this application is outdated
+(3)The maintainer of this application has not updated to the latest patch..
+    If league's latest patch isn't {patch}, then contact ({Colors.orange}@haze.dev{Colors.blue} on Discord).{Colors.reset}"""
         )
+        return fallback_asset
+
     return url

@@ -34,43 +34,16 @@ def check_league_client_process():
     """
     Checks league client processes.
     """
-    print(Colors.yellow + "Checking if LeagueClient.exe is running...")
+    print(f"{Colors.yellow}Checking if LeagueClient.exe is running...")
     time.sleep(1)
 
     league_processes = ["LeagueClient.exe", "LeagueClientUx.exe"]
 
-    if processes_exists(process_names=league_processes):
-        print(
-            Colors.green
-            + "League client is running!"
-            + Colors.dgray
-            + "(3/3)"
-            + Colors.reset
-        )
-    else:
-        print(Colors.red + "League client is not running!" + Colors.reset)
-        time.sleep(1)
+    if not processes_exists(process_names=league_processes):
+        print(f"{Colors.red}League client is not running!{Colors.reset}")
         sys.exit()
 
-
-def check_riot_games_service_process() -> None:
-    """
-    Checks that the Riot Games launcher is running.
-    """
-    print(Colors.yellow + "Checking if Riot Games Launcher is running...")
-    time.sleep(2)
-    if process_exists("RiotClientServi"):
-        print(
-            Colors.green
-            + "Riot Games Service is running!"
-            + Colors.dgray
-            + "(2/3)"
-            + Colors.reset
-        )
-    else:
-        print(Colors.red + "Riot Games Service is not running!" + Colors.reset)
-        time.sleep(1)
-        sys.exit()
+    print(f"{Colors.green}League client is running!{Colors.dgray}(2/2){Colors.reset}")
 
 
 def check_discord_process(
@@ -81,37 +54,31 @@ def check_discord_process(
     Checks if discord process is running.
     Connects to Discord Rich Presence if it is found.
     """
-
-    print(Colors.yellow + "Checking if Discord is running...")
+    print(f"{Colors.yellow}Checking if Discord is running...{Colors.reset}")
 
     look_for_processes = f"({Colors.green}{', '.join(process_names)}{Colors.blue})"
 
     time.sleep(1)
     if not processes_exists(process_names=process_names):
-        print(Colors.red + "Discord not running!" + Colors.reset)
-
         print(
-            f"{Colors.blue}Could not find any process with the names {look_for_processes} running on your system.{Colors.reset}"
-        )
-        print(
-            f"{Colors.blue}Is your Discord process named something else? Try --add-process <name>{Colors.reset}"
+            f"""{Colors.red}Discord not running!
+            {Colors.blue}Could not find any process with the names {look_for_processes} running on your system.
+            Is your Discord process named something else? Try --add-process <name>{Colors.reset}"""
         )
         sys.exit()
 
-    print(f"{Colors.green}Discord is running! {Colors.dgray}(1/3){Colors.reset}")
+    print(f"{Colors.green}Discord is running! {Colors.dgray}(1/2){Colors.reset}")
     try:
         rpc = pypresence.Presence(client_id)
         rpc.connect()
-
-    except Exception as exc:
+    except ConnectionRefusedError:
         print(
-            f"{Colors.red}PyPresence encountered some problems, and could not connect to your Discord's RPC{Colors.reset}"
-        )
-        print(
-            f"""{Colors.blue}Reasons for this:
+            f"""
+    {Colors.red}PyPresence encountered some problems, and could not connect to your Discord's RPC
+    {Colors.blue}
     1. One or more of the processes this script was looking for was found {look_for_processes}
         But Pypresence still was unable to detect a running discord-ipc
-    2. You may not have a discord ipc running. Try {Colors.reset}``{Colors.green}ls /run/user/*/ | grep discord-ipc-{Colors.reset}``{Colors.blue} There should only be one result {Colors.reset}``{Colors.green}discord-ipc-0={Colors.reset}``
+    2. You may not have a discord ipc running. Try {Colors.reset}``{Colors.green}ls $XDG_RUNTIME_DIR | grep discord-ipc-{Colors.reset}``{Colors.blue} There should only be one result {Colors.reset}``{Colors.green}discord-ipc-0={Colors.reset}``
     {Colors.blue}3. Try restarting Discord. (Make sure the process is stopped before doing that.){Colors.reset}
             """
         )
@@ -131,8 +98,12 @@ def check_discord_process(
         print(
             f"{Colors.red}Raising Exception found by PyPresence, and exiting..{Colors.reset}"
         )
-
-        raise exc
+        sys.exit()
+    except pypresence.exceptions.InvalidID:
+        print(
+            f"{Colors.red}Invalid Client ID. Make sure your Discord Application ID is correct."
+        )
+        sys.exit()
     return rpc
 
 
@@ -140,14 +111,20 @@ def check_discord_ipc() -> list[str]:
     """
     Checks if there are any discord-ipc's running.
     """
-    # Paths to check for Discord IPC sockets
-    paths_to_check = ["/tmp", "/run/user/*/"]
+    # Path to check for Discord IPC sockets
+
+    xdg_runtime_dir = os.environ.get("XDG_RUNTIME_DIR")
+
+    if not xdg_runtime_dir:
+        # If for some reason this environmental variable is not set.. just ignore this function.
+        return []
+
     ipc_pattern = "discord-ipc-*"
     list_of_ipcs: list[str] = []
-    for path in paths_to_check:
-        for ipc_socket in glob.glob(os.path.join(path, ipc_pattern)):
-            if os.path.exists(ipc_socket):
-                list_of_ipcs.append(ipc_socket)
+
+    for ipc_socket in glob.glob(os.path.join(xdg_runtime_dir, ipc_pattern)):
+        if os.path.exists(ipc_socket):
+            list_of_ipcs.append(ipc_socket)
     return list_of_ipcs
 
 
@@ -157,10 +134,9 @@ def player_state() -> str | None:
     """
     current_state: str | None = None
 
-    if process_exists("RiotClientServi"):
-        if process_exists("LeagueClient.exe") or process_exists("LeagueClientUx.exe"):
-            if process_exists("League of Legends.exe"):
-                current_state = "InGame"
-            else:
-                current_state = "InLobby"
+    if processes_exists(process_names=["LeagueClient.exe", "LeagueClientUx.exe"]):
+        if process_exists("League of Legends.exe"):
+            current_state = "InGame"
+        else:
+            current_state = "InLobby"
     return current_state
