@@ -20,6 +20,7 @@ DEFAULT_CLIENT_ID = "1185274747836174377"
 DISCORD_PROCESS_NAMES = ["Discord", "DiscordPTB", "DiscordCanary", "electron"]
 LEAGUE_OF_LEGENDS_LOGO = "https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/leagueoflegends.png?raw=true"
 SMALL_TEXT = "github.com/Its-Haze/league-rpc-linux"
+CURRENT_PATCH = "13.24.1"
 
 
 def main(cli_args: argparse.Namespace):
@@ -54,7 +55,13 @@ def main(cli_args: argparse.Namespace):
                     if gamemode != "TFT":
                         # LEAGUE RPC
                         skin_asset = get_skin_asset(
-                            champion_name=champ_name, skin_id=skin_id
+                            champion_name=champ_name,
+                            skin_id=skin_id,
+                            patch=CURRENT_PATCH,
+                            fallback_asset=LEAGUE_OF_LEGENDS_LOGO,
+                        )
+                        print(
+                            f"{Colors.green}Successfully gathered all data.{Colors.yellow}\nUpdating Discord Presence now!{Colors.reset}"
                         )
                         while player_state() == "InGame":
                             rpc.update(  # type:ignore
