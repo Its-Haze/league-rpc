@@ -99,11 +99,12 @@ TFT is supported and will show a cuter image than windows ever will! :)
    python3 -m league_rpc_linux
    ```
 
-### Package
+### Pre-built Package
 
 Alternatively, install the executable Python package directly from the [releases page](https://github.com/Its-Haze/league-rpc-linux/releases) and run it.
 
 1. Go to the [releases page](https://github.com/Its-Haze/league-rpc-linux/releases) page and download the latest executable file ``league_rpc_linux``
+   - These builds are mainly built on Unix systems.. meaning that they will **not** work on Windows. If you see a .exe file, then you are good to download that one instead.
 
 2. Once downloaded, make the file executable. Open a terminal and run the following command (assuming the file was downloaded to the current directory):
 
