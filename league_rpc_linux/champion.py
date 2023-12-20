@@ -148,7 +148,7 @@ def get_skin_asset(champion_name: str, skin_id: int) -> str:
         return url
 
     # Otherwise return the default champion art.
-    url = f"http://ddragon.leagueoflegends.com/cdn/13.10.1/img/champion/{champion_name}.png"
+    url = f"http://ddragon.leagueoflegends.com/cdn/13.24.1/img/champion/{champion_name}.png"
     try:
         if requests.get(url=url, verify=False, timeout=15).status_code == 200:
             print(
