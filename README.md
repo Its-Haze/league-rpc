@@ -3,7 +3,7 @@
 
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 ![Windows](https://img.shields.io/badge/Windows-FCC624?style=for-the-badge&logo=Windows&logoColor=black)
-![Windows](https://img.shields.io/badge/Mac-FCC624?style=for-the-badge&logo=Apple&logoColor=black)
+![Mac](https://img.shields.io/badge/Mac-FCC624?style=for-the-badge&logo=Apple&logoColor=black)
 ![Python](https://img.shields.io/badge/Python-FCC624?style=for-the-badge&logo=python&logoColor=blue)
 
 # League of Legends Discord Rich Presence for Linux (WINE / Lutris)
