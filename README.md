@@ -1,11 +1,14 @@
 
 ![Logo](https://github.com/its-haze/league-rpc-linux/blob/master/assets/league-rpc.png?raw=true)
 
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black) ![Python](https://img.shields.io/badge/Python-FCC624?style=for-the-badge&logo=python&logoColor=blue)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-FCC624?style=for-the-badge&logo=Windows&logoColor=black)
+![Mac](https://img.shields.io/badge/Mac-FCC624?style=for-the-badge&logo=Apple&logoColor=black)
+![Python](https://img.shields.io/badge/Python-FCC624?style=for-the-badge&logo=python&logoColor=blue)
 
 # League of Legends Discord Rich Presence for Linux (WINE / Lutris)
 
-**Enhance your Discord experience while playing League of Legends on Linux!** This project brings unique Discord Rich Presence integration to Linux users, leveraging WINE/Lutris environments, with features not even available on Windows!
+**Enhance your Discord experience while playing League of Legends on Linux!** This project brings unique Discord Rich Presence integration to Linux users, leveraging WINE/Lutris environments, with features not even available natively on Windows!
 
 ## Table of Contents
 
@@ -47,19 +50,50 @@ TFT is supported and will show a cuter image than windows ever will! :)
 
 ### Source Code
 
-1. Clone the repository:
+1. **Clone the repository**:
+
+   Use the following command to clone the repository to your local machine:
 
    ```bash
    git clone git@github.com:Its-Haze/league-rpc-linux.git
    ```
 
-2. Install dependencies:
+2. **Create and activate a virtual environment**:
+
+   A virtual environment helps to keep dependencies required by different projects separate by creating isolated python environments for them. This is highly recommended to avoid conflicts between project dependencies.
+
+   - Create a virtual environment:
+
+     ```bash
+     python3 -m venv league-rpc-env
+     ```
+
+   - Activate the virtual environment:
+     - On Unix or MacOS:
+
+       ```bash
+       source league-rpc-env/bin/activate
+       ```
+
+     - On Windows:
+
+       ```bash
+       .\league-rpc-env\Scripts\activate
+       ```
+
+   For more information on virtual environments and why they are beneficial, you can read this [Python Virtual Environments Guide](https://docs.python.org/3/tutorial/venv.html).
+
+3. **Install dependencies**:
+
+   With the virtual environment activated, install the required dependencies using:
 
    ```bash
-   pip3 install -r requirements.txt
+   pip install -r requirements.txt
    ```
 
-3. Run the application:
+4. **Run the application**:
+
+   Finally, start the application with:
 
    ```bash
    python3 -m league_rpc_linux
@@ -69,13 +103,9 @@ TFT is supported and will show a cuter image than windows ever will! :)
 
 Alternatively, install the executable Python package directly from the [releases page](https://github.com/Its-Haze/league-rpc-linux/releases) and run it.
 
-1. Download the executable file found in [releases page](https://github.com/Its-Haze/league-rpc-linux/releases)
+1. Go to the [releases page](https://github.com/Its-Haze/league-rpc-linux/releases) page and download the latest executable file ``league_rpc_linux``
 
-   ```bash
-   wget https://github.com/Its-Haze/league-rpc-linux/releases/download/v0.0.5/league_rpc_linux
-   ```
-
-2. Make the file executable
+2. Once downloaded, make the file executable. Open a terminal and run the following command (assuming the file was downloaded to the current directory):
 
    ```bash
    chmod +x ./league_rpc_linux
@@ -130,7 +160,7 @@ A: This is an independent project, not affiliated with Riot Games. If they like 
 A: Yes! TFT is supported as of v0.0.2. Just start a TFT game, and the script will automagically detect it and show that you are ingame, with a neat "lvl" indicator.
 
 **Q: Can it run on Windows?**
-A: It might work with some adjustments, but Windows already has native support for this feature. Although their discord rich presense is not as beautiful as this one.. seriously!
+A: Yes, it can. But Windows already has native support for league. Although their discord rich presense is not as beautiful as this one.. seriously! Even if you're on Windows, I recommend you try this out.
 
 **Q: Why doesn't the minnions (cs) update live?**
 A: Trust me it's annoying for me as well.. This is thanks to Riot Games not updating their API for every minnion killed, but rather updates every (10th) minnion killed. So this is sadly out of my control.
