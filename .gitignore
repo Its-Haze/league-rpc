@@ -21,3 +21,4 @@ instance/
 .coverage
 htmlcov/
 *.spec
+league-rpc-env/
