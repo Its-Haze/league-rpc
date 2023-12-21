@@ -15,7 +15,7 @@
 - [Showcase](#showcase)
 - [Installation](#installation)
   - [Source Code](#source-code)
-  - [Package](#package)
+  - [Pre-built Package](#pre-built-package)
 - [Features](#features)
 - [Command Line Arguments](#command-line-arguments)
 - [FAQ](#faq)
