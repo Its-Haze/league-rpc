@@ -172,10 +172,12 @@ def get_skin_asset(
 
     if not check_url(url):
         print(
-            f"""{Colors.red}Failed to request the champion/skin image for {Colors.orange}{champion_name}
-{Colors.blue}(1)You are playing a champion, that does not have an artwork yet.
-(2)Your version of this application is outdated
-(3)The maintainer of this application has not updated to the latest patch..
+            f"""{Colors.red}Failed to request the champion/skin image
+    {Colors.orange}Reasons for this could be the following:
+{Colors.blue}(1) Maybe a false positive.. A new attempt will be made to find the skin art. But if it keeps failing, then something is wrong.
+    If the skin art is after further attempts found, then you can simply ignore this message..
+(2) Your version of this application is outdated
+(3) The maintainer of this application has not updated to the latest patch..
     If league's latest patch isn't {patch}, then contact ({Colors.orange}@haze.dev{Colors.blue} on Discord).{Colors.reset}"""
         )
         return fallback_asset

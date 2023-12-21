@@ -43,7 +43,7 @@ def main(cli_args: argparse.Namespace):
             match player_state():
                 case "InGame":
                     print(
-                        f"{Colors.dblue}Detected game! Will soon gather data and update discord RPC{Colors.reset}"
+                        f"\n{Colors.dblue}Detected game! Will soon gather data and update discord RPC{Colors.reset}"
                     )
 
                     (
@@ -68,7 +68,7 @@ def main(cli_args: argparse.Namespace):
                                     start=int(time.time())
                                     - get_current_ingame_time(default_time=start_time),
                                 )
-                            time.sleep(5)
+                            time.sleep(10)
                     elif gamemode == "Arena":
                         # ARENA RPC
                         skin_asset = get_skin_asset(
@@ -104,7 +104,7 @@ def main(cli_args: argparse.Namespace):
                                 start=int(time.time())
                                 - get_current_ingame_time(default_time=start_time),
                             )
-                            time.sleep(5)
+                            time.sleep(10)
                     else:
                         # LEAGUE RPC
                         skin_asset = get_skin_asset(
@@ -132,7 +132,7 @@ def main(cli_args: argparse.Namespace):
                                 start=int(time.time())
                                 - get_current_ingame_time(default_time=start_time),
                             )
-                            time.sleep(5)
+                            time.sleep(10)
 
                 case "InLobby":
                     rpc.update(  # type:ignore
