@@ -7,7 +7,7 @@ import pypresence
 from league_rpc_linux.champion import gather_ingame_information, get_skin_asset
 from league_rpc_linux.colors import Colors
 from league_rpc_linux.gametime import get_current_ingame_time
-from league_rpc_linux.kda import get_kda
+from league_rpc_linux.kda import get_creepscore, get_kda
 from league_rpc_linux.processes.process import (
     check_discord_process,
     check_league_client_process,
@@ -43,52 +43,20 @@ def main(cli_args: argparse.Namespace):
             match player_state():
                 case "InGame":
                     print(
-                        f"{Colors.dblue}Detected game! Will soon gather data and update discord RPC{Colors.reset}"
+                        f"\n{Colors.dblue}Detected game! Will soon gather data and update discord RPC{Colors.reset}"
                     )
 
                     (
                         champ_name,
+                        skin_name,
                         skin_id,
                         gamemode,
-                        _,
+                        level,
+                        gold,
                     ) = gather_ingame_information()
-                    if gamemode != "TFT":
-                        # LEAGUE RPC
-                        skin_asset = get_skin_asset(
-                            champion_name=champ_name,
-                            skin_id=skin_id,
-                            patch=CURRENT_PATCH,
-                            fallback_asset=LEAGUE_OF_LEGENDS_LOGO,
-                        )
-                        print(
-                            f"{Colors.green}Successfully gathered all data.{Colors.yellow}\nUpdating Discord Presence now!{Colors.reset}"
-                        )
-                        while player_state() == "InGame":
-                            rpc.update(  # type:ignore
-                                large_image=skin_asset,
-                                large_text=champ_name,
-                                details=gamemode,
-                                state=f"In Game {get_kda() if not cli_args.no_stats else ''}",
-                                small_image=LEAGUE_OF_LEGENDS_LOGO,
-                                small_text=SMALL_TEXT,
-                                start=int(time.time())
-                                - get_current_ingame_time(default_time=start_time),
-                            )
-                            if champ_name == "???" or gamemode == "???":
-                                print(
-                                    f"{Colors.red}Failed to load in data.. {Colors.lgrey}will try again shortly.\n{Colors.dcyan}(Reason: Someone has potato PC, meaning that RITOs API isn't fully initialized yet but the script sees that game has started.){Colors.reset}"
-                                )
-                                break
-                            time.sleep(10)
-                    else:
+                    if gamemode == "TFT":
                         # TFT RPC
                         while player_state() == "InGame":
-                            (
-                                _,
-                                _,
-                                gamemode,
-                                level,
-                            ) = gather_ingame_information()
                             if gamemode and level:
                                 rpc.update(  # type:ignore
                                     large_image="https://wallpapercave.com/wp/wp7413493.jpg",
@@ -100,6 +68,70 @@ def main(cli_args: argparse.Namespace):
                                     start=int(time.time())
                                     - get_current_ingame_time(default_time=start_time),
                                 )
+                            time.sleep(10)
+                    elif gamemode == "Arena":
+                        # ARENA RPC
+                        skin_asset = get_skin_asset(
+                            champion_name=champ_name,
+                            skin_id=skin_id,
+                            patch=CURRENT_PATCH,
+                            fallback_asset=LEAGUE_OF_LEGENDS_LOGO,
+                        )
+                        print(
+                            f"{Colors.green}Successfully gathered all data.{Colors.yellow}\nUpdating Discord Presence now!{Colors.reset}"
+                        )
+                        while player_state() == "InGame":
+                            (
+                                _,
+                                _,
+                                _,
+                                _,
+                                level,
+                                gold,
+                            ) = gather_ingame_information()
+                            if not champ_name:
+                                print(
+                                    f"{Colors.red}Failed to load in data.. {Colors.lgrey}will try again shortly.\n{Colors.dcyan}(Reason: Someone has potato PC, meaning that RITOs API isn't fully initialized yet but the script sees that game has started.){Colors.reset}"
+                                )
+                                break
+                            rpc.update(  # type:ignore
+                                large_image=skin_asset,
+                                large_text=skin_name if skin_name else champ_name,
+                                details=gamemode,
+                                state=f"In Game {f'· {get_kda()} · lvl: {level} · gold: {gold}' if not cli_args.no_stats else ''}",
+                                small_image=LEAGUE_OF_LEGENDS_LOGO,
+                                small_text=SMALL_TEXT,
+                                start=int(time.time())
+                                - get_current_ingame_time(default_time=start_time),
+                            )
+                            time.sleep(10)
+                    else:
+                        # LEAGUE RPC
+                        skin_asset = get_skin_asset(
+                            champion_name=champ_name,
+                            skin_id=skin_id,
+                            patch=CURRENT_PATCH,
+                            fallback_asset=LEAGUE_OF_LEGENDS_LOGO,
+                        )
+                        print(
+                            f"{Colors.green}Successfully gathered all data.{Colors.yellow}\nUpdating Discord Presence now!{Colors.reset}"
+                        )
+                        while player_state() == "InGame":
+                            if not champ_name or not gamemode:
+                                print(
+                                    f"{Colors.red}Failed to load in data.. {Colors.lgrey}will try again shortly.\n{Colors.dcyan}(Reason: Someone has potato PC, meaning that RITOs API isn't fully initialized yet but the script sees that game has started.){Colors.reset}"
+                                )
+                                break
+                            rpc.update(  # type:ignore
+                                large_image=skin_asset,
+                                large_text=skin_name if skin_name else champ_name,
+                                details=gamemode,
+                                state=f"In Game {f'· {get_kda()} · {get_creepscore()}' if not cli_args.no_stats else ''}",
+                                small_image=LEAGUE_OF_LEGENDS_LOGO,
+                                small_text=SMALL_TEXT,
+                                start=int(time.time())
+                                - get_current_ingame_time(default_time=start_time),
+                            )
                             time.sleep(10)
 
                 case "InLobby":
