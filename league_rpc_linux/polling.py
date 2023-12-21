@@ -16,18 +16,26 @@ def wait_until_exists(
     Polling on the local riot api until success is returned.
     """
 
-    try:
-        for _ in range(n_total_amount):
+    max_failed = 0
+
+    for _ in range(n_total_amount):
+        try:
             response = requests.get(url, timeout=timeout, verify=False)
             if response.status_code != expected_response_code:
                 time.sleep(n_sleep)
                 continue
             break
-        else:
-            print(custom_message)
-            return None
-    except (NewConnectionError, ConnectionError, requests.exceptions.ConnectionError):
-        # Ignore these.. These will come when you finish games.
+        except (
+            NewConnectionError,
+            ConnectionError,
+            requests.exceptions.ConnectionError,
+        ):
+            # Ignore these errors.. they occur when you exit a game.
+            max_failed += 1
+            if max_failed >= 3:
+                return None
+            continue
+    else:
+        print(custom_message)
         return None
-
     return response

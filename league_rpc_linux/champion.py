@@ -145,16 +145,6 @@ def gather_arena_data(parsed_data: dict[str, Any]) -> tuple[int, int]:
     return level, gold
 
 
-def check_url(url: str) -> bool:
-    """
-    Just a simple url checker. expecting an OK.
-    """
-    try:
-        return requests.get(url=url, verify=False, timeout=15).status_code == 200
-    except requests.RequestException:
-        return False
-
-
 def get_skin_asset(
     champion_name: str,
     skin_id: int,
@@ -170,7 +160,7 @@ def get_skin_asset(
     else:
         url = f"{BASE_CHAMPION_URL}{patch}/img/champion/{champion_name}.png"
 
-    if not check_url(url):
+    if not wait_until_exists(url):
         print(
             f"""{Colors.red}Failed to request the champion/skin image
     {Colors.orange}Reasons for this could be the following:

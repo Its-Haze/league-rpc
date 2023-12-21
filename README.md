@@ -46,6 +46,12 @@ TFT is supported and will show a cuter image than windows ever will! :)
 
 ![Teamfight-Tactics-example](https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/tft-rpc-example.jpeg?raw=true)
 
+### Arena
+
+Arena games are now supported as of v0.0.7
+
+![Arena-example](https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/league-rpc-arena-example.png?raw=true)
+
 ## Installation
 
 ### Source Code
@@ -133,10 +139,16 @@ This application now supports various command-line arguments to enhance flexibil
 - **`--add-process`**: Add custom Discord process names to the search list. This is useful if your Discord client is running under a different process name.
   - *Example*: `./league_rpc_linux --add-process CustomDiscord AnotherProcess`
 
+- **`--wait-for-league`**: Specify the time (in seconds) the script should wait for the League of Legends client to start. Use `-1` for infinite waiting. This is particularly useful for auto-launch scenarios like with Lutris or other launchers, ensuring the script does not error out if League is not immediately detected.
+  - *Example*: `./league_rpc_linux --wait-for-league 30`
+
+- **`--wait-for-discord`**: Similar to `--wait-for-league`, specify the time (in seconds) to wait for Discord to start. Use `-1` for infinite waiting. This ensures that the script waits for Discord to fully start, avoiding premature errors.
+  - *Example*: `./league_rpc_linux --wait-for-discord 15`
+
 Each of these arguments can be combined to tailor the Discord RPC to your preferences.
 
 ```bash
-./league_rpc_linux --client-id 123456789123456789 --no-stats --add-process CustomDiscord AnotherProcess
+./league_rpc_linux --client-id 123456789123456789 --no-stats --add-process CustomDiscord --wait-for-league -1 --wait-for-discord 15
 ```
 
 NOTE: All of these arguments are optional. None is needed for the script to function properly. But in case you want to change something, you now can.
