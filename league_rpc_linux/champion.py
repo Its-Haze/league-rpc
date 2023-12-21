@@ -1,9 +1,9 @@
 from typing import Any, Optional
 
-import requests
 import urllib3
 
 from league_rpc_linux.colors import Colors
+from league_rpc_linux.kda import get_gold, get_level
 from league_rpc_linux.polling import wait_until_exists
 from league_rpc_linux.username import get_summoner_name
 
@@ -70,14 +70,14 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
 
         if game_mode == "TFT":
             # If the currentGame is TFT.. gather the relevant information
-            level = gather_tft_data(parsed_data=parsed_data)
+            level = get_level()
         else:
             # If the gamemode is LEAGUE gather the relevant information.
             champion_name, skin_id, skin_name = gather_league_data(
                 parsed_data=parsed_data, summoners_name=your_summoner_name
             )
             if game_mode == "Arena":
-                level, gold = gather_arena_data(parsed_data=parsed_data)
+                level, gold = get_level(), get_gold()
             print("-" * 50)
             if champion_name:
                 print(
@@ -126,23 +126,6 @@ def gather_league_data(
             break
         continue
     return champion_name, skin_id, skin_name
-
-
-def gather_tft_data(parsed_data: dict[str, Any]) -> int:
-    """
-    If the gamemode is TFT, it will gather information and return it to RPC
-    """
-    level = int(parsed_data["activePlayer"]["level"])
-    return level
-
-
-def gather_arena_data(parsed_data: dict[str, Any]) -> tuple[int, int]:
-    """
-    If the gamemode is Arena, it will gather information and return it to RPC
-    """
-    level = int(parsed_data["activePlayer"]["level"])
-    gold = int(parsed_data["activePlayer"]["currentGold"])
-    return level, gold
 
 
 def get_skin_asset(
