@@ -20,7 +20,9 @@ def discord_reconnect_attempt(
     for i in range(amount_of_tries):
         try:
             time.sleep(amount_of_waiting)
-            print(f"{Colors.yellow}{i}. Attempting to reconnect..{Colors.reset}")
+            print(
+                f"{Colors.yellow}({i + 1}/{amount_of_tries}). Attempting to reconnect..{Colors.reset}"
+            )
             rpc.connect()
             print(
                 f"{Colors.green}Successfully reconnected.. Proceeding as normal.{Colors.reset}"
@@ -34,9 +36,9 @@ def discord_reconnect_attempt(
             pypresence.exceptions.PipeClosed,
             ConnectionError,
         ):
-            print(f"{Colors.red}Exception caught but continuing..{Colors.reset}")
+            pass
     else:
         print(
-            f"{Colors.red}Was unable to reconnect to discord. after trying for {amount_of_tries * amount_of_waiting} seconds.{Colors.reset}"
+            f"{Colors.red}Was unable to reconnect to Discord. after trying for {amount_of_tries * amount_of_waiting} seconds.{Colors.reset}"
         )
         sys.exit()
