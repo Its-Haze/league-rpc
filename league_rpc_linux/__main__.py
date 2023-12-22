@@ -13,6 +13,7 @@ from league_rpc_linux.processes.process import (
     check_league_client_process,
     player_state,
 )
+from league_rpc_linux import lobby
 from league_rpc_linux.reconnect import discord_reconnect_attempt
 
 # Discord Application: League of Linux
@@ -135,12 +136,24 @@ def main(cli_args: argparse.Namespace):
                             time.sleep(10)
 
                 case "InLobby":
-                    rpc.update(  # type:ignore
-                        large_image=LEAGUE_OF_LEGENDS_LOGO,
-                        large_text="github.com/Its-Haze/league-rpc-linux",
-                        state="In Client",
-                        start=start_time,
-                    )
+                    lobbyData = lobby.inClient()
+
+                    if lobbyData["type"] == "summoner":
+                        rpc.update(  # type:ignore
+                            large_image=LEAGUE_OF_LEGENDS_LOGO,
+                            large_text="In Client",
+                            state=f"Level {lobbyData['level']}",
+                        )
+
+                    elif lobbyData["type"] == "lobby":
+                        rpc.update(  # type:ignore
+                            large_image=LEAGUE_OF_LEGENDS_LOGO,
+                            large_text="In Lobby",
+                            details=lobbyData["queue"],
+                            party_size=[lobbyData["players"], lobbyData["maxPlayers"]],
+                            state=f"Waiting for players..",
+                        )
+
                     time.sleep(10)
 
                 case _:
