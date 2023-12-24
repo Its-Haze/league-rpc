@@ -169,7 +169,7 @@ async def update_rpc():
             large_image=LEAGUE_OF_LEGENDS_LOGO,
             large_text="In Client",
             details="In Client",
-            state=f"Level {data['level']} - {data['summoner_rank']}",
+            state=f"Level {data['level']}",
         )
         return
 
@@ -178,8 +178,8 @@ async def update_rpc():
         rpc.update(
             large_image=f"{BASE_MAP_URL}{str(data['map_id'])}.png",
             large_text=f"{GAME_MODE_CONVERT_MAP.get(data['gamemode'], data['gamemode'])}",
-            details=f"In Queue: {data['queue']}{f'(Ranked)' if data['lobbyQueueIsRanked'] else ''}",
-            state=f"Level {data['level']} - {data['summoner_rank']}",
+            details=f"In Queue: {data['queue']}",
+            state=f"Level {data['level']}",
             start=int(time.time()),
         )
         return
@@ -188,9 +188,9 @@ async def update_rpc():
     rpc.update(
         large_image=f"{BASE_MAP_URL}{str(data['map_id'])}.png",
         large_text=f"{GAME_MODE_CONVERT_MAP.get(data['gamemode'], data['gamemode'])}",
-        details=f"In Lobby: {data['queue']}{f'(Ranked)' if data['lobbyQueueIsRanked'] else ''}",
+        details=f"In Lobby: {data['queue']}",
         party_size=[data["players"], data["max_players"]],
-        state=f"Level {data['level']} - {data['summoner_rank']}",
+        state=f"Level {data['level']}",
     )
 
 
