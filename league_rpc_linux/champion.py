@@ -1,5 +1,7 @@
+from http import HTTPStatus
 from typing import Any, Optional
 
+import requests
 import urllib3
 
 from league_rpc_linux.colors import Colors
@@ -131,28 +133,28 @@ def gather_league_data(
 def get_skin_asset(
     champion_name: str,
     skin_id: int,
-    patch: str,
-    fallback_asset: str,
 ) -> str:
     """
-    Returns either a default champion art
-    or the selected skin for that specific champion.
+    Returns the URL for the skin/default skin of the champion.
+    If a chroma has been selected, it will return the base skin for that chroma.
+        Since RIOT does not have individual images for each chroma.
     """
-    if skin_id != 0:
+
+    while skin_id:
         url = f"{BASE_SKIN_URL}{champion_name}_{skin_id}.jpg"
-    else:
-        url = f"{BASE_CHAMPION_URL}{patch}/img/champion/{champion_name}.png"
+        if not check_url(url):
+            skin_id -= 1
+            continue
+        return url
 
-    if not wait_until_exists(url):
-        print(
-            f"""{Colors.red}Failed to request the champion/skin image
-    {Colors.orange}Reasons for this could be the following:
-{Colors.blue}(1) Maybe a false positive.. A new attempt will be made to find the skin art. But if it keeps failing, then something is wrong.
-    If the skin art is after further attempts found, then you can simply ignore this message..
-(2) Your version of this application is outdated
-(3) The maintainer of this application has not updated to the latest patch..
-    If league's latest patch isn't {patch}, then contact ({Colors.orange}@haze.dev{Colors.blue} on Discord).{Colors.reset}"""
-        )
-        return fallback_asset
-
+    url = f"{BASE_SKIN_URL}{champion_name}_0.jpg"
     return url
+
+
+def check_url(url: str) -> bool:
+    """
+    Sends a HEAD request to the URL and,
+    returns a boolean value depending on if the request,
+    was successful (200 OK) or not.
+    """
+    return requests.head(url, timeout=15).status_code == HTTPStatus.OK
