@@ -1,6 +1,8 @@
 import argparse
 import sys
 import time
+from multiprocessing import Process
+import nest_asyncio
 
 import pypresence
 
@@ -13,11 +15,12 @@ from league_rpc_linux.processes.process import (
     check_league_client_process,
     player_state,
 )
-from league_rpc_linux import lobby
+
 from league_rpc_linux.reconnect import discord_reconnect_attempt
+from league_rpc_linux.processes import LCU_Thread
 
 # Discord Application: League of Linux
-from league_rpc_linux import (
+from league_rpc_linux.const import (
     DEFAULT_CLIENT_ID,
     DISCORD_PROCESS_NAMES,
     LEAGUE_OF_LEGENDS_LOGO,
@@ -38,6 +41,10 @@ def main(cli_args: argparse.Namespace):
     )
 
     check_league_client_process()
+
+    p = Process(target=LCU_Thread.start_connector, args=(rpc,))
+    p.start()
+
     print(f"\n{Colors.green}Successfully connected to Discord RPC!{Colors.reset}")
     ############################################################
     start_time = int(time.time())
@@ -77,7 +84,6 @@ def main(cli_args: argparse.Namespace):
                         skin_asset = get_skin_asset(
                             champion_name=champ_name,
                             skin_id=skin_id,
-                            patch=CURRENT_PATCH,
                             fallback_asset=LEAGUE_OF_LEGENDS_LOGO,
                         )
                         print(
@@ -113,7 +119,6 @@ def main(cli_args: argparse.Namespace):
                         skin_asset = get_skin_asset(
                             champion_name=champ_name,
                             skin_id=skin_id,
-                            patch=CURRENT_PATCH,
                             fallback_asset=LEAGUE_OF_LEGENDS_LOGO,
                         )
                         print(
@@ -138,23 +143,7 @@ def main(cli_args: argparse.Namespace):
                             time.sleep(10)
 
                 case "InLobby":
-                    lobbyData = lobby.inClient()
-
-                    if lobbyData["type"] == "summoner":
-                        rpc.update(  # type:ignore
-                            large_image=LEAGUE_OF_LEGENDS_LOGO,
-                            large_text="In Client",
-                            state=f"Level {lobbyData['level']}",
-                        )
-
-                    elif lobbyData["type"] == "lobby":
-                        rpc.update(  # type:ignore
-                            large_image=LEAGUE_OF_LEGENDS_LOGO,
-                            large_text="In Lobby",
-                            details=lobbyData["queue"],
-                            party_size=[lobbyData["players"], lobbyData["maxPlayers"]],
-                            state=f"Waiting for players..",
-                        )
+                    # handled by LCU_Thread
 
                     time.sleep(10)
 
@@ -162,6 +151,7 @@ def main(cli_args: argparse.Namespace):
                     print(
                         f"{Colors.red}LeagueOfLegends.exe was terminated. rpc shuting down..{Colors.reset}."
                     )
+                    p.terminate()
                     rpc.close()
                     sys.exit()
         except pypresence.exceptions.PipeClosed:
@@ -175,6 +165,9 @@ def main(cli_args: argparse.Namespace):
 
 
 if __name__ == "__main__":
+    # Patch for asyncio - read more here: https://pypi.org/project/nest-asyncio/
+    nest_asyncio.apply()
+
     parser = argparse.ArgumentParser(description="Script with Discord RPC.")
     parser.add_argument(
         "--client-id",
