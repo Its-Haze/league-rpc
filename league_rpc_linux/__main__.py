@@ -17,11 +17,13 @@ from league_rpc_linux import lobby
 from league_rpc_linux.reconnect import discord_reconnect_attempt
 
 # Discord Application: League of Linux
-DEFAULT_CLIENT_ID = "1185274747836174377"
-DISCORD_PROCESS_NAMES = ["Discord", "DiscordPTB", "DiscordCanary", "electron"]
-LEAGUE_OF_LEGENDS_LOGO = "https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/leagueoflegends.png?raw=true"
-SMALL_TEXT = "github.com/Its-Haze/league-rpc-linux"
-CURRENT_PATCH = "13.24.1"
+from league_rpc_linux import (
+    DEFAULT_CLIENT_ID,
+    DISCORD_PROCESS_NAMES,
+    LEAGUE_OF_LEGENDS_LOGO,
+    SMALL_TEXT,
+    CURRENT_PATCH,
+)
 
 
 def main(cli_args: argparse.Namespace):

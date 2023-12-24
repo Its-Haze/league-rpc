@@ -7,48 +7,23 @@ from league_rpc_linux.colors import Colors
 from league_rpc_linux.polling import wait_until_exists
 from league_rpc_linux.username import get_summoner_name
 
+from league_rpc_linux.const import (
+    CURRENT_PATCH,
+    BASE_CHAMPION_URL,
+    BASE_SKIN_URL,
+    GAME_MODE_CONVERT_MAP,
+    CHAMPION_NAME_CONVERT_MAP,
+    ALL_GAME_DATA_URL,
+)
+
 urllib3.disable_warnings()
-
-
-BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
-BASE_CHAMPION_URL = "http://ddragon.leagueoflegends.com/cdn/"
-
-
-champion_name_convert_map = {
-    "Aurelion Sol": "AurelionSol",
-    "Cho'Gath": "Chogath",
-    "Renata Glasc": "Renata",
-    "Dr. Mundo": "DrMundo",
-    "Miss Fortune": "MissFortune",
-    "Kai'Sa": "KaiSa",
-    "Kog'Maw": "KogMaw",
-    "Rek'Sai": "RekSai",
-    "K'Sante": "KSante",
-    "Kha'Zix": "KhaZix",
-    "Nunu & Willump": "Nunu",
-    "Twisted Fate": "TwistedFate",
-    "Tahm Kench": "TahmKench",
-    "Vel'Koz": "Velkoz",
-    "Xin Zhao": "XinZhao",
-    "Master Yi": "MasterYi",
-}
-
-game_mode_convert_map = {
-    "PRACTICETOOL": "Summoner's Rift (Custom)",
-    "ARAM": "Howling Abyss (ARAM)",
-    "CLASSIC": "Summoner's Rift",
-    "TUTORIAL": "Summoner's Rift (Tutorial)",
-    "URF": "Summoner's Rift (URF)",
-    "NEXUSBLITZ": "Nexux Blitz",
-    "CHERRY": "Arena",
-}
 
 
 def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
     """
     Get the current playing champion name.
     """
-    all_game_data_url = "https://127.0.0.1:2999/liveclientdata/allgamedata"
+    all_game_data_url = ALL_GAME_DATA_URL
     your_summoner_name = get_summoner_name()
 
     champion_name: str | None = None
@@ -63,7 +38,7 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
         custom_message="Did not find game data.. Will try again in 5 seconds",
     ):
         parsed_data = response.json()
-        game_mode = game_mode_convert_map.get(
+        game_mode = GAME_MODE_CONVERT_MAP.get(
             parsed_data["gameData"]["gameMode"],
             parsed_data["gameData"]["gameMode"],
         )
@@ -117,7 +92,7 @@ def gather_league_data(
 
     for player in parsed_data["allPlayers"]:
         if player["summonerName"] == summoners_name:
-            champion_name = champion_name_convert_map.get(
+            champion_name = CHAMPION_NAME_CONVERT_MAP.get(
                 player["championName"],
                 player["championName"],
             )
@@ -158,7 +133,6 @@ def check_url(url: str) -> bool:
 def get_skin_asset(
     champion_name: str,
     skin_id: int,
-    patch: str,
     fallback_asset: str,
 ) -> str:
     """
@@ -168,7 +142,7 @@ def get_skin_asset(
     if skin_id != 0:
         url = f"{BASE_SKIN_URL}{champion_name}_{skin_id}.jpg"
     else:
-        url = f"{BASE_CHAMPION_URL}{patch}/img/champion/{champion_name}.png"
+        url = f"{BASE_CHAMPION_URL}{champion_name}.png"
 
     if not check_url(url):
         print(
@@ -178,7 +152,7 @@ def get_skin_asset(
     If the skin art is after further attempts found, then you can simply ignore this message..
 (2) Your version of this application is outdated
 (3) The maintainer of this application has not updated to the latest patch..
-    If league's latest patch isn't {patch}, then contact ({Colors.orange}@haze.dev{Colors.blue} on Discord).{Colors.reset}"""
+    If league's latest patch isn't {CURRENT_PATCH}, then contact ({Colors.orange}@haze.dev{Colors.blue} on Discord).{Colors.reset}"""
         )
         return fallback_asset
 

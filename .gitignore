@@ -22,3 +22,5 @@ instance/
 htmlcov/
 *.spec
 league-rpc-env/
+
+getConnectDetails.py
