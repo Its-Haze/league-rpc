@@ -23,6 +23,34 @@ def get_kda() -> str:
     return ""
 
 
+def get_level() -> int:
+    """
+    Get the current Level of your game.
+    """
+    response = get_current_active_player_stats()
+
+    if isinstance(response, Response):
+        parsed_data = response.json()
+        level = int(parsed_data["level"])
+
+        return level
+    return 0
+
+
+def get_gold() -> int:
+    """
+    Get the current gold of your game.
+    """
+    response = get_current_active_player_stats()
+
+    if isinstance(response, Response):
+        parsed_data = response.json()
+        gold = int(parsed_data["currentGold"])
+
+        return gold
+    return 0
+
+
 def get_creepscore() -> str:
     """
     Get the current creepScore of your live game
@@ -49,4 +77,15 @@ def get_current_user_stats() -> Response | None:
         player_score_url = f"https://127.0.0.1:2999/liveclientdata/playerscores?summonerName={your_summoner_name}"
         if response := wait_until_exists(url=player_score_url):
             return response
+    return None
+
+
+def get_current_active_player_stats() -> Response | None:
+    """
+    Request data from liveclientdata/activeplayer and return the response.
+    """
+
+    player_score_url = "https://127.0.0.1:2999/liveclientdata/activeplayer"
+    if response := wait_until_exists(url=player_score_url):
+        return response
     return None
