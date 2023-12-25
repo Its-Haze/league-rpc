@@ -20,6 +20,7 @@ from league_rpc_linux.reconnect import discord_reconnect_attempt
 from league_rpc_linux.processes import LCU_Thread
 
 # Discord Application: League of Linux
+
 from league_rpc_linux.const import (
     DEFAULT_CLIENT_ID,
     DISCORD_PROCESS_NAMES,
@@ -85,7 +86,6 @@ def main(cli_args: argparse.Namespace):
                         skin_asset = get_skin_asset(
                             champion_name=champ_name,
                             skin_id=skin_id,
-                            fallback_asset=LEAGUE_OF_LEGENDS_LOGO,
                         )
                         print(
                             f"{Colors.green}Successfully gathered all data.{Colors.yellow}\nUpdating Discord Presence now!{Colors.reset}"
@@ -107,7 +107,6 @@ def main(cli_args: argparse.Namespace):
                         skin_asset = get_skin_asset(
                             champion_name=champ_name,
                             skin_id=skin_id,
-                            fallback_asset=LEAGUE_OF_LEGENDS_LOGO,
                         )
                         print(
                             f"{Colors.green}Successfully gathered all data.{Colors.yellow}\nUpdating Discord Presence now!{Colors.reset}"
