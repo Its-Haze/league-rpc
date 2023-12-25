@@ -52,7 +52,9 @@ async def disconnect(connection):
 
 @connector.ws.register("/lol-champ-select/v1/session", event_types=("UPDATE",))
 async def champ_select(connection, event):
-    print("Champ select has been updated.")
+    # print("Champ select has been updated.")
+    # TODO: Add champ select data
+    pass
 
 
 @connector.ws.register(
