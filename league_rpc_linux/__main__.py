@@ -44,8 +44,6 @@ def main(cli_args: argparse.Namespace):
         wait_for_discord=cli_args.wait_for_discord,
     )
 
-    check_league_client_process()
-
     p = Process(target=LCU_Thread.start_connector, args=(rpc,))
     p.start()
 
