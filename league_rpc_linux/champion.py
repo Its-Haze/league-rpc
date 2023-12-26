@@ -13,26 +13,28 @@ urllib3.disable_warnings()
 
 
 BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
-BASE_CHAMPION_URL = "http://ddragon.leagueoflegends.com/cdn/"
-
 
 champion_name_convert_map = {
     "Aurelion Sol": "AurelionSol",
+    "Bel'Veth": "Belveth",
     "Cho'Gath": "Chogath",
-    "Renata Glasc": "Renata",
     "Dr. Mundo": "DrMundo",
-    "Miss Fortune": "MissFortune",
-    "Kai'Sa": "KaiSa",
+    "Jarvan IV": "JarvanIV",
+    "Kai'Sa": "Kaisa",
+    "Kha'Zix": "Khazix",
     "Kog'Maw": "KogMaw",
-    "Rek'Sai": "RekSai",
     "K'Sante": "KSante",
-    "Kha'Zix": "KhaZix",
-    "Nunu & Willump": "Nunu",
-    "Twisted Fate": "TwistedFate",
-    "Tahm Kench": "TahmKench",
-    "Vel'Koz": "Velkoz",
-    "Xin Zhao": "XinZhao",
+    "Lee Sin": "LeeSin",
     "Master Yi": "MasterYi",
+    "Miss Fortune": "MissFortune",
+    "Nunu & Willump": "Nunu",
+    "Rek'Sai": "RekSai",
+    "Renata Glasc": "Renata",
+    "Tahm Kench": "TahmKench",
+    "Twisted Fate": "TwistedFate",
+    "Vel'Koz": "Velkoz",
+    "Wukong": "MonkeyKing",
+    "Xin Zhao": "XinZhao",
 }
 
 game_mode_convert_map = {
