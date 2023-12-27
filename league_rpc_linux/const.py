@@ -31,6 +31,9 @@ GAME_MODE_CONVERT_MAP = {
     "URF": "Summoner's Rift (URF)",
     "NEXUSBLITZ": "Nexux Blitz",
     "CHERRY": "Arena",
+    "TUTORIAL_MODULE_3": "Summoner's Rift (Tutorial)",
+    "TUTORIAL_MODULE_2": "Summoner's Rift (Tutorial)",
+    "TUTORIAL_MODULE_1": "Summoner's Rift (Tutorial)",
 }
 
 CHAMPION_NAME_CONVERT_MAP = {
