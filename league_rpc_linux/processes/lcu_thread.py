@@ -4,9 +4,6 @@ from league_rpc_linux.colors import Colors
 from threading import Timer
 
 from league_rpc_linux.const import (
-    BASE_MAP_URL,
-    BASE_CHAMPION_URL,
-    BASE_SKIN_URL,
     GAME_MODE_CONVERT_MAP,
     LEAGUE_OF_LEGENDS_LOGO,
     MAP_ICON_CONVERT_MAP,

@@ -26,7 +26,6 @@ from league_rpc_linux.const import (
     DISCORD_PROCESS_NAMES,
     LEAGUE_OF_LEGENDS_LOGO,
     SMALL_TEXT,
-    CURRENT_PATCH,
 )
 
 

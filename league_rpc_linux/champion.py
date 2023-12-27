@@ -10,8 +10,6 @@ from league_rpc_linux.polling import wait_until_exists
 from league_rpc_linux.username import get_summoner_name
 
 from league_rpc_linux.const import (
-    CURRENT_PATCH,
-    BASE_CHAMPION_URL,
     BASE_SKIN_URL,
     GAME_MODE_CONVERT_MAP,
     CHAMPION_NAME_CONVERT_MAP,
@@ -19,6 +17,7 @@ from league_rpc_linux.const import (
 )
 
 urllib3.disable_warnings()
+
 
 def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
     """
