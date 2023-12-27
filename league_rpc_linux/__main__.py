@@ -17,7 +17,7 @@ from league_rpc_linux.processes.process import (
 )
 
 from league_rpc_linux.reconnect import discord_reconnect_attempt
-from league_rpc_linux.processes import LCU_Thread
+from league_rpc_linux.processes.lcu_thread import start_connector
 
 # Discord Application: League of Linux
 
@@ -44,8 +44,12 @@ def main(cli_args: argparse.Namespace):
         wait_for_discord=cli_args.wait_for_discord,
     )
 
-    p = Process(target=LCU_Thread.start_connector, args=(rpc,))
-    p.start()
+    # Start LCU_Thread
+    # This process will connect to the LCU API and updates the rpc based on data subscribed from the LCU API.
+    # In this case passing the rpc object to the process is easier than trying to return updated data from the process.
+    # Every In-Client update will be handled by the LCU_Thread process and will update the rpc accordingly.
+    lcu_process = Process(target=start_connector, args=(rpc,))
+    lcu_process.start()
 
     print(f"\n{Colors.green}Successfully connected to Discord RPC!{Colors.reset}")
     ############################################################
@@ -136,7 +140,7 @@ def main(cli_args: argparse.Namespace):
                     print(
                         f"{Colors.red}LeagueOfLegends.exe was terminated. rpc shuting down..{Colors.reset}."
                     )
-                    p.terminate()
+                    lcu_process.terminate()
                     rpc.close()
                     sys.exit()
         except pypresence.exceptions.PipeClosed:

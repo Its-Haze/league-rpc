@@ -14,6 +14,20 @@ BASE_CHAMPION_URL = (
 )
 BASE_MAP_URL = f"http://ddragon.leagueoflegends.com/cdn/{CURRENT_PATCH}/img/map/map"
 
+BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/{map_name}/img/game-select-icon-hover.png"
+
+PROFILE_ICON_BASE_URL = (
+    f"https://ddragon.leagueoflegends.com/cdn/{CURRENT_PATCH}/img/profileicon/"
+)
+
+MAP_ICON_CONVERT_MAP = {
+    11: "classic_sru",
+    12: "aram",
+    21: "gamemodex",
+    22: "tft",
+    30: "cherry",
+}
+
 
 GAME_MODE_CONVERT_MAP = {
     "PRACTICETOOL": "Summoner's Rift (Custom)",
