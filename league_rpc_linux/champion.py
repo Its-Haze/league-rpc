@@ -20,7 +20,6 @@ from league_rpc_linux.const import (
 
 urllib3.disable_warnings()
 
-
 def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
     """
     Get the current playing champion name.
