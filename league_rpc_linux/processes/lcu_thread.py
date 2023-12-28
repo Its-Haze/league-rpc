@@ -12,6 +12,7 @@ from league_rpc_linux.const import (
     LEAGUE_OF_LEGENDS_LOGO,
     MAP_ICON_CONVERT_MAP,
     PROFILE_ICON_BASE_URL,
+    SMALL_TEXT,
 )
 
 ## Timers ##
@@ -322,7 +323,7 @@ class LcuThread:
                 large_image=f"{PROFILE_ICON_BASE_URL}{str(self.data['summoner_icon'])}.png",
                 large_text="In Client",
                 small_image=LEAGUE_OF_LEGENDS_LOGO,
-                small_text="League of Legends Logo",
+                small_text=SMALL_TEXT,
                 details="In Client",
                 state=f"{self.data['availability']}",
             )
@@ -331,12 +332,12 @@ class LcuThread:
         if self.data["in_champ_select"]:
             # In Champ Select
             self.rpc.update(
-                large_image=BASE_MAP_ICON_URL.format(
+                large_image=f"{PROFILE_ICON_BASE_URL}{str(self.data['summoner_icon'])}.png",
+                large_text=f"{GAME_MODE_CONVERT_MAP.get(self.data['gamemode'], self.data['gamemode'])}",
+                small_image=BASE_MAP_ICON_URL.format(
                     map_name=MAP_ICON_CONVERT_MAP.get(self.data["map_id"])
                 ),
-                large_text=f"{GAME_MODE_CONVERT_MAP.get(self.data['gamemode'], self.data['gamemode'])}",
-                small_image=LEAGUE_OF_LEGENDS_LOGO,
-                small_text="League of Legends Logo",
+                small_text=SMALL_TEXT,
                 details=f"In Champ Select: {self.data['queue']}",
                 state=f"Picking Champions...",
                 party_size=[self.data["players"], self.data["max_players"]],
@@ -346,12 +347,12 @@ class LcuThread:
         if self.data["in_queue"]:
             # In Queue
             self.rpc.update(
-                large_image=BASE_MAP_ICON_URL.format(
+                large_image=f"{PROFILE_ICON_BASE_URL}{str(self.data['summoner_icon'])}.png",
+                large_text=f"{GAME_MODE_CONVERT_MAP.get(self.data['gamemode'], self.data['gamemode'])}",
+                small_image=BASE_MAP_ICON_URL.format(
                     map_name=MAP_ICON_CONVERT_MAP.get(self.data["map_id"])
                 ),
-                large_text=f"{GAME_MODE_CONVERT_MAP.get(self.data['gamemode'], self.data['gamemode'])}",
-                small_image=LEAGUE_OF_LEGENDS_LOGO,
-                small_text="League of Legends Logo",
+                small_text=SMALL_TEXT,
                 details=f"In Queue: {self.data['queue']}",
                 state="Searching for Game...",
                 start=int(time.time()),
@@ -364,24 +365,24 @@ class LcuThread:
             # custom or practice tool lobby
 
             self.rpc.update(
-                large_image=BASE_MAP_ICON_URL.format(
+                large_image=f"{PROFILE_ICON_BASE_URL}{str(self.data['summoner_icon'])}.png",
+                large_text=f"{GAME_MODE_CONVERT_MAP.get(self.data['gamemode'], self.data['gamemode'])}",
+                small_image=BASE_MAP_ICON_URL.format(
                     map_name=MAP_ICON_CONVERT_MAP.get(self.data["map_id"])
                 ),
-                large_text=f"{GAME_MODE_CONVERT_MAP.get(self.data['gamemode'], self.data['gamemode'])}",
-                small_image=LEAGUE_OF_LEGENDS_LOGO,
-                small_text="League of Legends Logo",
+                small_text=SMALL_TEXT,
                 details=f"In Lobby: {self.data['queue']}",
                 state="Custom Lobby",
             )
 
         # matchmaking lobby
         self.rpc.update(
-            large_image=BASE_MAP_ICON_URL.format(
+            large_image=f"{PROFILE_ICON_BASE_URL}{str(self.data['summoner_icon'])}.png",
+            large_text=f"{GAME_MODE_CONVERT_MAP.get(self.data['gamemode'], self.data['gamemode'])}",
+            small_image=BASE_MAP_ICON_URL.format(
                 map_name=MAP_ICON_CONVERT_MAP.get(self.data["map_id"])
             ),
-            large_text=f"{GAME_MODE_CONVERT_MAP.get(self.data['gamemode'], self.data['gamemode'])}",
-            small_image=LEAGUE_OF_LEGENDS_LOGO,
-            small_text="League of Legends Logo",
+            small_text=SMALL_TEXT,
             details=f"In Lobby: {self.data['queue']}",
             party_size=[self.data["players"], self.data["max_players"]],
             state="Waiting for Players...",
