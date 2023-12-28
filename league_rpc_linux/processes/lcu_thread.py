@@ -2,6 +2,8 @@ import time
 from threading import Timer
 
 import lcu_driver
+from lcu_driver.connection import Connection
+from lcu_driver.events.responses import WebsocketEventResponse
 
 from league_rpc_linux.colors import Colors
 from league_rpc_linux.const import (
@@ -18,16 +20,16 @@ from league_rpc_linux.const import (
 # As some events are called multiple times, we should limit the amount of updates to the RPC.
 # Collect update events for 1 second and then update the RPC.
 class UpdateScheduler:
-    def __init__(self, lcu):
+    def __init__(self, lcu) -> None:
         self.lcu = lcu
         self.update_already_scheduled: bool = False
 
-    def delay_update(self):
+    def delay_update(self) -> None:
         if not self.update_already_scheduled:
             self.update_already_scheduled = True
             Timer(1.0, self.update_rpc_and_reset_flag).start()
 
-    def update_rpc_and_reset_flag(self):
+    def update_rpc_and_reset_flag(self) -> None:
         self.lcu.update_rpc()
         self.update_already_scheduled = False
 
@@ -36,12 +38,9 @@ class UpdateScheduler:
 
 
 class LcuThread:
-    self_obj: None
-
-    def __init__(self, rpc_from_main):
+    def __init__(self, rpc_from_main) -> None:
         self.rpc = rpc_from_main
         self.connector = lcu_driver.Connector()
-        LcuThread.connector = self.connector
 
         self.update_scheduler = UpdateScheduler(self)
         self.data = {
@@ -70,18 +69,13 @@ class LcuThread:
             "gamflow_phase": None,  # Lobby, Matchmaking, ReadyCheck, ChampSelect, InProgress, WaitingForStats, EndOfGame
         }
 
-        self.register_ws_events(self.connector)
-        print("Starting LCU API.")
-
-    @staticmethod
-    def start_connector(rpc_from_main):
-        lcu_thread = LcuThread(rpc_from_main)
-        lcu_thread.connector.start()
-        LcuThread.self_obj = lcu_thread
+        self.register_ws_events()
+        print("Starting connector to LCU API.")
+        self.connector.start()
 
     # Register WS Events
     # The Decorator will not work inside classes, thus we need to explicitly register the events manually.
-    def register_ws_events(self, connector):
+    def register_ws_events(self) -> None:
         self.connector.ready(self.connect)
         self.connector.close(self.disconnect)
         self.connector.ws.register(
@@ -113,16 +107,20 @@ class LcuThread:
         )(self.matchmaking)
         # self.connector.ws.register('/', event_types=('UPDATE','CREATE', 'REMOVE'))(self.debug)
 
-    async def connect(self, connection):
+    async def connect(self, connection: Connection) -> None:
         print(f"{Colors.green}LCU API is ready.{Colors.reset}")
 
         await self.gather_base_data(connection)
         self.update_scheduler.delay_update()
 
-    async def disconnect(self, connection):
+    async def disconnect(self, connection: Connection) -> None:
         print("LCU API is closed.")
 
-    async def summoner_updated(self, connection, event):
+    async def summoner_updated(
+        self,
+        connection: Connection,
+        event: WebsocketEventResponse,
+    ) -> None:
         print("Summoner has been updated.")
         self.data["summoner_name"] = event.data["displayName"]
         self.data["level"] = event.data["summonerLevel"]
@@ -131,22 +129,35 @@ class LcuThread:
 
         self.update_scheduler.delay_update()
 
-    async def chat_updated(self, connection, event):
+    async def chat_updated(
+        self,
+        connection: Connection,
+        event: WebsocketEventResponse,
+    ):
         print("Chat has been updated.")
         if event.data["availability"] == "chat":
-            self.data["availability"] = "Idle"
+            self.data["availability"] = "Online"
         if event.data["availability"] == "away":
             self.data["availability"] = "Away"
 
         self.update_scheduler.delay_update()
 
-    async def gameflow_phase_updated(self, connection, event):
+    async def gameflow_phase_updated(
+        self,
+        connection: Connection,
+        event: WebsocketEventResponse,
+    ) -> None:
         print("Gameflow Phase has been updated.")
         self.data["gamflow_phase"] = event.data  # returns plain string of the phase
 
         self.update_scheduler.delay_update()
 
-    async def champ_select(self, connection, event):
+    async def champ_select(
+        self,
+        connection: Connection,
+        event: WebsocketEventResponse,
+    ) -> None:
+        print(f"Champ Select data - {event.type}")
         if event.type == "DELETE":
             self.data["in_champ_select"] = False
 
@@ -155,7 +166,11 @@ class LcuThread:
 
         self.update_scheduler.delay_update()
 
-    async def in_lobby(self, connection, event):
+    async def in_lobby(
+        self,
+        connection: Connection,
+        event: WebsocketEventResponse,
+    ) -> None:
         print(f"Lobby data - {event.type}")
 
         if event.type == "Delete":
@@ -200,7 +215,11 @@ class LcuThread:
         self.update_scheduler.delay_update()
 
     # ranked stats
-    async def ranked(self, connection, event):
+    async def ranked(
+        self,
+        connection: Connection,
+        event: WebsocketEventResponse,
+    ) -> None:
         self.data["summoner_rank"] = (
             event.data["highestRankedEntry"]["tier"]
             + " "
@@ -215,7 +234,11 @@ class LcuThread:
     # ranked stats
 
     ## queue
-    async def matchmaking(self, connection, event):
+    async def matchmaking(
+        self,
+        connection: Connection,
+        event: WebsocketEventResponse,
+    ) -> None:
         if event.type == "DELETE":
             self.data["in_queue"] = False
             self.update_scheduler.delay_update()
@@ -227,12 +250,12 @@ class LcuThread:
     ###### Debug ######
 
     # This will catch all events and print them to the console.
-    # async def debug(connection, event):
+    # async def debug(connection: Connection, event: WebsocketEventResponse):
     #     print(f"DEBUG - {event.type}: {event.uri}")
 
     # Base data
     # Gather base data from the LCU API on startup
-    async def gather_base_data(self, connection):
+    async def gather_base_data(self, connection: Connection) -> None:
         print("Gathering base data.")
         summonerDataRaw = await connection.request(
             "GET", "/lol-summoner/v1/current-summoner"
@@ -247,7 +270,7 @@ class LcuThread:
         chatDataRaw = await connection.request("GET", "/lol-chat/v1/me")
         chatData = await chatDataRaw.json()
         if chatData["availability"] == "chat":
-            self.data["availability"] = "Idle"
+            self.data["availability"] = "Online"
         if chatData["availability"] == "away":
             self.data["availability"] = "Away"
 
@@ -287,7 +310,7 @@ class LcuThread:
         self.data["gamemode"] = lobbyQueueInfo["gameMode"]
         self.data["is_ranked_queue"] = lobbyQueueInfo["isRanked"]
 
-    def update_rpc(self):
+    def update_rpc(self) -> None:
         print("Updating Discord Presence.")
 
         if self.data["gamflow_phase"] == "InProgress":
@@ -365,6 +388,5 @@ class LcuThread:
         )
 
 
-start_connector = (
-    LcuThread.start_connector
-)  # separate declaration to only import this method
+def start_connector(rpc_from_main):
+    LcuThread(rpc_from_main)
