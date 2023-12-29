@@ -68,7 +68,7 @@ fi
 # Check if the executable exists and is executable
 if [[ ! -x "$EXECUTABLE_PATH" ]]; then
     log_message "ERROR: Executable not found at $EXECUTABLE_PATH"
-    echo "If you want to quickly fetch the latest version, use --auto-install."
+    log_message "INFO: If you want to quickly fetch the latest version, use --auto-install."
     exit 1
 fi
 
