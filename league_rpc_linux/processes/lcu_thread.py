@@ -370,7 +370,7 @@ def update_rpc():
     )
 
 
-def start_connector(rpc_from_main: Presence):
+def start_connector(rpc_from_main: Presence) -> None:
     module_data.rpc = rpc_from_main
     module_data.update_rpc = update_rpc
     print("Starting LCU API.")
