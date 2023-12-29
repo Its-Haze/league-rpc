@@ -54,9 +54,8 @@ Arena games are now supported as of v0.0.7
 ![Arena-example](https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/league-rpc-arena-example.png?raw=true)
 
 ## Installation
+
 - Are you using Lutris? Then please take a look at [League RPC Auto Launcher Script (Lutris example)](#league-rpc-auto-launcher-script)
-
-
 
 ### Source Code
 
@@ -136,13 +135,14 @@ The `league-rpc-auto-launcher.sh` script enhances your League of Legends experie
 
 This script can be ran as a standalone, but it is recommended to be put as a Pre-launch script for launchers such as Lutris.
 
-
 Before running any bash script from strangers on the internet.. Please read and try to understand what it does.
 Short summary:
 
-- It will download the latest version of `league_rpc_linux`, and store it in `$HOME/.league-rpc-linux/`
+- It will download the latest version of `league_rpc_linux`
 - It will then execute this program.
-- If you don't want it to always fetch the latest version of `league_rpc_linux`, then change the variable to `AUTO_INSTALL` to `false` like this `AUTO_INSTALL=false` (default is true). This expects an already `league_rpc_linux` file to be present in `$HOME/.league-rpc-linux/`.. otherwise an error will occur, You can see and follow all logs in this file: `$HOME/.league-rpc-linux/update_log.txt`
+- If you don't want it to always fetch the latest version of `league_rpc_linux`, then change the variable `AUTO_INSTALL` to `false` like this `AUTO_INSTALL=false` (default is true).
+- If you have set the variable `$XDG_BIN_HOME` then that will be used to store the executable. otherwise `$HOME/.local/bin` will be used.
+- If you have set the variable `$XDG_CACHE_HOME` then that will be used to store the log file. otherwise `$HOME/.cache/` will be used. Full path to the logfile is `$XDG_CACHE_HOME/league-rpc-linux/update_log.txt`
 
 Follow these steps to set it up:
 
