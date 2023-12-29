@@ -1,6 +1,6 @@
 import time
 from threading import Timer
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import lcu_driver
 from lcu_driver.connection import Connection
