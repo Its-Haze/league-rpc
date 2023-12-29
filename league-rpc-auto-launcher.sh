@@ -3,10 +3,21 @@
 # Configurations
 REPO="Its-Haze/league-rpc-linux"
 EXECUTABLE="league_rpc_linux"
-INSTALL_DIR="$HOME/.league-rpc-linux"
-EXECUTABLE_PATH="$INSTALL_DIR/$EXECUTABLE"
-LOG_FILE="$INSTALL_DIR/update_log.txt"
-AUTO_INSTALL=true # Set to (false) to not automatically install the latest version.
+
+# Use XDG_BIN_HOME for the executable, defaulting to ~/.local/bin if not set
+XDG_BIN_HOME=${XDG_BIN_HOME:-$HOME/.local/bin}
+EXECUTABLE_PATH="$XDG_BIN_HOME/$EXECUTABLE"
+
+# Default to HOME if XDG_CACHE_HOME is not set for logs
+XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
+LOG_DIR="$XDG_CACHE_HOME/league-rpc-linux"
+LOG_FILE="$LOG_DIR/update_log.txt"
+
+AUTO_INSTALL=true # Set this to (true) to always install/update the latest version.
+
+# Create the installation and log directories if they don't exist
+mkdir -p "$XDG_BIN_HOME"
+mkdir -p "$LOG_DIR"
 
 # Function to log messages
 log_message() {
@@ -20,9 +31,6 @@ for required_command in curl grep; do
         exit 1
     fi
 done
-
-# Create the installation directory if it doesn't exist
-mkdir -p "$INSTALL_DIR"
 
 # Function to download and update the executable
 update_executable() {
