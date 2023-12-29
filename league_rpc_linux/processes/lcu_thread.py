@@ -26,11 +26,11 @@ data = {
     "skin_id": None,
     "level": None,
     "gamemode": None,
-    "isCustom": False,
-    "isPractice": False,
-    "inLobby": False,
-    "inQueue": False,
-    "inChampSelect": False,
+    "is_custom": False,
+    "is_practice": False,
+    "in_lobby": False,
+    "in_queue": False,
+    "in_champselect": False,
     "max_players": None,
     "players": None,
     "summoner_name": None,
@@ -40,31 +40,31 @@ data = {
     "queue": None,
     "queue_id": -1,
     "map_id": None,  # 11, 12, 21, 22, 30
-    "lobbyQueueIsRanked": False,  # True, False
+    "queue_is_ranked": False,  # True, False
     "lobby_id": None,
     "availability": "Idle",  # Idle, Away
-    "gameflowPhase": None,  # Lobby, Matchmaking, ReadyCheck, ChampSelect, InProgress, WaitingForStats, EndOfGame
+    "gameflow_phase": None,  # Lobby, Matchmaking, ReadyCheck, ChampSelect, InProgress, WaitingForStats, EndOfGame
 }
 
 ## Timers ##
 
-scheduledUpdate: bool = False
+scheduled_update: bool = False
 
 
 # As some events are called multiple times, we should limit the amount of updates to the RPC.
 # Collect update events for 1 second and then update the RPC.
-def delayUpdate():
-    global scheduledUpdate
+def delay_update():
+    global scheduled_update
 
-    if not scheduledUpdate:
-        scheduledUpdate = True
+    if not scheduled_update:
+        scheduled_update = True
         Timer(1.0, update_rpc_and_reset_flag).start()
 
 
 def update_rpc_and_reset_flag():
-    global scheduledUpdate
+    global scheduled_update
     update_rpc()
-    scheduledUpdate = False
+    scheduled_update = False
 
 
 ## WS Events ##
@@ -75,7 +75,7 @@ async def connect(connection: Connection):
     print(f"{Colors.green}LCU API is ready.{Colors.reset}")
 
     await gather_base_data(connection)
-    delayUpdate()
+    delay_update()
 
 
 @connector.close
@@ -93,7 +93,7 @@ async def summoner_updated(
     data["summoner_id"] = event.data["summonerId"]
     data["summoner_icon"] = event.data["profileIconId"]
 
-    delayUpdate()
+    delay_update()
 
 
 @connector.ws.register("/lol-chat/v1/me", event_types=("UPDATE",))
@@ -104,7 +104,7 @@ async def chat_updated(connection: Connection, event: WebsocketEventResponse) ->
     if event.data["availability"] == "away":
         data["availability"] = "Away"
 
-    delayUpdate()
+    delay_update()
 
 
 @connector.ws.register("/lol-gameflow/v1/gameflow-phase", event_types=("UPDATE",))
@@ -112,9 +112,9 @@ async def gameflow_phase_updated(
     connection: Connection, event: WebsocketEventResponse
 ) -> None:
     print("Gameflow Phase has been updated.")
-    data["gameflowPhase"] = event.data  # returns plain string of the phase
+    data["gameflow_phase"] = event.data  # returns plain string of the phase
 
-    delayUpdate()
+    delay_update()
 
 
 @connector.ws.register("/lol-champ-select/v1/session", event_types=("CREATE", "DELETE"))
@@ -122,13 +122,13 @@ async def champ_select_joined(
     connection: Connection, event: WebsocketEventResponse
 ) -> None:
     if event.type == "Create":
-        data["inChampSelect"] = True
-        delayUpdate()
+        data["in_champselect"] = True
+        delay_update()
         return
 
     if event.type == "Delete":
-        data["inChampSelect"] = False
-        delayUpdate()
+        data["in_champselect"] = False
+        delay_update()
         return
 
 
@@ -140,11 +140,11 @@ async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> Non
     print(f"Lobby Data - {event.type}")
 
     if event.type == "Delete":
-        data["inLobby"] = False
-        delayUpdate()
+        data["in_lobby"] = False
+        delay_update()
         return
 
-    data["inLobby"] = True
+    data["in_lobby"] = True
 
     if event.type == "Create":
         # wait for Update Call, as create does not contain data
@@ -156,18 +156,18 @@ async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> Non
     data["max_players"] = int(event.data["gameConfig"]["maxLobbySize"])
     data["map_id"] = event.data["gameConfig"]["mapId"]
     data["gamemode"] = event.data["gameConfig"]["gameMode"]
-    data["isCustom"] = event.data["gameConfig"]["isCustom"]
+    data["is_custom"] = event.data["gameConfig"]["isCustom"]
     if event.data["gameConfig"]["gameMode"] == "PRACTICETOOL":
-        data["isPractice"] = True
+        data["is_practice"] = True
         data["max_players"] = 1
 
     if data["queue_id"] == -1:
         # custom game / practice tool / tutorial lobby
-        if data["isPractice"]:
+        if data["is_practice"]:
             data["queue"] = "Practice Tool"
         else:
             data["queue"] = "Custom Game"
-        delayUpdate()
+        delay_update()
         return
 
     lobbyQueueInfoRaw = await connection.request(
@@ -176,9 +176,9 @@ async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> Non
     lobbyQueueInfo = await lobbyQueueInfoRaw.json()
 
     data["queue"] = lobbyQueueInfo["name"]
-    data["lobbyQueueIsRanked"] = lobbyQueueInfo["isRanked"]
+    data["queue_is_ranked"] = lobbyQueueInfo["isRanked"]
 
-    delayUpdate()
+    delay_update()
 
 
 # ranked stats
@@ -193,7 +193,7 @@ async def ranked(connection: Connection, event: WebsocketEventResponse) -> None:
         + " LP"
     )
 
-    delayUpdate()
+    delay_update()
 
 
 # ranked stats
@@ -210,10 +210,10 @@ async def ranked(connection: Connection, event: WebsocketEventResponse) -> None:
 async def matchmaking(connection: Connection, event: WebsocketEventResponse) -> None:
     print(f"Matchmaking - {event.type}")
     if event.type == "Create":
-        data["inQueue"] = True
+        data["in_queue"] = True
     if event.type == "Delete":
-        data["inQueue"] = False
-    delayUpdate()
+        data["in_queue"] = False
+    delay_update()
 
 
 ## queue
@@ -265,7 +265,7 @@ async def gather_base_data(connection: Connection):
         # Not in Lobby
         return
 
-    data["inLobby"] = True
+    data["in_lobby"] = True
     lobbyQueueInfoRaw = await connection.request(
         "GET", "/lol-game-queues/v1/queues/" + str(data["queue_id"])
     )
@@ -274,7 +274,7 @@ async def gather_base_data(connection: Connection):
     data["max_players"] = int(lobbyQueueInfo["maximumParticipantListSize"])
     data["map_id"] = lobbyQueueInfo["mapId"]
     data["gamemode"] = lobbyQueueInfo["gameMode"]
-    data["lobbyQueueIsRanked"] = lobbyQueueInfo["isRanked"]
+    data["queue_is_ranked"] = lobbyQueueInfo["isRanked"]
 
 
 ###### Debug ######
@@ -289,11 +289,11 @@ async def gather_base_data(connection: Connection):
 def update_rpc():
     print("Updating Discord Presence.")
 
-    if data["gameflowPhase"] == "InProgress":
+    if data["gameflow_phase"] == "InProgress":
         # In Game - handled by main process
         return
 
-    if not data["inLobby"]:
+    if not data["in_lobby"]:
         rpc.update(
             large_image=f"{PROFILE_ICON_BASE_URL}{data['summoner_icon']}.png",
             large_text="In Client",
@@ -304,7 +304,7 @@ def update_rpc():
         )
         return
 
-    if data["inChampSelect"]:
+    if data["in_champselect"]:
         # In Champ Select
         rpc.update(
             large_image=f"{PROFILE_ICON_BASE_URL}{data['summoner_icon']}.png",
@@ -319,7 +319,7 @@ def update_rpc():
         )
         return
 
-    if data["inQueue"]:
+    if data["in_queue"]:
         # In Queue
         rpc.update(
             large_image=f"{PROFILE_ICON_BASE_URL}{data['summoner_icon']}.png",
