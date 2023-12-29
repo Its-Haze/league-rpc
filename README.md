@@ -16,6 +16,7 @@
 - [Installation](#installation)
   - [Source Code](#source-code)
   - [Pre-built Package](#pre-built-package)
+  - [League RPC Auto Launcher Script (Lutris example)](#league-rpc-auto-launcher-script)
 - [Features](#features)
 - [Command Line Arguments](#command-line-arguments)
 - [FAQ](#faq)
@@ -53,6 +54,9 @@ Arena games are now supported as of v0.0.7
 ![Arena-example](https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/league-rpc-arena-example.png?raw=true)
 
 ## Installation
+- Are you using Lutris? Then please take a look at [League RPC Auto Launcher Script (Lutris example)](#league-rpc-auto-launcher-script)
+
+
 
 ### Source Code
 
@@ -125,6 +129,57 @@ Alternatively, install the executable Python package directly from the [releases
    ```
 
 4. Yup.. that's pretty much it! Enjoy
+
+### League RPC Auto Launcher Script
+
+The `league-rpc-auto-launcher.sh` script enhances your League of Legends experience on Linux by automatically updating and launching the League of Legends Discord Rich Presence alongside the game.
+
+This script can be ran as a standalone, but it is recommended to be put as a Pre-launch script for launchers such as Lutris.
+
+
+Before running any bash script from strangers on the internet.. Please read and try to understand what it does.
+Short summary:
+
+- It will download the latest version of `league_rpc_linux`, and store it in `$HOME/.league-rpc-linux/`
+- It will then execute this program.
+- If you don't want it to always fetch the latest version of `league_rpc_linux`, then change the variable to `AUTO_INSTALL` to `false` like this `AUTO_INSTALL=false` (default is true). This expects an already `league_rpc_linux` file to be present in `$HOME/.league-rpc-linux/`.. otherwise an error will occur, You can see and follow all logs in this file: `$HOME/.league-rpc-linux/update_log.txt`
+
+Follow these steps to set it up:
+
+1. **Download the Script**:
+
+   Download the `league-rpc-auto-launcher.sh` script
+
+   ```bash
+   wget https://raw.githubusercontent.com/Its-Haze/league-rpc-linux/master/league-rpc-auto-launcher.sh -O league-rpc-auto-launcher.sh
+   ```
+
+2. **Make the Script Executable**:
+
+   Once downloaded, you need to make the script executable. Open a terminal in the directory where the script is and run:
+
+   ```bash
+   chmod +x league-rpc-auto-launcher.sh
+   ```
+
+3. **Setting up in Lutris**:
+
+   To have the script run automatically when you start League of Legends via Lutris:
+
+   - Open Lutris and right-click on your League of Legends game.
+   - Select '`Configure`' from the context menu.
+   - In the configuration window, navigate to the '`System options`' tab.
+   - Make sure you have '`Advanced`' mode enabled.
+   - Scroll down to the '`Pre-launch script`' field.
+   - Enter the full path to the `league-rpc-auto-launcher.sh` script. For example:
+
+     ```
+     /home/yourusername/path/to/league-rpc-auto-launcher.sh
+     ```
+
+   - Click '`Save`' to apply the changes.
+
+Now, every time you start League of Legends through Lutris, the `league-rpc-auto-launcher.sh` script will ensure that the latest version of the Discord Rich Presence tool is installed and running, enhancing your gaming experience.
 
 ## Command Line Arguments
 
