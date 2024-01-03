@@ -11,7 +11,7 @@ BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
 BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/{map_name}/img/game-select-icon-hover.png"
 
 PROFILE_ICON_BASE_URL = (
-    f"https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon"
+    "https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon"
 )
 
 MAP_ICON_CONVERT_MAP = {

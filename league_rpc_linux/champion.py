@@ -5,16 +5,15 @@ import requests
 import urllib3
 
 from league_rpc_linux.colors import Colors
+from league_rpc_linux.const import (
+    ALL_GAME_DATA_URL,
+    BASE_SKIN_URL,
+    CHAMPION_NAME_CONVERT_MAP,
+    GAME_MODE_CONVERT_MAP,
+)
 from league_rpc_linux.kda import get_gold, get_level
 from league_rpc_linux.polling import wait_until_exists
 from league_rpc_linux.username import get_summoner_name
-
-from league_rpc_linux.const import (
-    BASE_SKIN_URL,
-    GAME_MODE_CONVERT_MAP,
-    CHAMPION_NAME_CONVERT_MAP,
-    ALL_GAME_DATA_URL,
-)
 
 urllib3.disable_warnings()
 

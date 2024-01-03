@@ -2,31 +2,29 @@ import argparse
 import sys
 import time
 from multiprocessing import Process
-import nest_asyncio
 
+import nest_asyncio
 import pypresence
 
 from league_rpc_linux.champion import gather_ingame_information, get_skin_asset
 from league_rpc_linux.colors import Colors
-from league_rpc_linux.gametime import get_current_ingame_time
-from league_rpc_linux.kda import get_creepscore, get_gold, get_kda, get_level
-from league_rpc_linux.processes.process import (
-    check_discord_process,
-    check_league_client_process,
-    player_state,
-)
-
-from league_rpc_linux.reconnect import discord_reconnect_attempt
-from league_rpc_linux.processes.lcu_thread import start_connector
-
-# Discord Application: League of Linux
-
 from league_rpc_linux.const import (
     DEFAULT_CLIENT_ID,
     DISCORD_PROCESS_NAMES,
     LEAGUE_OF_LEGENDS_LOGO,
     SMALL_TEXT,
 )
+from league_rpc_linux.gametime import get_current_ingame_time
+from league_rpc_linux.kda import get_creepscore, get_gold, get_kda, get_level
+from league_rpc_linux.processes.lcu_thread import start_connector
+from league_rpc_linux.processes.process import (
+    check_discord_process,
+    check_league_client_process,
+    player_state,
+)
+from league_rpc_linux.reconnect import discord_reconnect_attempt
+
+# Discord Application: League of Linux
 
 
 def main(cli_args: argparse.Namespace):
