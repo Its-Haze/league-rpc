@@ -1,6 +1,12 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from league_rpc_linux.models.lcu.current_ranked_stats import (
+    ArenaStats,
+    RankedStats,
+    TFTStats,
+)
+
 
 @dataclass
 class ClientData:
@@ -20,4 +26,7 @@ class ClientData:
     summoner_id: Optional[str] = None
     summoner_level: Optional[int] = None
     summoner_name: Optional[str] = None
-    summoner_rank: Optional[str] = None
+    summoner_rank: Optional[RankedStats] = None
+    summoner_rank_flex: Optional[RankedStats] = None
+    arena_rank: Optional[ArenaStats] = None
+    tft_rank: Optional[TFTStats] = None

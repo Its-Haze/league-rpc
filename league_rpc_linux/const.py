@@ -58,3 +58,6 @@ CHAMPION_NAME_CONVERT_MAP = {
     "Wukong": "MonkeyKing",
     "Xin Zhao": "XinZhao",
 }
+
+LEAGUE_RANKED_EMBLEM = "https://github.com/Its-Haze/league-assets/blob/master/ranked_emblems/{tier}.png?raw=true"
+LEAGUE_CHERRY_RANKED_EMBLEM = "https://github.com/Its-Haze/league-assets/blob/master/cherry_rated_medallions/{tier}.png?raw=true"

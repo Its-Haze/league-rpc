@@ -1,3 +1,4 @@
+from argparse import Namespace
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -11,5 +12,6 @@ from league_rpc_linux.models.client_data import ClientData
 @dataclass
 class ModuleData:
     connector: Connector = field(default_factory=Connector)
-    rpc: Optional[Presence] = None
     client_data: ClientData = field(default_factory=ClientData)
+    rpc: Optional[Presence] = None
+    cli_args: Optional[Namespace] = None

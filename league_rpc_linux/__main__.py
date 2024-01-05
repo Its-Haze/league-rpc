@@ -16,7 +16,7 @@ from league_rpc_linux.const import (
 )
 from league_rpc_linux.gametime import get_current_ingame_time
 from league_rpc_linux.kda import get_creepscore, get_gold, get_kda, get_level
-from league_rpc_linux.processes.lcu_thread import start_connector
+from league_rpc_linux.lcu_api.lcu_connector import start_connector
 from league_rpc_linux.processes.process import (
     check_discord_process,
     check_league_client_process,
@@ -45,7 +45,13 @@ def main(cli_args: argparse.Namespace):
     # This process will connect to the LCU API and updates the rpc based on data subscribed from the LCU API.
     # In this case passing the rpc object to the process is easier than trying to return updated data from the process.
     # Every In-Client update will be handled by the LCU_Thread process and will update the rpc accordingly.
-    lcu_process = Process(target=start_connector, args=(rpc,))
+    lcu_process = Process(
+        target=start_connector,
+        args=(
+            rpc,
+            cli_args,
+        ),
+    )
     lcu_process.start()
 
     print(f"\n{Colors.green}Successfully connected to Discord RPC!{Colors.reset}")
@@ -167,6 +173,18 @@ if __name__ == "__main__":
         help="use '--no-stats' to Opt out of showing in-game stats (KDA, minions) in Discord RPC",
     )
     parser.add_argument(
+        "--show-emojis",
+        "--emojis",
+        action="store_true",
+        help="use '--show-emojis' to show green/red circle emoji, depending on your Online status in league.",
+    )
+    parser.add_argument(
+        "--show-rank",
+        "--display-rank",
+        action="store_true",
+        help="use '--show-rank' to display your SoloQ/Flex/Tft/Arena Rank in Discord RPC",
+    )
+    parser.add_argument(
         "--add-process",
         nargs="+",
         default=[],
@@ -193,6 +211,14 @@ if __name__ == "__main__":
     if args.no_stats:
         print(
             f"{Colors.green}Argument {Colors.blue}--no-stats{Colors.green} detected.. Will {Colors.red}not {Colors.green}show InGame stats{Colors.reset}"
+        )
+    if args.show_emojis:
+        print(
+            f"{Colors.green}Argument {Colors.blue}--show-emojis, --emojis{Colors.green} detected.. Will show emojis. such as league status indicators on Discord.{Colors.reset}"
+        )
+    if args.show_rank:
+        print(
+            f"{Colors.green}Argument {Colors.blue}--show-rank, --display-rank{Colors.green} detected.. Will show League Rank on Discord.{Colors.reset}"
         )
     if args.add_process:
         print(

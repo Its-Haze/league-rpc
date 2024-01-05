@@ -191,6 +191,12 @@ This application now supports various command-line arguments to enhance flexibil
 - **`--no-stats`**: Opt out of displaying in-game KDA and minion (creep score) statistics in your Discord Rich Presence. By default, these stats are shown.
   - *Example*: `./league_rpc_linux --no-stats`
 
+- **`--show-rank`**: Show off your League rank on Discord (SoloQ/Flex/TFT/Arena) By default, this will be hidden.
+  - *Example*: `./league_rpc_linux --show-rank`
+
+- **`--show-emojis`**: Do you want to show your Online/Away status with a emoji, then add this argument. By default, this will be hidden.
+  - *Example*: `./league_rpc_linux --show-emojis`
+
 - **`--add-process`**: Add custom Discord process names to the search list. This is useful if your Discord client is running under a different process name.
   - *Example*: `./league_rpc_linux --add-process CustomDiscord AnotherProcess`
 
@@ -203,7 +209,13 @@ This application now supports various command-line arguments to enhance flexibil
 Each of these arguments can be combined to tailor the Discord RPC to your preferences.
 
 ```bash
-./league_rpc_linux --client-id 123456789123456789 --no-stats --add-process CustomDiscord --wait-for-league -1 --wait-for-discord 15
+./league_rpc_linux --client-id 123456789123456789 --no-stats --add-process CustomDiscord --wait-for-league -1 --wait-for-discord 15 --show-emojis --show-rank
+```
+
+Recommended flags:
+
+```bash
+./league_rpc_linux --wait-for-league -1 --wait-for-discord -1 --show-emojis --show-rank
 ```
 
 NOTE: All of these arguments are optional. None is needed for the script to function properly. But in case you want to change something, you now can.

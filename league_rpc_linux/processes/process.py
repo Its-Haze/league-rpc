@@ -70,34 +70,6 @@ def check_league_client_process(wait_for_league: int):
     print(f"{Colors.green}League client is running!{Colors.dgray}(1/2){Colors.reset}")
 
 
-def get_process_command(process_name: str) -> str:
-    """
-    Get process command of a process.
-    """
-    for proc in psutil.process_iter():
-        try:
-            if process_name.lower() in proc.name().lower():
-                return proc.cmdline()
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
-    return False
-
-
-def get_lcu_connect_details(proc_name: str) -> [str, str]:
-    """
-    Get LCU connect details from command.
-    """
-
-    cmd = get_process_command(proc_name)
-
-    for arg in cmd:
-        if "--app-port" in arg:
-            port = arg.split("=")[1]
-        if "--remoting-auth-token" in arg:
-            token = arg.split("=")[1]
-    return port, token
-
-
 def check_discord_process(
     process_names: list[str], client_id: str, wait_for_discord: int
 ) -> pypresence.Presence:
@@ -235,9 +207,7 @@ def player_state() -> str | None:
     """
     current_state: str | None = None
 
-    if processes_exists(
-        process_names=["LeagueClient.exe", "LeagueClientUx.exe", "CrBrowserMain"]
-    ):
+    if processes_exists(process_names=["LeagueClient.exe", "LeagueClientUx.exe"]):
         if process_exists("League of Legends.exe"):
             current_state = "InGame"
         else:

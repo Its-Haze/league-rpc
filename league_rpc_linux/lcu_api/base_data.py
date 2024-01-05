@@ -1,13 +1,10 @@
 from lcu_driver.connection import Connection
 
-from league_rpc_linux.lcu_api.current_chat_status import LolChatUser
-from league_rpc_linux.lcu_api.current_queue import LolGameQueuesQueue
-from league_rpc_linux.lcu_api.current_ranked_stats import (
-    LolRankedRankedQueueStats,
-    LolRankedRankedStats,
-)
-from league_rpc_linux.lcu_api.current_summoner import Summoner
-from league_rpc_linux.lcu_api.gameflow_phase import (
+from league_rpc_linux.models.client_data import ArenaStats, RankedStats, TFTStats
+from league_rpc_linux.models.lcu.current_chat_status import LolChatUser
+from league_rpc_linux.models.lcu.current_queue import LolGameQueuesQueue
+from league_rpc_linux.models.lcu.current_summoner import Summoner
+from league_rpc_linux.models.lcu.gameflow_phase import (
     GameFlowPhase,
     LolGameflowLobbyStatus,
     LolGameflowPlayerStatus,
@@ -24,6 +21,7 @@ async def gather_base_data(connection: Connection, module_data: ModuleData):
         "GET", "/lol-summoner/v1/current-summoner"
     )
     summoner_data = await summoner_data_raw.json()
+
     data.summoner_name = summoner_data[Summoner.DISPLAY_NAME]
     data.summoner_level = summoner_data[Summoner.SUMMONER_LEVEL]
     data.summoner_id = summoner_data[Summoner.SUMMONER_ID]
@@ -32,6 +30,7 @@ async def gather_base_data(connection: Connection, module_data: ModuleData):
     # get Online/Away status
     chat_data_raw = await connection.request("GET", "/lol-chat/v1/me")
     chat_data = await chat_data_raw.json()
+
     match chat_data[LolChatUser.AVAILABILITY]:
         case LolChatUser.CHAT:
             data.availability = LolChatUser.ONLINE.capitalize()
@@ -45,11 +44,18 @@ async def gather_base_data(connection: Connection, module_data: ModuleData):
     )
     ranked_data = await ranked_data_raw.json()
 
-    data.summoner_rank = (
-        f"{ranked_data[LolRankedRankedStats.HIGHEST_RANKED_ENTRY][LolRankedRankedQueueStats.TIER]} "
-        f"{ranked_data[LolRankedRankedStats.HIGHEST_RANKED_ENTRY][LolRankedRankedQueueStats.DIVISION]}: "
-        f"{str(ranked_data[LolRankedRankedStats.HIGHEST_RANKED_ENTRY][LolRankedRankedQueueStats.LEAGUE_POINTS])} LP"
+    data.summoner_rank = RankedStats.from_map(
+        obj_map=ranked_data,
+        ranked_type="RANKED_SOLO_5x5",
     )
+    data.summoner_rank_flex = RankedStats.from_map(
+        obj_map=ranked_data,
+        ranked_type="RANKED_FLEX_SR",
+    )
+
+    data.arena_rank = ArenaStats.from_map(obj_map=ranked_data)
+    data.tft_rank = TFTStats.from_map(obj_map=ranked_data)
+
     game_flow_data_raw = await connection.request(
         "GET", "/lol-gameflow/v1/gameflow-phase"
     )
