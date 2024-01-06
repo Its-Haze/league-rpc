@@ -91,26 +91,33 @@ class ArenaStats:
     tier: Optional[str] = None
     rated_rating: Optional[int] = None
 
+    tier_label_mapper = {
+        "GRAY": "Wood",
+        "GREEN": "Bronze",
+        "BLUE": "Silver",
+        "PURPLE": "Gold",
+        "ORANGE": "Gladiator",
+    }
+
     @classmethod
     def from_map(
         cls,
         obj_map: dict[str, Any],
         ranked_type: str = "CHERRY",
     ) -> "ArenaStats":
+        rated_tier = obj_map[LolRankedRankedStats.QUEUE_MAP][ranked_type][
+            LolRankedRankedQueueStats.RATED_TIER
+        ]
         return cls(
-            rated_tier=obj_map[LolRankedRankedStats.QUEUE_MAP][ranked_type][
-                LolRankedRankedQueueStats.RATED_TIER
-            ],
-            tier=obj_map[LolRankedRankedStats.QUEUE_MAP][ranked_type][
-                LolRankedRankedQueueStats.TIER
-            ].capitalize(),
+            rated_tier=rated_tier,
+            tier=cls.tier_label_mapper[rated_tier],
             rated_rating=obj_map[LolRankedRankedStats.QUEUE_MAP][ranked_type][
                 LolRankedRankedQueueStats.RATED_RATING
             ],
         )
 
     def __str__(self) -> str:
-        return f"Rating: {self.rated_rating}".strip()
+        return f"{self.tier} • Rating: {self.rated_rating}".strip()
 
     @property
     def rpc_info(self) -> tuple[str, str]:

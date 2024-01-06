@@ -1,6 +1,11 @@
 from lcu_driver.connection import Connection
 
-from league_rpc_linux.models.client_data import ArenaStats, RankedStats, TFTStats
+from league_rpc_linux.models.client_data import (
+    ArenaStats,
+    ClientData,
+    RankedStats,
+    TFTStats,
+)
 from league_rpc_linux.models.lcu.current_chat_status import LolChatUser
 from league_rpc_linux.models.lcu.current_queue import LolGameQueuesQueue
 from league_rpc_linux.models.lcu.current_summoner import Summoner
@@ -17,6 +22,10 @@ from league_rpc_linux.models.module_data import ModuleData
 async def gather_base_data(connection: Connection, module_data: ModuleData):
     print("Gathering base data.")
     data = module_data.client_data
+
+    # Epoch time from which league client was started.
+    await gather_telemetry_data(connection, data)
+
     await gather_summoner_data(connection, data)
 
     # get Online/Away status
@@ -51,7 +60,7 @@ async def gather_base_data(connection: Connection, module_data: ModuleData):
     await gather_queue_data(connection, data)
 
 
-async def gather_queue_data(connection, data):
+async def gather_queue_data(connection: Connection, data: ClientData):
     lobby_queue_info_raw = await connection.request(
         "GET", "/lol-game-queues/v1/queues/" + str(data.queue_id)
     )
@@ -65,7 +74,7 @@ async def gather_queue_data(connection, data):
     data.queue_is_ranked = lobby_queue_info[LolGameQueuesQueue.IS_RANKED]
 
 
-async def gather_lobby_data(connection, data):
+async def gather_lobby_data(connection: Connection, data: ClientData):
     lobby_raw_data = await connection.request(
         "GET", "/lol-gameflow/v1/gameflow-metadata/player-status"
     )
@@ -90,7 +99,7 @@ async def gather_lobby_data(connection, data):
     ]
 
 
-async def gather_gameflow_data(connection, data):
+async def gather_gameflow_data(connection: Connection, data: ClientData):
     game_flow_data_raw = await connection.request(
         "GET", "/lol-gameflow/v1/gameflow-phase"
     )
@@ -98,7 +107,7 @@ async def gather_gameflow_data(connection, data):
     data.gameflow_phase = game_flow_data
 
 
-async def gather_ranked_data(connection, data):
+async def gather_ranked_data(connection: Connection, data: ClientData):
     ranked_data_raw = await connection.request(
         "GET", "/lol-ranked/v1/current-ranked-stats/"
     )
@@ -117,7 +126,7 @@ async def gather_ranked_data(connection, data):
     data.tft_rank = TFTStats.from_map(obj_map=ranked_data)
 
 
-async def gather_chat_status_data(connection, data):
+async def gather_chat_status_data(connection: Connection, data: ClientData):
     chat_data_raw = await connection.request("GET", "/lol-chat/v1/me")
     chat_data = await chat_data_raw.json()
 
@@ -130,7 +139,7 @@ async def gather_chat_status_data(connection, data):
             ...
 
 
-async def gather_summoner_data(connection, data):
+async def gather_summoner_data(connection: Connection, data: ClientData):
     summoner_data_raw = await connection.request(
         "GET", "/lol-summoner/v1/current-summoner"
     )
@@ -140,3 +149,11 @@ async def gather_summoner_data(connection, data):
     data.summoner_level = summoner_data[Summoner.SUMMONER_LEVEL]
     data.summoner_id = summoner_data[Summoner.SUMMONER_ID]
     data.summoner_icon = summoner_data[Summoner.PROFILE_ICON_ID]
+
+
+async def gather_telemetry_data(connection: Connection, data: ClientData):
+    application_start_time_raw = await connection.request(
+        "GET", "/telemetry/v1/application-start-time"
+    )
+    application_start_time: int = await application_start_time_raw.json()
+    data.application_start_time = application_start_time

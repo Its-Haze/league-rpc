@@ -1,7 +1,7 @@
 import argparse
 import sys
+import threading
 import time
-from multiprocessing import Process
 
 import nest_asyncio
 import pypresence
@@ -45,12 +45,13 @@ def main(cli_args: argparse.Namespace):
     # This process will connect to the LCU API and updates the rpc based on data subscribed from the LCU API.
     # In this case passing the rpc object to the process is easier than trying to return updated data from the process.
     # Every In-Client update will be handled by the LCU_Thread process and will update the rpc accordingly.
-    lcu_process = Process(
+    lcu_process = threading.Thread(
         target=start_connector,
         args=(
             rpc,
             cli_args,
         ),
+        daemon=True,
     )
     lcu_process.start()
 
@@ -143,7 +144,6 @@ def main(cli_args: argparse.Namespace):
                     print(
                         f"{Colors.red}LeagueOfLegends.exe was terminated. rpc shuting down..{Colors.reset}."
                     )
-                    lcu_process.terminate()
                     rpc.close()
                     sys.exit()
         except pypresence.exceptions.PipeClosed:
