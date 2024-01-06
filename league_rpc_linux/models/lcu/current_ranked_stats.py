@@ -92,6 +92,7 @@ class ArenaStats:
     rated_rating: Optional[int] = None
 
     tier_label_mapper = {
+        "NONE": "",
         "GRAY": "Wood",
         "GREEN": "Bronze",
         "BLUE": "Silver",
