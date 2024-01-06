@@ -9,6 +9,7 @@ import pypresence
 from league_rpc_linux.champion import gather_ingame_information, get_skin_asset
 from league_rpc_linux.colors import Colors
 from league_rpc_linux.const import (
+    ALL_GAME_DATA_URL,
     DEFAULT_CLIENT_ID,
     DISCORD_PROCESS_NAMES,
     LEAGUE_OF_LEGENDS_LOGO,
@@ -17,6 +18,7 @@ from league_rpc_linux.const import (
 from league_rpc_linux.gametime import get_current_ingame_time
 from league_rpc_linux.kda import get_creepscore, get_gold, get_kda, get_level
 from league_rpc_linux.lcu_api.lcu_connector import start_connector
+from league_rpc_linux.polling import wait_until_exists
 from league_rpc_linux.processes.process import (
     check_discord_process,
     check_league_client_process,
@@ -64,6 +66,13 @@ def main(cli_args: argparse.Namespace):
                 case "InGame":
                     print(
                         f"\n{Colors.dblue}Detected game! Will soon gather data and update discord RPC{Colors.reset}"
+                    )
+
+                    # Poll the local league api until 200 response.
+                    wait_until_exists(
+                        url=ALL_GAME_DATA_URL,
+                        custom_message="Failed to reach the local league api",
+                        startup=True,
                     )
                     (
                         champ_name,
@@ -119,9 +128,6 @@ def main(cli_args: argparse.Namespace):
                         )
                         while player_state() == "InGame":
                             if not champ_name or not gamemode:
-                                print(
-                                    f"{Colors.red}Failed to load in data.. {Colors.lgrey}will try again shortly.\n{Colors.dcyan}(Reason: Someone has potato PC, meaning that RITOs API isn't fully initialized yet but the script sees that game has started.){Colors.reset}"
-                                )
                                 break
                             rpc.update(  # type:ignore
                                 large_image=skin_asset,
@@ -136,9 +142,10 @@ def main(cli_args: argparse.Namespace):
                             time.sleep(10)
 
                 case "InLobby":
-                    # handled by LCU_Thread
+                    # Handled by lcu_process thread
+                    # It will subscribe to websockets and update discord on events.
 
-                    time.sleep(10)
+                    ...
 
                 case _:
                     print(

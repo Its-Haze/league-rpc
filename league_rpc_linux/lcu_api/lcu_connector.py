@@ -7,17 +7,13 @@ from pypresence import Presence
 
 from league_rpc_linux.colors import Colors
 from league_rpc_linux.lcu_api.base_data import gather_base_data
-from league_rpc_linux.models.client_data import RankedStats
+from league_rpc_linux.models.client_data import ArenaStats, RankedStats, TFTStats
 from league_rpc_linux.models.lcu.current_chat_status import LolChatUser
 from league_rpc_linux.models.lcu.current_lobby import (
     LolLobbyLobbyDto,
     LolLobbyLobbyGameConfigDto,
 )
 from league_rpc_linux.models.lcu.current_queue import LolGameQueuesQueue
-from league_rpc_linux.models.lcu.current_ranked_stats import (
-    LolRankedRankedQueueStats,
-    LolRankedRankedStats,
-)
 from league_rpc_linux.models.lcu.current_summoner import Summoner
 from league_rpc_linux.models.module_data import ModuleData
 from league_rpc_linux.models.rpc_updater import RPCUpdater
@@ -154,37 +150,23 @@ async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> Non
 
 # ranked stats
 @module_data.connector.ws.register(  # type:ignore
-    "/lol-ranked/v1/current-ranked-stats/", event_types=("UPDATE",)
+    "/lol-ranked/v1/current-ranked-stats", event_types=("UPDATE",)
 )
 async def ranked(_: Connection, event: WebsocketEventResponse) -> None:
     data = module_data.client_data
-
     event_data: dict[str, Any] = event.data  # type:ignore
-    solo_queue = "RANKED_SOLO_5x5"
-    flex_queue = "RANKED_FLEX_SR"
 
-    data.summoner_rank = RankedStats(
-        division=event_data[LolRankedRankedStats.QUEUE_MAP][solo_queue][
-            LolRankedRankedQueueStats.DIVISION
-        ],
-        tier=event_data[LolRankedRankedStats.QUEUE_MAP][solo_queue][
-            LolRankedRankedQueueStats.TIER
-        ],
-        league_points=event_data[LolRankedRankedStats.QUEUE_MAP][solo_queue][
-            LolRankedRankedQueueStats.LEAGUE_POINTS
-        ],
+    data.summoner_rank = RankedStats.from_map(
+        obj_map=event_data,
+        ranked_type="RANKED_SOLO_5x5",
     )
-    data.summoner_rank_flex = RankedStats(
-        division=event_data[LolRankedRankedStats.QUEUE_MAP][flex_queue][
-            LolRankedRankedQueueStats.DIVISION
-        ],
-        tier=event_data[LolRankedRankedStats.QUEUE_MAP][flex_queue][
-            LolRankedRankedQueueStats.TIER
-        ],
-        league_points=event_data[LolRankedRankedStats.QUEUE_MAP][flex_queue][
-            LolRankedRankedQueueStats.LEAGUE_POINTS
-        ],
+    data.summoner_rank_flex = RankedStats.from_map(
+        obj_map=event_data,
+        ranked_type="RANKED_FLEX_SR",
     )
+
+    data.arena_rank = ArenaStats.from_map(obj_map=event_data)
+    data.tft_rank = TFTStats.from_map(obj_map=event_data)
 
     rpc_updater.delay_update(module_data)
 
