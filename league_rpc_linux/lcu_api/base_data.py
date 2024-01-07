@@ -65,6 +65,7 @@ async def gather_queue_data(connection: Connection, data: ClientData):
     )
     lobby_queue_info = await lobby_queue_info_raw.json()
     data.queue = lobby_queue_info[LolGameQueuesQueue.NAME]
+    data.queue_type = lobby_queue_info[LolGameQueuesQueue.TYPE]
     data.max_players = int(
         lobby_queue_info[LolGameQueuesQueue.MAXIMUM_PARTICIPANT_LIST_SIZE]
     )

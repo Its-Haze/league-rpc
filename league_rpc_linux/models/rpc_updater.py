@@ -10,6 +10,7 @@ from league_rpc_linux.const import (
     LEAGUE_OF_LEGENDS_LOGO,
     MAP_ICON_CONVERT_MAP,
     PROFILE_ICON_BASE_URL,
+    RANKED_TYPE_MAPPER,
     SMALL_TEXT,
 )
 from league_rpc_linux.lcu_api.lcu_connector import ModuleData
@@ -124,7 +125,7 @@ class RPCUpdater:
     ) -> tuple[str, ...]:
         large_text = small_text = small_image = ""
 
-        match module_data.client_data.queue:
+        match RANKED_TYPE_MAPPER.get(module_data.client_data.queue_type):
             case "Ranked Solo/Duo":
                 summoner_rank = module_data.client_data.summoner_rank
                 if summoner_rank.tier:

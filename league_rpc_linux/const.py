@@ -67,3 +67,13 @@ CHAMPION_NAME_CONVERT_MAP = {
 
 LEAGUE_RANKED_EMBLEM = "https://github.com/Its-Haze/league-assets/blob/master/ranked_emblems/{tier}.png?raw=true"
 LEAGUE_CHERRY_RANKED_EMBLEM = "https://github.com/Its-Haze/league-assets/blob/master/cherry_rated_medallions/{tier}.png?raw=true"
+
+
+RANKED_TYPE_MAPPER = {
+    "RANKED_SOLO_5x5": "Ranked Solo/Duo",
+    "RANKED_FLEX_SR": "Ranked Flex",
+    "RANKED_TFT": "Teamfight Tactics (Ranked)",
+    "RANKED_TFT_DOUBLE_UP": "Teamfight Tactics (Double Up Workshop)",
+    "RANKED_TFT_TURBO": "Teamfight Tactics (Hyper Roll)",
+    "CHERRY": "Arena",
+}
