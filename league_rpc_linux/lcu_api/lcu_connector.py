@@ -26,22 +26,31 @@ rpc_updater = RPCUpdater()
 
 @module_data.connector.ready  # type:ignore
 async def connect(connection: Connection):
-    print(f"{Colors.green}LCU API is ready.{Colors.reset}")
+    print(
+        f"{Colors.green}Successfully connected to the League Client API.{Colors.reset}"
+    )
 
+    print(f"\n{Colors.orange}Gathering base data.{Colors.reset}")
     await gather_base_data(connection, module_data)
+
+    print(f"{Colors.green}Successfully gathered base data.{Colors.reset}")
+
+    print(f"\n{Colors.orange}Updating Discord rpc with base data{Colors.reset}")
     rpc_updater.delay_update(module_data)
+    print(f"{Colors.green}Discord RPC successfully updated{Colors.reset}")
+
+    print(f"\n{Colors.cyan}LeagueRPC is ready{Colors.reset}")
 
 
 @module_data.connector.close  # type:ignore
 async def disconnect(_: Connection):
-    print("LCU API is closed.")
+    print(f"{Colors.red}Disconnected from the League Client API.{Colors.reset}")
 
 
 @module_data.connector.ws.register(  # type:ignore
     "/lol-summoner/v1/current-summoner", event_types=("UPDATE",)
 )
 async def summoner_updated(_: Connection, event: WebsocketEventResponse) -> None:
-    print("Summoner has been updated.")
     data = module_data.client_data
     event_data: dict[str, Any] = event.data  # type:ignore
 
@@ -60,8 +69,6 @@ async def chat_updated(_: Connection, event: WebsocketEventResponse) -> None:
     data = module_data.client_data
     event_data: dict[str, Any] = event.data  # type:ignore
 
-    print("Chat has been updated.")
-
     match event_data[LolChatUser.AVAILABILITY]:
         case LolChatUser.CHAT:
             data.availability = LolChatUser.ONLINE.capitalize()
@@ -79,7 +86,6 @@ async def chat_updated(_: Connection, event: WebsocketEventResponse) -> None:
 async def gameflow_phase_updated(_: Connection, event: WebsocketEventResponse) -> None:
     data = module_data.client_data
     event_data: Any = event.data  # type:ignore
-    print("Gameflow Phase has been updated.")
 
     data.gameflow_phase = event_data  # returns plain string of the phase
     rpc_updater.delay_update(module_data)
@@ -92,7 +98,6 @@ async def gameflow_phase_updated(_: Connection, event: WebsocketEventResponse) -
 async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> None:
     data = module_data.client_data
     event_data: Optional[dict[str, Any]] = event.data  # type:ignore
-    print(f"Lobby Data - {event.type}")  # type:ignore
 
     if event_data is None:
         # Make an early return if data is not present in the event.
@@ -172,9 +177,8 @@ async def ranked(_: Connection, event: WebsocketEventResponse) -> None:
 
 
 ###### Debug ######
-
-
 # This will catch all events and print them to the console.
+
 # @module_data.connector.ws.register(  # type:ignore
 #    "/", event_types=("UPDATE", "CREATE", "DELETE")
 # )
@@ -185,5 +189,4 @@ async def ranked(_: Connection, event: WebsocketEventResponse) -> None:
 def start_connector(rpc_from_main: Presence, cli_args: Namespace) -> None:
     module_data.rpc = rpc_from_main
     module_data.cli_args = cli_args
-    print("Starting LCU API.")
     module_data.connector.start()

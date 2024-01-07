@@ -20,7 +20,6 @@ from league_rpc_linux.models.module_data import ModuleData
 # Base Data
 # Gather base data from the LCU API on startup
 async def gather_base_data(connection: Connection, module_data: ModuleData):
-    print("Gathering base data.")
     data = module_data.client_data
 
     # Epoch time from which league client was started.

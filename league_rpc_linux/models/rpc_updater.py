@@ -44,7 +44,7 @@ class RPCUpdater:
         show_emojis: bool = module_data.cli_args.show_emojis  # type:ignore
 
         if show_emojis:
-            status_emojis = f"{'🟢' if module_data.client_data.availability == LolChatUser.ONLINE.capitalize() else '                  🔴'}"
+            status_emojis = f"{'🟢' if module_data.client_data.availability == LolChatUser.ONLINE.capitalize() else '  🔴'}"
             # details = status_emojis + details
             details = status_emojis + "  " + details
 
@@ -230,7 +230,6 @@ class RPCUpdater:
 
     # The function that updates discord rich presence, depending on the data
     def update_rpc(self, module_data: ModuleData):
-        print("Updating Discord Presence.")
         data = module_data.client_data
         rpc = module_data.rpc
 
