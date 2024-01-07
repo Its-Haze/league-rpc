@@ -154,7 +154,7 @@ def main(cli_args: argparse.Namespace):
                     # Handled by lcu_process thread
                     # It will subscribe to websockets and update discord on events.
 
-                    ...
+                    time.sleep(10)
 
                 case _:
                     print(
