@@ -44,6 +44,7 @@ The details in your rich presence will change depending on if you are in a lobby
 #### Ranked Games
 
 You can show off your rank emblem right in your Discord Presence.
+
 You must include the argument ``--show-rank`` to enable this feature. As it's disabled by default.
 This is also the case for TFT, and Arena!
 
