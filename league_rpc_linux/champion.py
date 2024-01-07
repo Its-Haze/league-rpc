@@ -8,6 +8,7 @@ from league_rpc_linux.colors import Colors
 from league_rpc_linux.const import (
     ALL_GAME_DATA_URL,
     BASE_SKIN_URL,
+    CHAMPION_NAME_CONVERT_MAP,
     DDRAGON_CHAMPION_DATA,
     GAME_MODE_CONVERT_MAP,
 )
@@ -66,7 +67,7 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
             print("-" * 50)
             if champion_name:
                 print(
-                    f"{Colors.yellow}Champion name found {Colors.green}({champion_name}),{Colors.yellow} continuing..{Colors.reset}"
+                    f"{Colors.yellow}Champion name found {Colors.green}({CHAMPION_NAME_CONVERT_MAP.get(champion_name, champion_name)}),{Colors.yellow} continuing..{Colors.reset}"
                 )
             if skin_name:
                 print(
