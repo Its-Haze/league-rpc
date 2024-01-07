@@ -14,6 +14,12 @@ PROFILE_ICON_BASE_URL = (
     "https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon"
 )
 
+DDRAGON_CHAMPION_DATA = (
+    "https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion/{name}.json"
+)
+
+DDRAGON_API_VERSIONS = "https://ddragon.leagueoflegends.com/api/versions.json"
+
 MAP_ICON_CONVERT_MAP = {
     11: "classic_sru",
     12: "aram",
