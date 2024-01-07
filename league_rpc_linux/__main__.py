@@ -62,6 +62,7 @@ def main(cli_args: argparse.Namespace):
     ############################################################
     start_time = int(time.time())
     while True:
+        print("Loop Main")
         try:
             match player_state():
                 case "InGame":
@@ -154,7 +155,7 @@ def main(cli_args: argparse.Namespace):
                     # Handled by lcu_process thread
                     # It will subscribe to websockets and update discord on events.
 
-                    ...
+                    time.sleep(10)
 
                 case _:
                     print(
