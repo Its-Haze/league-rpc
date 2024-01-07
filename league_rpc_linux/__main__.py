@@ -62,7 +62,6 @@ def main(cli_args: argparse.Namespace):
     ############################################################
     start_time = int(time.time())
     while True:
-        print("Loop Main")
         try:
             match player_state():
                 case "InGame":
