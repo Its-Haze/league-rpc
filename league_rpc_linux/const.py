@@ -14,6 +14,12 @@ PROFILE_ICON_BASE_URL = (
     "https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon"
 )
 
+DDRAGON_CHAMPION_DATA = (
+    "https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion/{name}.json"
+)
+
+DDRAGON_API_VERSIONS = "https://ddragon.leagueoflegends.com/api/versions.json"
+
 MAP_ICON_CONVERT_MAP = {
     11: "classic_sru",
     12: "aram",
@@ -37,27 +43,37 @@ GAME_MODE_CONVERT_MAP = {
 }
 
 CHAMPION_NAME_CONVERT_MAP = {
-    "Aurelion Sol": "AurelionSol",
-    "Bel'Veth": "Belveth",
-    "Cho'Gath": "Chogath",
-    "Dr. Mundo": "DrMundo",
-    "Jarvan IV": "JarvanIV",
-    "Kai'Sa": "Kaisa",
-    "Kha'Zix": "Khazix",
-    "Kog'Maw": "KogMaw",
-    "K'Sante": "KSante",
-    "Lee Sin": "LeeSin",
-    "Master Yi": "MasterYi",
-    "Miss Fortune": "MissFortune",
-    "Nunu & Willump": "Nunu",
-    "Rek'Sai": "RekSai",
-    "Renata Glasc": "Renata",
-    "Tahm Kench": "TahmKench",
-    "Twisted Fate": "TwistedFate",
-    "Vel'Koz": "Velkoz",
-    "Wukong": "MonkeyKing",
-    "Xin Zhao": "XinZhao",
+    "AurelionSol": "Aurelion Sol",
+    "Belveth": "Bel'Veth",
+    "Chogath": "Cho'Gath",
+    "DrMundo": "Dr. Mundo",
+    "JarvanIV": "Jarvan IV",
+    "Kaisa": "Kai'Sa",
+    "Khazix": "Kha'Zix",
+    "KogMaw": "Kog'Maw",
+    "KSante": "K'Sante",
+    "LeeSin": "Lee Sin",
+    "MasterYi": "Master Yi",
+    "MissFortune": "Miss Fortune",
+    "Nunu": "Nunu & Willump",
+    "RekSai": "Rek'Sai",
+    "Renata": "Renata Glasc",
+    "TahmKench": "Tahm Kench",
+    "TwistedFate": "Twisted Fate",
+    "Velkoz": "Vel'Koz",
+    "MonkeyKing": "Wukong",
+    "XinZhao": "Xin Zhao",
 }
 
 LEAGUE_RANKED_EMBLEM = "https://github.com/Its-Haze/league-assets/blob/master/ranked_emblems/{tier}.png?raw=true"
 LEAGUE_CHERRY_RANKED_EMBLEM = "https://github.com/Its-Haze/league-assets/blob/master/cherry_rated_medallions/{tier}.png?raw=true"
+
+
+RANKED_TYPE_MAPPER = {
+    "RANKED_SOLO_5x5": "Ranked Solo/Duo",
+    "RANKED_FLEX_SR": "Ranked Flex",
+    "RANKED_TFT": "Teamfight Tactics (Ranked)",
+    "RANKED_TFT_DOUBLE_UP": "Teamfight Tactics (Double Up Workshop)",
+    "RANKED_TFT_TURBO": "Teamfight Tactics (Hyper Roll)",
+    "CHERRY": "Arena",
+}

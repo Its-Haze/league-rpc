@@ -9,13 +9,25 @@ from league_rpc_linux.const import (
     ALL_GAME_DATA_URL,
     BASE_SKIN_URL,
     CHAMPION_NAME_CONVERT_MAP,
+    DDRAGON_CHAMPION_DATA,
     GAME_MODE_CONVERT_MAP,
 )
 from league_rpc_linux.kda import get_gold, get_level
+from league_rpc_linux.latest_version import get_latest_version
 from league_rpc_linux.polling import wait_until_exists
 from league_rpc_linux.username import get_summoner_name
 
 urllib3.disable_warnings()
+
+
+def get_specific_champion_data(name: str) -> dict[str, Any]:
+    response = requests.get(
+        url=DDRAGON_CHAMPION_DATA.format_map(
+            {"version": get_latest_version(), "name": name}
+        ),
+        timeout=15,
+    )
+    return response.json()
 
 
 def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
@@ -55,7 +67,7 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
             print("-" * 50)
             if champion_name:
                 print(
-                    f"{Colors.yellow}Champion name found {Colors.green}({champion_name}),{Colors.yellow} continuing..{Colors.reset}"
+                    f"{Colors.yellow}Champion name found {Colors.green}({CHAMPION_NAME_CONVERT_MAP.get(champion_name, champion_name)}),{Colors.yellow} continuing..{Colors.reset}"
                 )
             if skin_name:
                 print(
@@ -81,22 +93,37 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
 def gather_league_data(
     parsed_data: dict[str, Any],
     summoners_name: str,
-) -> tuple[Optional[str], Optional[int], Optional[str]]:
+) -> tuple[Optional[str], int, Optional[str]]:
     """
     If the gamemode is LEAGUE, gather the relevant information and return it to RPC.
     """
     champion_name: Optional[str] = None
-    skin_id: Optional[int] = None
+    skin_id: int = 0
     skin_name: Optional[str] = None
+
+    skin_ids = []
 
     for player in parsed_data["allPlayers"]:
         if player["summonerName"] == summoners_name:
-            champion_name = CHAMPION_NAME_CONVERT_MAP.get(
-                player["championName"],
-                player["championName"],
-            )
+            raw_champion_name = player["rawChampionName"].split("_")[-1]
+            champion_data = get_specific_champion_data(name=raw_champion_name)
+
+            champion_name = champion_data["data"][raw_champion_name]["id"]
+
             skin_id = player["skinID"]
-            skin_name = player.get("skinName")
+
+            skin_ids = [
+                i["num"] for i in champion_data["data"][raw_champion_name]["skins"]
+            ]
+
+            if skin_id:
+                while skin_id not in skin_ids:
+                    skin_id -= 1
+
+                for i in champion_data["data"][raw_champion_name]["skins"]:
+                    if skin_id == i["num"]:
+                        skin_name = i["name"]
+                        break
             break
         continue
     return champion_name, skin_id, skin_name

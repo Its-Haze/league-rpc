@@ -10,6 +10,7 @@ from league_rpc_linux.champion import gather_ingame_information, get_skin_asset
 from league_rpc_linux.colors import Colors
 from league_rpc_linux.const import (
     ALL_GAME_DATA_URL,
+    CHAMPION_NAME_CONVERT_MAP,
     DEFAULT_CLIENT_ID,
     DISCORD_PROCESS_NAMES,
     LEAGUE_OF_LEGENDS_LOGO,
@@ -108,7 +109,11 @@ def main(cli_args: argparse.Namespace):
                         while player_state() == "InGame":
                             rpc.update(  # type:ignore
                                 large_image=skin_asset,
-                                large_text=skin_name if skin_name else champ_name,
+                                large_text=skin_name
+                                if skin_name
+                                else CHAMPION_NAME_CONVERT_MAP.get(
+                                    champ_name, champ_name
+                                ),
                                 details=gamemode,
                                 state=f"In Game {f'· {get_kda()} · lvl: {get_level()} · gold: {get_gold()}' if not cli_args.no_stats else ''}",
                                 small_image=LEAGUE_OF_LEGENDS_LOGO,
@@ -131,7 +136,11 @@ def main(cli_args: argparse.Namespace):
                                 break
                             rpc.update(  # type:ignore
                                 large_image=skin_asset,
-                                large_text=skin_name if skin_name else champ_name,
+                                large_text=skin_name
+                                if skin_name
+                                else CHAMPION_NAME_CONVERT_MAP.get(
+                                    champ_name, champ_name
+                                ),
                                 details=gamemode,
                                 state=f"In Game {f'· {get_kda()} · {get_creepscore()}' if not cli_args.no_stats else ''}",
                                 small_image=LEAGUE_OF_LEGENDS_LOGO,

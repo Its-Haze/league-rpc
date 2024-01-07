@@ -148,6 +148,7 @@ async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> Non
     lobby_queue_info = await lobby_queue_info_raw.json()
 
     data.queue = lobby_queue_info[LolGameQueuesQueue.NAME]
+    data.queue_type = lobby_queue_info[LolGameQueuesQueue.TYPE]
     data.queue_is_ranked = lobby_queue_info[LolGameQueuesQueue.IS_RANKED]
 
     rpc_updater.delay_update(module_data)

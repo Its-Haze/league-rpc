@@ -20,6 +20,7 @@ class ClientData:
     max_players: int = 0  # max players in lobby
     players: int = 0  # players in lobby
     queue: str = ""
+    queue_type = ""
     queue_id: int = -1
     queue_is_ranked: bool = False
     summoner_icon: int = 0
