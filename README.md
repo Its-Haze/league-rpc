@@ -25,33 +25,71 @@
 
 ## Showcase
 
-### League of legends
+### In Client
+
+#### Summoner Icons
+
+Let your cat & penguin icons shine on Discord too!
+
+![summoner-icon-1](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_client_icon_1.jpeg?raw=true)
+
+![summoner-icon-2](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_client_icon_3.jpeg?raw=true)
+
+#### Normal Games
+
+The details in your rich presence will change depending on if you are in a lobby, in queue or in champion select.
+
+![lobby-normal](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_normal_1.jpeg?raw=true)
+
+#### Ranked Games
+
+You can show off your rank emblem right in your Discord Presence.
+You must include the argument ``--show-rank`` to enable this feature. As it's disabled by default.
+This is also the case for TFT, and Arena!
+
+![lobby-ranked](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_soloq_show_ranked_1.jpeg?raw=true)
+
+![lobby-ranked-2](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_soloq_show_ranked_2.jpeg?raw=true)
+
+#### TFT Games
+
+![lobby-tft](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_tft_normal_1.jpeg?raw=true)
+
+#### Arena Games
+
+To show these Arena ranked emblems, you will need to add the argument ``--show-rank`` when starting this application
+
+![lobby-arena-1](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_arena_show_ranked_1.jpeg?raw=true)
+
+![lobby-arena-2](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_arena_show_ranked_2.jpeg?raw=true)
+
+### In Game
 
 #### Default skin example
 
-![Garen-Default](https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/league-rpc-example-3.png?raw=true)
+![Garen-Default](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_game_garen_default.jpeg?raw=true)
 
 #### Skin example
 
 Just pick a skin in champ select and the script will automagically detect it and update discord RPC when your game starts!
 
-![Garen-Skin](https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/league-rpc-example-2.png?raw=true)
+![Garen-Skin](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_game_garen_skin.jpeg?raw=true)
 
 #### KDA + Minnions calculated and presented in Discord
 
-![MissFortune-KDA-CS](https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/league-rpc-skin-example.png?raw=true)
+![Aphelios-skin](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_game_aphelios_skin_kda.jpeg?raw=true)
 
 ### TFT (Teamfight tactics)
 
 TFT is supported and will show a cuter image than windows ever will! :)
 
-![Teamfight-Tactics-example](https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/tft-rpc-example.jpeg?raw=true)
+![Teamfight-Tactics-example](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_game_tft.jpeg?raw=true)
 
 ### Arena
 
 Arena games are now supported as of v0.0.7
 
-![Arena-example](https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/league-rpc-arena-example.png?raw=true)
+![Arena-example](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_game_arena_jax.jpeg?raw=true)
 
 ## Installation
 
@@ -108,6 +146,12 @@ Arena games are now supported as of v0.0.7
    python3 -m league_rpc_linux
    ```
 
+   Recommended:
+
+   ```bash
+   python3 -m league_rpc_linux --wait-for-league -1 --wait-for-discord -1 --show-rank
+   ```
+
 ### Pre-built Package
 
 Alternatively, install the executable Python package directly from the [releases page](https://github.com/Its-Haze/league-rpc-linux/releases) and run it.
@@ -125,6 +169,12 @@ Alternatively, install the executable Python package directly from the [releases
 
    ```bash
    ./league_rpc_linux
+   ```
+
+   Recommended:
+
+   ```bash
+   ./league_rpc_linux --wait-for-league -1 --wait-for-discord -1 --show-rank
    ```
 
 4. Yup.. that's pretty much it! Enjoy
@@ -173,7 +223,7 @@ Follow these steps to set it up:
    - Scroll down to the '`Pre-launch script`' field.
    - Enter the full path to the `league-rpc-auto-launcher.sh` script. For example:
 
-     ```
+     ```bash
      /home/yourusername/path/to/league-rpc-auto-launcher.sh
      ```
 
@@ -191,6 +241,16 @@ This application now supports various command-line arguments to enhance flexibil
 - **`--no-stats`**: Opt out of displaying in-game KDA and minion (creep score) statistics in your Discord Rich Presence. By default, these stats are shown.
   - *Example*: `./league_rpc_linux --no-stats`
 
+- **`--show-rank`**: Show off your League rank on Discord (SoloQ/Flex/TFT/Arena) By default, this will be hidden.
+  - *Example*: `./league_rpc_linux --show-rank`
+
+- **`--show-emojis`**: Do you want to show your Online/Away status with a emoji, then add this argument. By default, this will be hidden.
+  - *Example*: `./league_rpc_linux --show-emojis`
+
+  ![online](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_client_status_online_emoji.jpeg?raw=true)
+
+  ![away](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_client_status_away_emoji.jpeg?raw=true)
+
 - **`--add-process`**: Add custom Discord process names to the search list. This is useful if your Discord client is running under a different process name.
   - *Example*: `./league_rpc_linux --add-process CustomDiscord AnotherProcess`
 
@@ -203,7 +263,13 @@ This application now supports various command-line arguments to enhance flexibil
 Each of these arguments can be combined to tailor the Discord RPC to your preferences.
 
 ```bash
-./league_rpc_linux --client-id 123456789123456789 --no-stats --add-process CustomDiscord --wait-for-league -1 --wait-for-discord 15
+./league_rpc_linux --client-id 123456789123456789 --no-stats --add-process CustomDiscord --wait-for-league -1 --wait-for-discord 15 --show-emojis --show-rank
+```
+
+Recommended flags:
+
+```bash
+./league_rpc_linux --wait-for-league -1 --wait-for-discord -1 --show-emojis --show-rank
 ```
 
 NOTE: All of these arguments are optional. None is needed for the script to function properly. But in case you want to change something, you now can.

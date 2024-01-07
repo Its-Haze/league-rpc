@@ -1,13 +1,24 @@
 import argparse
 import sys
+import threading
 import time
 
+import nest_asyncio
 import pypresence
 
 from league_rpc_linux.champion import gather_ingame_information, get_skin_asset
 from league_rpc_linux.colors import Colors
+from league_rpc_linux.const import (
+    ALL_GAME_DATA_URL,
+    DEFAULT_CLIENT_ID,
+    DISCORD_PROCESS_NAMES,
+    LEAGUE_OF_LEGENDS_LOGO,
+    SMALL_TEXT,
+)
 from league_rpc_linux.gametime import get_current_ingame_time
 from league_rpc_linux.kda import get_creepscore, get_gold, get_kda, get_level
+from league_rpc_linux.lcu_api.lcu_connector import start_connector
+from league_rpc_linux.polling import wait_until_exists
 from league_rpc_linux.processes.process import (
     check_discord_process,
     check_league_client_process,
@@ -16,10 +27,6 @@ from league_rpc_linux.processes.process import (
 from league_rpc_linux.reconnect import discord_reconnect_attempt
 
 # Discord Application: League of Linux
-DEFAULT_CLIENT_ID = "1185274747836174377"
-DISCORD_PROCESS_NAMES = ["Discord", "DiscordPTB", "DiscordCanary", "electron"]
-LEAGUE_OF_LEGENDS_LOGO = "https://github.com/Its-Haze/league-rpc-linux/blob/master/assets/leagueoflegends.png?raw=true"
-SMALL_TEXT = "github.com/Its-Haze/league-rpc-linux"
 
 
 def main(cli_args: argparse.Namespace):
@@ -35,6 +42,21 @@ def main(cli_args: argparse.Namespace):
         client_id=cli_args.client_id,
         wait_for_discord=cli_args.wait_for_discord,
     )
+
+    # Start LCU_Thread
+    # This process will connect to the LCU API and updates the rpc based on data subscribed from the LCU API.
+    # In this case passing the rpc object to the process is easier than trying to return updated data from the process.
+    # Every In-Client update will be handled by the LCU_Thread process and will update the rpc accordingly.
+    lcu_process = threading.Thread(
+        target=start_connector,
+        args=(
+            rpc,
+            cli_args,
+        ),
+        daemon=True,
+    )
+    lcu_process.start()
+
     print(f"\n{Colors.green}Successfully connected to Discord RPC!{Colors.reset}")
     ############################################################
     start_time = int(time.time())
@@ -44,6 +66,13 @@ def main(cli_args: argparse.Namespace):
                 case "InGame":
                     print(
                         f"\n{Colors.dblue}Detected game! Will soon gather data and update discord RPC{Colors.reset}"
+                    )
+
+                    # Poll the local league api until 200 response.
+                    wait_until_exists(
+                        url=ALL_GAME_DATA_URL,
+                        custom_message="Failed to reach the local league api",
+                        startup=True,
                     )
                     (
                         champ_name,
@@ -99,9 +128,6 @@ def main(cli_args: argparse.Namespace):
                         )
                         while player_state() == "InGame":
                             if not champ_name or not gamemode:
-                                print(
-                                    f"{Colors.red}Failed to load in data.. {Colors.lgrey}will try again shortly.\n{Colors.dcyan}(Reason: Someone has potato PC, meaning that RITOs API isn't fully initialized yet but the script sees that game has started.){Colors.reset}"
-                                )
                                 break
                             rpc.update(  # type:ignore
                                 large_image=skin_asset,
@@ -116,13 +142,10 @@ def main(cli_args: argparse.Namespace):
                             time.sleep(10)
 
                 case "InLobby":
-                    rpc.update(  # type:ignore
-                        large_image=LEAGUE_OF_LEGENDS_LOGO,
-                        large_text="github.com/Its-Haze/league-rpc-linux",
-                        state="In Client",
-                        start=start_time,
-                    )
-                    time.sleep(10)
+                    # Handled by lcu_process thread
+                    # It will subscribe to websockets and update discord on events.
+
+                    ...
 
                 case _:
                     print(
@@ -141,6 +164,9 @@ def main(cli_args: argparse.Namespace):
 
 
 if __name__ == "__main__":
+    # Patch for asyncio - read more here: https://pypi.org/project/nest-asyncio/
+    nest_asyncio.apply()
+
     parser = argparse.ArgumentParser(description="Script with Discord RPC.")
     parser.add_argument(
         "--client-id",
@@ -152,6 +178,18 @@ if __name__ == "__main__":
         "--no-stats",
         action="store_true",
         help="use '--no-stats' to Opt out of showing in-game stats (KDA, minions) in Discord RPC",
+    )
+    parser.add_argument(
+        "--show-emojis",
+        "--emojis",
+        action="store_true",
+        help="use '--show-emojis' to show green/red circle emoji, depending on your Online status in league.",
+    )
+    parser.add_argument(
+        "--show-rank",
+        "--display-rank",
+        action="store_true",
+        help="use '--show-rank' to display your SoloQ/Flex/Tft/Arena Rank in Discord RPC",
     )
     parser.add_argument(
         "--add-process",
@@ -180,6 +218,14 @@ if __name__ == "__main__":
     if args.no_stats:
         print(
             f"{Colors.green}Argument {Colors.blue}--no-stats{Colors.green} detected.. Will {Colors.red}not {Colors.green}show InGame stats{Colors.reset}"
+        )
+    if args.show_emojis:
+        print(
+            f"{Colors.green}Argument {Colors.blue}--show-emojis, --emojis{Colors.green} detected.. Will show emojis. such as league status indicators on Discord.{Colors.reset}"
+        )
+    if args.show_rank:
+        print(
+            f"{Colors.green}Argument {Colors.blue}--show-rank, --display-rank{Colors.green} detected.. Will show League Rank on Discord.{Colors.reset}"
         )
     if args.add_process:
         print(

@@ -5,6 +5,12 @@ import requests
 import urllib3
 
 from league_rpc_linux.colors import Colors
+from league_rpc_linux.const import (
+    ALL_GAME_DATA_URL,
+    BASE_SKIN_URL,
+    CHAMPION_NAME_CONVERT_MAP,
+    GAME_MODE_CONVERT_MAP,
+)
 from league_rpc_linux.kda import get_gold, get_level
 from league_rpc_linux.polling import wait_until_exists
 from league_rpc_linux.username import get_summoner_name
@@ -12,47 +18,11 @@ from league_rpc_linux.username import get_summoner_name
 urllib3.disable_warnings()
 
 
-BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
-
-champion_name_convert_map = {
-    "Aurelion Sol": "AurelionSol",
-    "Bel'Veth": "Belveth",
-    "Cho'Gath": "Chogath",
-    "Dr. Mundo": "DrMundo",
-    "Jarvan IV": "JarvanIV",
-    "Kai'Sa": "Kaisa",
-    "Kha'Zix": "Khazix",
-    "Kog'Maw": "KogMaw",
-    "K'Sante": "KSante",
-    "Lee Sin": "LeeSin",
-    "Master Yi": "MasterYi",
-    "Miss Fortune": "MissFortune",
-    "Nunu & Willump": "Nunu",
-    "Rek'Sai": "RekSai",
-    "Renata Glasc": "Renata",
-    "Tahm Kench": "TahmKench",
-    "Twisted Fate": "TwistedFate",
-    "Vel'Koz": "Velkoz",
-    "Wukong": "MonkeyKing",
-    "Xin Zhao": "XinZhao",
-}
-
-game_mode_convert_map = {
-    "PRACTICETOOL": "Summoner's Rift (Custom)",
-    "ARAM": "Howling Abyss (ARAM)",
-    "CLASSIC": "Summoner's Rift",
-    "TUTORIAL": "Summoner's Rift (Tutorial)",
-    "URF": "Summoner's Rift (URF)",
-    "NEXUSBLITZ": "Nexux Blitz",
-    "CHERRY": "Arena",
-}
-
-
 def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
     """
     Get the current playing champion name.
     """
-    all_game_data_url = "https://127.0.0.1:2999/liveclientdata/allgamedata"
+    all_game_data_url = ALL_GAME_DATA_URL
     your_summoner_name = get_summoner_name()
 
     champion_name: str | None = None
@@ -67,7 +37,7 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
         custom_message="Did not find game data.. Will try again in 5 seconds",
     ):
         parsed_data = response.json()
-        game_mode = game_mode_convert_map.get(
+        game_mode = GAME_MODE_CONVERT_MAP.get(
             parsed_data["gameData"]["gameMode"],
             parsed_data["gameData"]["gameMode"],
         )
@@ -121,7 +91,7 @@ def gather_league_data(
 
     for player in parsed_data["allPlayers"]:
         if player["summonerName"] == summoners_name:
-            champion_name = champion_name_convert_map.get(
+            champion_name = CHAMPION_NAME_CONVERT_MAP.get(
                 player["championName"],
                 player["championName"],
             )
