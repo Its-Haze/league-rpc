@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools >= 61", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "league-rpc-linux"
+dynamic = ["version"]
+requires-python = ">= 3.10"
+dependencies = [
+    "pypresence >= 4.3.0",
+    "psutil >= 5.9.6",
+    "requests >= 2.31.0",
+    "nest_asyncio >= 1.5.8",
+    "lcu-driver >= 3.0.1"
+]
+
+[tool.setuptools.packages]
+find = {include = ["league_rpc_linux*"]}
+
+[tool.setuptools_scm]
+
