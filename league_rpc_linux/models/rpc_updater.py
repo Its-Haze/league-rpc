@@ -251,7 +251,7 @@ class RPCUpdater:
             case GameFlowPhase.NONE | GameFlowPhase.WAITING_FOR_STATS | GameFlowPhase.PRE_END_OF_GAME | GameFlowPhase.END_OF_GAME:
                 self.in_client_rpc(rpc, module_data)
                 return
-            case GameFlowPhase.CHAMP_SELECT:
+            case GameFlowPhase.CHAMP_SELECT | GameFlowPhase.GAME_START:
                 # In Champ Select
                 self.in_champ_select_rpc(rpc, module_data)
                 return

@@ -106,6 +106,11 @@ class ArenaStats:
         obj_map: dict[str, Any],
         ranked_type: str = "CHERRY",
     ) -> "ArenaStats":
+        if not obj_map[LolRankedRankedStats.QUEUE_MAP].get(ranked_type):
+            # Arena (CHERRY) is not always available to play.
+            # So when it's not, we make an early return of an instance with default values.
+            return cls()
+
         rated_tier = obj_map[LolRankedRankedStats.QUEUE_MAP][ranked_type][
             LolRankedRankedQueueStats.RATED_TIER
         ]
