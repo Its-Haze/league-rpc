@@ -2,8 +2,7 @@
 ![Logo](https://github.com/its-haze/league-rpc-linux/blob/master/assets/league-rpc.png?raw=true)
 
 <div align="left">
-
-<a href="https://github.com/its-haze/league-rpc-linux/graphs/contributors">![GitHub Clones](https://img.shields.io/badge/dynamic/json?color=success&label=CLONES&query=count&url=https://gist.githubusercontent.com/its-haze/b391985b1bdc009521df62ba977b46e2/raw/clone.json&style=for-the-badge)</a>
+  
 <a href="https://github.com/its-haze/league-rpc-linux/releases/latest">![GitHub All Releases](https://img.shields.io/github/downloads/its-haze/league-rpc-linux/total.svg?style=for-the-badge)</a>
 <a href="https://github.com/its-haze/league-rpc-linux/stargazers">![Stargazers](https://img.shields.io/github/stars/its-haze/league-rpc-linux.svg?style=for-the-badge)</a>
 <a href="https://github.com/its-haze/league-rpc-linux/issues">![Issues](https://img.shields.io/github/issues/its-haze/league-rpc-linux.svg?style=for-the-badge)</a>
