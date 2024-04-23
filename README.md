@@ -167,7 +167,7 @@ This is what i do, to then publish the final `leagueRPC.exe` to Github.
 
 LeagueRPC supports various command-line arguments to enhance flexibility and user customization.
 
-### `--client-id [discord-app-id]`
+### `--client-id <discord-app-id>`
 Specify a custom Discord client ID for the RPC connection. Defaults to `League of Legends`
 **Example** `.\leagueRPC.exe --client-id 1230607224296968303` - This will show `League of Kittens`
 - **League of Kittens**: `1230607224296968303`
@@ -194,7 +194,7 @@ Do you want to show your Online/Away status with a emoji, then add this argument
 
   ![Online](images/in_client_online_status.png) ![Away](images/in_client_away_status.png)
 
-### `--add-process`
+### `--add-process <process-name>`
 Add custom Discord process names to the search list. This is useful if your Discord client is running under a different process name.
 
 **Example**: `.\leagueRPC.exe --add-process CustomDiscord AnotherProcess`
@@ -204,7 +204,7 @@ Specify the time (in seconds) the script should wait for the League of Legends c
 
 **Example**: `.\leagueRPC.exe --wait-for-league 30`
 
-### `--wait-for-discord`
+### `--wait-for-discord <seconds>`
 Similar to `--wait-for-league`, specify the time (in seconds) to wait for Discord to start. Use `-1` for infinite waiting. This ensures that the script waits for Discord to fully start, avoiding premature errors. **Default is `-1`**
 
 **Example**: `.\leagueRPC.exe --wait-for-discord 15`
