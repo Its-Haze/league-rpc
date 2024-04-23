@@ -21,13 +21,16 @@ Got questions already? Don't hesitate to join the [Discord Community Server](htt
 ## Table of Contents
 - [Showcase](#showcase)
 - [Installation](#installation)
-  - [Pre-built Package (Recommended)](#pre-built-package-recommended)
-  - [Tips for Running](#tips-for-running)
+  - [Download from releases (Recommended)](#download-from-releases-recommended)
+  - [Install from Source (This is what the cool kids do!)](#install-from-source-this-is-what-the-cool-kids-do)
+    - [Build executable from source](#build-executable-from-source)
 - [Command Line Arguments](#command-line-arguments)
 - [Features](#features)
+- [Tips for Running](#tips-for-running)
 - [FAQ](#faq)
 - [Contact and Support](#contact-and-support)
 - [History](#history)
+
 
 ## Showcase
 
