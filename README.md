@@ -41,7 +41,7 @@ Who let the Kitten and the Penguin out? I did 😎. Now you too, can show off yo
 
 ![summoner-icon-2](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_client_icon_3.jpeg?raw=true) -->
 
-![summoner-icon-1](images\in_client_icon_1.png) ![summoner-icon-2](images\in_client_icon_2.png)
+![summoner-icon-1](images/in_client_icon_1.png) ![summoner-icon-2](images/in_client_icon_2.png)
 
 #### Ranked Games
 
@@ -52,22 +52,22 @@ You can show off your rank emblem right in your Discord Presence.
 
 If you really don't want to show your rank, then add the ``--no-rank`` argument, to **disable** this feature. As it's enabled by default.
 
-![lobby-ranked](images\in_soloq_show_ranked_1.png) ![lobby-ranked-2](images\in_soloq_show_ranked_2.png)
+![lobby-ranked](images/in_soloq_show_ranked_1.png) ![lobby-ranked-2](images/in_soloq_show_ranked_2.png)
 
 
 <!-- #### Arena Games
 
 To show these Arena ranked emblems, you will need to add the argument ``--show-rank`` when starting this application
 
-![lobby-arena-1](images\in_arena_show_ranked_1.jpeg)
+![lobby-arena-1](images/in_arena_show_ranked_1.jpeg)
 
-![lobby-arena-2](images\in_arena_show_ranked_2.jpeg) -->
+![lobby-arena-2](images/in_arena_show_ranked_2.jpeg) -->
 
 ### In Game
 
 #### Default skin example
 
-![Yuumi-default-skin-league-rpc](images\in_game_yuumi_league-rpc-project.png)
+![Yuumi-default-skin-league-rpc](images/in_game_yuumi_league-rpc-project.png)
 
 #### Skin example
 
@@ -75,14 +75,14 @@ Just pick a skin in champ select and the script will automagically detect it and
 
 #### KDA + Minnions calculated and presented in Discord
 
-![Aphelios-skin](images\in_game_aphelios_skin_kda.png)
+![Aphelios-skin](images/in_game_aphelios_skin_kda.png)
 
 ### TFT (Teamfight tactics) & Arena
 
 
-![Teamfight-Tactics-example](images\in_game_tft.jpeg) 
+![Teamfight-Tactics-example](images/in_game_tft.jpeg) 
 <!-- 
-![Arena-example](images\in_game_arena_jax.png) -->
+![Arena-example](images/in_game_arena_jax.png) -->
 
 
 ## Installation
@@ -192,7 +192,7 @@ Do you want to show your Online/Away status with a emoji, then add this argument
 
 **Example**: `.\leagueRPC.exe --show-emojis`
 
-  ![Online](images\in_client_online_status.png) ![Away](images\in_client_away_status.png)
+  ![Online](images/in_client_online_status.png) ![Away](images/in_client_away_status.png)
 
 ### `--add-process`
 Add custom Discord process names to the search list. This is useful if your Discord client is running under a different process name.
