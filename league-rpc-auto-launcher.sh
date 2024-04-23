@@ -1,8 +1,12 @@
 #!/bin/bash
 
+# Since Linux is no longer supported.. this script will not be supported.
+# Mostly here just for educational purposes. And in hopes of league ever returning on Linux.
+
+
 # Configurations
-REPO="Its-Haze/league-rpc-linux"
-EXECUTABLE="league_rpc_linux"
+REPO="Its-Haze/league-rpc"
+EXECUTABLE="league_rpc"
 
 # Use XDG_BIN_HOME for the executable, defaulting to ~/.local/bin if not set
 XDG_BIN_HOME=${XDG_BIN_HOME:-$HOME/.local/bin}
@@ -10,7 +14,7 @@ EXECUTABLE_PATH="$XDG_BIN_HOME/$EXECUTABLE"
 
 # Default to HOME if XDG_CACHE_HOME is not set for logs
 XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
-LOG_DIR="$XDG_CACHE_HOME/league-rpc-linux"
+LOG_DIR="$XDG_CACHE_HOME/league-rpc"
 LOG_FILE="$LOG_DIR/update_log.txt"
 
 AUTO_INSTALL=true # Set this to (true) to always install/update the latest version.
