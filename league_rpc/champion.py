@@ -23,7 +23,7 @@ urllib3.disable_warnings()
 def get_specific_champion_data(name: str) -> dict[str, Any]:
     response: requests.Response = requests.get(
         url=DDRAGON_CHAMPION_DATA.format_map(
-            map={"version": get_latest_version(), "name": name}
+            {"version": get_latest_version(), "name": name}
         ),
         timeout=15,
     )
