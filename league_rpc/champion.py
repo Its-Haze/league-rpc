@@ -4,6 +4,9 @@ from typing import Any, Optional
 import requests
 import urllib3
 
+from league_rpc.kda import get_gold, get_level
+from league_rpc.latest_version import get_latest_version
+from league_rpc.username import get_summoner_name
 from league_rpc.utils.color import Color
 from league_rpc.utils.const import (
     ALL_GAME_DATA_URL,
@@ -12,10 +15,7 @@ from league_rpc.utils.const import (
     DDRAGON_CHAMPION_DATA,
     GAME_MODE_CONVERT_MAP,
 )
-from league_rpc.kda import get_gold, get_level
-from league_rpc.latest_version import get_latest_version
 from league_rpc.utils.polling import wait_until_exists
-from league_rpc.username import get_summoner_name
 
 urllib3.disable_warnings()
 

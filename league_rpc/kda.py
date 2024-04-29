@@ -1,8 +1,8 @@
 import urllib3
 from requests import Response
 
-from league_rpc.utils.polling import wait_until_exists
 from league_rpc.username import get_summoner_name
+from league_rpc.utils.polling import wait_until_exists
 
 urllib3.disable_warnings()
 

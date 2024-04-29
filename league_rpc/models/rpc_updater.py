@@ -14,8 +14,13 @@ import time
 from dataclasses import dataclass
 from threading import Timer
 
-from pypresence import Presence
+from pypresence import Presence  # type:ignore
 
+from league_rpc.lcu_api.lcu_connector import ModuleData
+from league_rpc.models.client_data import ClientData
+from league_rpc.models.lcu.current_chat_status import LolChatUser
+from league_rpc.models.lcu.current_ranked_stats import ArenaStats, RankedStats, TFTStats
+from league_rpc.models.lcu.gameflow_phase import GameFlowPhase
 from league_rpc.utils.const import (
     BASE_MAP_ICON_URL,
     GAME_MODE_CONVERT_MAP,
@@ -25,11 +30,6 @@ from league_rpc.utils.const import (
     RANKED_TYPE_MAPPER,
     SMALL_TEXT,
 )
-from league_rpc.lcu_api.lcu_connector import ModuleData
-from league_rpc.models.client_data import ClientData
-from league_rpc.models.lcu.current_chat_status import LolChatUser
-from league_rpc.models.lcu.current_ranked_stats import ArenaStats, RankedStats, TFTStats
-from league_rpc.models.lcu.gameflow_phase import GameFlowPhase
 
 
 # As some events are called multiple times, we should limit the amount of updates to the RPC.

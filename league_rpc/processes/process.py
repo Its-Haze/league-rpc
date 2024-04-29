@@ -1,11 +1,13 @@
 import sys
 import time
+from argparse import Namespace
 
 import psutil
-import pypresence
+import pypresence  # type:ignore
 
-from league_rpc.utils.color import Color
 from league_rpc.disable_native_rpc.disable import check_and_modify_json, find_game_path
+from league_rpc.utils.color import Color
+from league_rpc.utils.launch_league import launch_league_client
 
 
 def processes_exists(process_names: list[str]) -> bool:
@@ -29,7 +31,7 @@ def process_exists(process_name: str) -> bool:
     return False
 
 
-def check_league_client_process(wait_for_league: int) -> None:
+def check_league_client_process(cli_args: Namespace) -> None:
     """
     Checks league client processes.
     """
@@ -37,10 +39,20 @@ def check_league_client_process(wait_for_league: int) -> None:
 
     print(f"{Color.yellow}Checking if LeagueClient.exe is running...")
     time.sleep(1)
-    if wait_for_league == -1:
-        print(
-            f"{Color.yellow}Will wait {Color.green}indefinitely{Color.yellow} for League to start... Remember, forever is a long time.. use {Color.green}CTRL + C{Color.yellow} if you would like to quit.{Color.reset}"
-        )
+
+    if cli_args.launch_league:
+        # launch league if it's not already running.
+        if not processes_exists(league_processes):
+            launch_league_client(cli_args)
+
+    if not processes_exists(process_names=league_processes):
+        # If league process is still not running, even after launching the client.
+        # Then something must have gone wrong.
+        # Do not exit app, but rather wait for user to open the correct game..
+        if cli_args.wait_for_league == -1:
+            print(
+                f"{Color.yellow}Will wait {Color.green}indefinitely{Color.yellow} for League to start... Remember, forever is a long time.. use {Color.green}CTRL + C{Color.yellow} if you would like to quit.{Color.reset}"
+            )
 
     wait_time = 0
     while True:
@@ -54,20 +66,20 @@ def check_league_client_process(wait_for_league: int) -> None:
                     print(
                         f"{Color.red} Did not find the game path for league.. Can't disable the native RPC.{Color.reset}"
                     )
-            if wait_for_league == -1:
+            if cli_args.wait_for_league == -1:
                 continue
-            elif wait_time >= wait_for_league:
+            elif wait_time >= cli_args.wait_for_league:
                 print(
-                    f"{Color.red}League Client is not running! Exiting after waiting {wait_for_league} seconds.{Color.reset}"
+                    f"{Color.red}League Client is not running! Exiting after waiting {cli_args.wait_for_league} seconds.{Color.reset}"
                 )
-                if not wait_for_league:
+                if not cli_args.wait_for_league:
                     print(
                         f"{Color.green}Want to add waiting time for League? Use --wait-for-league <seconds>. (-1 = infinite, or until CTRL + C)"
                     )
                 sys.exit()
             else:
                 print(
-                    f"{Color.yellow}Will wait for League to start. Time left: {wait_for_league - wait_time} seconds..."
+                    f"{Color.yellow}Will wait for League to start. Time left: {cli_args.wait_for_league - wait_time} seconds..."
                 )
                 time.sleep(5)
                 wait_time += 5
@@ -84,7 +96,7 @@ def check_discord_process(
     Checks if discord process is running.
     Connects to Discord Rich Presence if it is found.
     """
-    print(f"{Color.yellow}Checking if Discord is running...{Color.reset}")
+    print(f"\n{Color.yellow}Checking if Discord is running...{Color.reset}")
 
     look_for_processes = f"({Color.green}{', '.join(process_names)}{Color.blue})"
 
