@@ -3,29 +3,30 @@ import sys
 import threading
 import time
 
-import nest_asyncio
-import pypresence
+import nest_asyncio  # type:ignore
+import pypresence  # type:ignore
 
 from league_rpc.champion import gather_ingame_information, get_skin_asset
-from league_rpc.utils.color import Color
-from league_rpc.utils.const import (
-    ALL_GAME_DATA_URL,
-    CHAMPION_NAME_CONVERT_MAP,
-    DEFAULT_CLIENT_ID,
-    DISCORD_PROCESS_NAMES,
-    LEAGUE_OF_LEGENDS_LOGO,
-    SMALL_TEXT,
-)
 from league_rpc.gametime import get_current_ingame_time
 from league_rpc.kda import get_creepscore, get_gold, get_kda, get_level
 from league_rpc.lcu_api.lcu_connector import start_connector
-from league_rpc.utils.polling import wait_until_exists
 from league_rpc.processes.process import (
     check_discord_process,
     check_league_client_process,
     player_state,
 )
 from league_rpc.reconnect import discord_reconnect_attempt
+from league_rpc.utils.color import Color
+from league_rpc.utils.const import (
+    ALL_GAME_DATA_URL,
+    CHAMPION_NAME_CONVERT_MAP,
+    DEFAULT_CLIENT_ID,
+    DEFAULT_LEAGUE_CLIENT_EXE_PATH,
+    DISCORD_PROCESS_NAMES,
+    LEAGUE_OF_LEGENDS_LOGO,
+    SMALL_TEXT,
+)
+from league_rpc.utils.polling import wait_until_exists
 
 # Discord Application: League of Linux
 
@@ -36,7 +37,7 @@ def main(cli_args: argparse.Namespace) -> None:
     """
     ############################################################
     ## Check Discord, RiotClient & LeagueClient processes     ##
-    check_league_client_process(wait_for_league=cli_args.wait_for_league)
+    check_league_client_process(cli_args)
 
     rpc = check_discord_process(
         process_names=DISCORD_PROCESS_NAMES + cli_args.add_process,
@@ -105,7 +106,7 @@ def main(cli_args: argparse.Namespace) -> None:
                             skin_id=skin_id,
                         )
                         print(
-                            f"{Color.green}Successfully gathered all data.{Color.yellow}\nUpdating Discord Presence now!{Color.reset}"
+                            f"{Color.green}Successfully gathered all data. Updating your Presence now!{Color.reset}"
                         )
                         while player_state() == "InGame":
                             rpc.update(  # type:ignore
@@ -132,7 +133,7 @@ def main(cli_args: argparse.Namespace) -> None:
                             skin_id=skin_id,
                         )
                         print(
-                            f"{Color.green}Successfully gathered all data.{Color.yellow}\nUpdating Discord Presence now!{Color.reset}"
+                            f"{Color.green}Successfully gathered all data. Updating your Presence now!{Color.reset}"
                         )
                         while player_state() == "InGame":
                             if not champ_name or not gamemode:
@@ -222,6 +223,12 @@ if __name__ == "__main__":
         default=-1,
         help="Time in seconds to wait for the Discord client to start. -1 for infinite waiting, Good when you want to start this script before you've had time to start Discord.",
     )
+    action = parser.add_argument(
+        "--launch-league",
+        type=str,
+        default=DEFAULT_LEAGUE_CLIENT_EXE_PATH,
+        help=f"Path to the League of Legends client executable. Default path is: {DEFAULT_LEAGUE_CLIENT_EXE_PATH}",
+    )
 
     args: argparse.Namespace = parser.parse_args()
 
@@ -244,6 +251,7 @@ if __name__ == "__main__":
         print(
             f"{Color.green}Argument {Color.blue}--add-process{Color.green} detected.. Will add {Color.blue}{args.add_process}{Color.green} to the list of Discord processes to look for.{Color.reset}"
         )
+
     if args.client_id != DEFAULT_CLIENT_ID:
         print(
             f"{Color.green}Argument {Color.blue}--client-id{Color.green} detected.. Will try to connect by using {Color.blue}({args.client_id}){Color.reset}"
@@ -256,5 +264,18 @@ if __name__ == "__main__":
         print(
             f"{Color.green}Argument {Color.blue}--wait-for-discord{Color.green} detected.. {Color.blue}will wait for Discord to start before continuing{Color.reset}"
         )
+
+    if args.launch_league:
+        if args.launch_league == DEFAULT_LEAGUE_CLIENT_EXE_PATH:
+            print(
+                f"{Color.green}Attempting to launch the League client at the default location{Color.reset} {Color.blue}{args.launch_league}{Color.reset}\n"
+                f"{Color.green}If league is already running, it will not launch a new instance.{Color.reset}\n"
+                f"{Color.orange}If the League client does not launch, please specify the path manually using: --launch-league <path>{Color.reset}\n"
+            )
+        else:
+            print(
+                f"{Color.green}Detected the {Color.blue}--launch-league{Color.green} argument with a custom path. Attempting to launch the League client, from: {Color.blue}{args.launch_league}{Color.reset}\n"
+                f"{Color.orange}If league is already running, it will not launch a new instance.{Color.reset}\n"
+            )
 
     main(cli_args=args)

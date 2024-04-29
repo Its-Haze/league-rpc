@@ -65,11 +65,11 @@ def check_and_modify_json(file_path: str) -> None:
 
     if modify_json_data(data=data):
         print(
-            f"{Color.orange}Native league rpc found. Will disable it now.{Color.reset}"
+            f"\n{Color.orange}Native league rpc found. Will disable it now.{Color.reset}"
         )
         save_json_file(file_path=file_path, data=data)
         print(
-            f"{Color.green}Successfully disabled League Native Rich Presence{Color.reset}"
+            f"{Color.green}Successfully disabled League Native Rich Presence{Color.reset}\n"
         )
 
     # For debugging purposes only.

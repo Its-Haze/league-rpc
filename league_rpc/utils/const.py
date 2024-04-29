@@ -82,3 +82,6 @@ RANKED_TYPE_MAPPER = {
     "RANKED_TFT_TURBO": "Teamfight Tactics (Hyper Roll)",
     "CHERRY": "Arena",
 }
+
+DEFAULT_LEAGUE_CLIENT_EXE_PATH = "C:\\Riot Games\\Riot Client\\RiotClientServices.exe"
+DEFAULT_LEAGUE_CLIENT_EXECUTABLE = "RiotClientServices.exe"

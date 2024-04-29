@@ -170,7 +170,27 @@ This is what i do, to then publish the final `leagueRPC.exe` to Github.
 
 LeagueRPC supports various command-line arguments to enhance flexibility and user customization.
 
-### `--client-id <discord-app-id>`
+✨ Means Recommended.
+
+### `--launch-league <location>` ✨
+
+The `--launch-league` argument allows you to automatically launch the League of Legends client alongside leagueRPC. This feature is designed to make your experience more seamless by integrating the game launch into the RPC setup.
+
+By default, if `--launch-league` is specified without a path, the default installation path will be used:
+```plaintext
+C:\Riot Games\Riot Client\RiotClientServices.exe
+```
+This path is correct for the majority of installations. If your League of Legends client is installed in this location, you do not need to specify the path explicitly.
+
+If you have installed League of Legends in a non-default location, you must provide the path to the RiotClientServices.exe file when using --launch-league. For example, if your game is installed on the D drive, you can start leagueRPC with the game like this:
+
+```powershell
+.\leagueRPC.exe --launch-league "D:\Riot Games\Riot Client\RiotClientServices.exe"
+```
+This command tells leagueRPC to launch the League of Legends client from the specified location.
+
+
+### `--client-id <discord-app-id>` ✨
 Specify a custom Discord client ID for the RPC connection. Defaults to `League of Legends`
 **Example** `.\leagueRPC.exe --client-id 1230607224296968303` - This will show `League of Kittens`
 - **League of Kittens**: `1230607224296968303`
@@ -190,7 +210,7 @@ Hide your League rank on Discord (SoloQ/Flex/TFT/Arena) By default, this will be
 **Example**: `.\leagueRPC.exe --no-rank`
 
 
-### `--show-emojis`
+### `--show-emojis` ✨
 Do you want to show your Online/Away status with a emoji, then add this argument. By default, this will be hidden.
 
 **Example**: `.\leagueRPC.exe --show-emojis`
@@ -217,7 +237,7 @@ Similar to `--wait-for-league`, specify the time (in seconds) to wait for Discor
 Each of these arguments can be combined to tailor the Discord RPC to your preferences.
 
 ```powershell
-.\leagueRPC.exe --client-id 1194034071588851783 --no-stats --no-rank --add-process CustomDiscord --wait-for-league -1 --wait-for-discord 15 --show-emojis 
+.\leagueRPC.exe --client-id 1194034071588851783 --launch-league --no-stats --no-rank --add-process CustomDiscord --wait-for-league -1 --wait-for-discord 15 --show-emojis
 ```
 
 🛑 All of these arguments are optional. No extra argument is needed for the script to function properly. But in case you want to change something, you now can.
@@ -231,7 +251,7 @@ Each of these arguments can be combined to tailor the Discord RPC to your prefer
 5. **Precise In-Game Time Tracking**: The in-game time is calculated with precision. Even if the script stops, when restarted, it will display the correct in-game time, ensuring continuous and accurate representation of your game status.
 6. **Discord Reconnection Window**: While the script only works while Discord is up and running. There are instances where discord could crash. This program will attempt to reconnect to Discord's RPC even if the app is not running. For a period of time, and only exit when too much time has passed. Default is (50) seconds to restart/reconnect Discord.
 7. **Disables Native League Presence**: This application is able to detect, and disable the built in rich presence coming from league, leaving only this one active as your main Presence on discord. This was a huge issue before since it's not easy to disable. And now all you have to do is just start this application before launching the league client, and you will be good to go.
-
+8. **Launches League of legends for you**: To avoid forgetting to start this application before league all the time, you can let the application start league for you. Please read about the `--launch-league` argument to learn more.
 
 ## Tips for Running
 

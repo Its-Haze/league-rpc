@@ -1,12 +1,12 @@
+import time
 from argparse import Namespace
 from typing import Any, Optional
 
 from aiohttp import ClientResponse
-from lcu_driver.connection import Connection
-from lcu_driver.events.responses import WebsocketEventResponse
-from pypresence import Presence
+from lcu_driver.connection import Connection  # type:ignore
+from lcu_driver.events.responses import WebsocketEventResponse  # type:ignore
+from pypresence import Presence  # type:ignore
 
-from league_rpc.utils.color import Color
 from league_rpc.disable_native_rpc.disable import check_plugin_status, find_game_path
 from league_rpc.lcu_api.base_data import gather_base_data
 from league_rpc.models.client_data import ArenaStats, ClientData, RankedStats, TFTStats
@@ -19,6 +19,7 @@ from league_rpc.models.lcu.current_queue import LolGameQueuesQueue
 from league_rpc.models.lcu.current_summoner import Summoner
 from league_rpc.models.module_data import ModuleData
 from league_rpc.models.rpc_updater import RPCUpdater
+from league_rpc.utils.color import Color
 
 module_data = ModuleData()
 rpc_updater = RPCUpdater()
@@ -29,8 +30,10 @@ rpc_updater = RPCUpdater()
 @module_data.connector.ready  # type:ignore
 async def connect(connection: Connection) -> None:
     print(f"{Color.green}Successfully connected to the League Client API.{Color.reset}")
+    time.sleep(2)  # Give the client some time to load
 
     print(f"\n{Color.orange}Gathering base data.{Color.reset}")
+    time.sleep(2)
     await gather_base_data(connection=connection, module_data=module_data)
 
     print(f"{Color.green}Successfully gathered base data.{Color.reset}")
