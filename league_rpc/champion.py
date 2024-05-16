@@ -6,7 +6,7 @@ import urllib3
 
 from league_rpc.kda import get_gold, get_level
 from league_rpc.latest_version import get_latest_version
-from league_rpc.username import get_summoner_name
+from league_rpc.username import get_riot_id
 from league_rpc.utils.color import Color
 from league_rpc.utils.const import (
     ALL_GAME_DATA_URL,
@@ -35,7 +35,7 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
     Get the current playing champion name.
     """
     all_game_data_url = ALL_GAME_DATA_URL
-    your_summoner_name: str = get_summoner_name()
+    your_summoner_name: str = get_riot_id()
 
     champion_name: str | None = None
     skin_id: int | None = None
@@ -106,7 +106,7 @@ def gather_league_data(
     skin_ids: list[int] = []
 
     for player in parsed_data["allPlayers"]:
-        if player["summonerName"] == summoners_name:
+        if player["riotId"] == summoners_name:
             raw_champion_name: str = player["rawChampionName"].split("_")[-1]
             champion_data: dict[str, Any] = get_specific_champion_data(
                 name=raw_champion_name
