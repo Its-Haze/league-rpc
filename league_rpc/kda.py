@@ -1,7 +1,7 @@
 import urllib3
 from requests import Response
 
-from league_rpc.username import get_summoner_name
+from league_rpc.username import get_riot_id
 from league_rpc.utils.polling import wait_until_exists
 
 urllib3.disable_warnings()
@@ -68,13 +68,14 @@ def get_creepscore() -> str:
 
 def get_current_user_stats() -> Response | None:
     """
-    Request data from playerscores?summonerName and return the response.
+    Request data from playerscores?riotId and return the response.
     """
-    your_summoner_name = get_summoner_name()
-    if your_summoner_name:
+    your_riot_id = get_riot_id()
+    if your_riot_id:
         # If the summoner name is not found, we don't want the KDA.
-
-        player_score_url = f"https://127.0.0.1:2999/liveclientdata/playerscores?summonerName={your_summoner_name}"
+        player_score_url = (
+            f"https://127.0.0.1:2999/liveclientdata/playerscores?riotId={your_riot_id}"
+        )
         if response := wait_until_exists(url=player_score_url):
             return response
     return None
