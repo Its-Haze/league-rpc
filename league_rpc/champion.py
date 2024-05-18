@@ -154,12 +154,10 @@ def get_skin_asset(
             skin_id -= 1
             continue
 
-        print("in while: ", url)
         return url
 
     url = f"{BASE_SKIN_URL}{champion_name}_0.jpg"
 
-    print("outside while", url)
     return url
 
 
