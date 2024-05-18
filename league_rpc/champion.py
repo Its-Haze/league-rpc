@@ -155,9 +155,7 @@ def get_skin_asset(
             continue
 
         return url
-
     url = f"{BASE_SKIN_URL}{champion_name}_0.jpg"
-
     return url
 
 
