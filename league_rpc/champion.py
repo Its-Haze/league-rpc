@@ -103,8 +103,6 @@ def gather_league_data(
     skin_id: int = 0
     skin_name: Optional[str] = None
 
-    skin_ids: list[int] = []
-
     for player in parsed_data["allPlayers"]:
         if player["riotId"] == summoners_name:
             raw_champion_name: str = player["rawChampionName"].split("_")[-1]
@@ -116,18 +114,9 @@ def gather_league_data(
 
             skin_id = player["skinID"]
 
-            skin_ids = [
-                i["num"] for i in champion_data["data"][raw_champion_name]["skins"]
-            ]
-
             if skin_id:
-                while skin_id not in skin_ids:
-                    skin_id -= 1
-
-                for i in champion_data["data"][raw_champion_name]["skins"]:
-                    if skin_id == i["num"]:
-                        skin_name = i["name"]
-                        break
+                # skinName is not always present in the data.
+                skin_name = player["skinName"]
             break
         continue
     return champion_name, skin_id, skin_name
