@@ -77,6 +77,24 @@ def check_and_modify_json(file_path: str) -> None:
     #     print(f"{Colors.blue}No modifications necessary.{Colors.reset}")
 
 
+def find_game_locale(league_processes: list[str]) -> str:
+    """Find the locale, en_US, or something else of the current league process."""
+
+    for proc in psutil.process_iter(attrs=["cmdline", "name"]):
+        try:
+            if proc.info["name"] in league_processes:
+                locale_str: str = [
+                    x for x in proc.info["cmdline"] if x.startswith("--locale=")
+                ][0]
+                locale: str = locale_str.split("=")[1]
+                return locale
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+
+    print(f"{Color.orange}No locale found, defaulting to en_US{Color.reset}")
+    return "en_US"
+
+
 def find_game_path() -> Optional[str]:
     """Find the path to the plugin-manifest.json file for League of Legends."""
     target_process = "RiotClientServices.exe"

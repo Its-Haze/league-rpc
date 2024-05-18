@@ -4,6 +4,7 @@ from typing import Any, Optional
 import requests
 import urllib3
 
+from league_rpc.disable_native_rpc.disable import find_game_locale
 from league_rpc.kda import get_gold, get_level
 from league_rpc.latest_version import get_latest_version
 from league_rpc.username import get_riot_id
@@ -20,10 +21,17 @@ from league_rpc.utils.polling import wait_until_exists
 urllib3.disable_warnings()
 
 
-def get_specific_champion_data(name: str) -> dict[str, Any]:
+def get_specific_champion_data(name: str, locale: str) -> dict[str, Any]:
+    """
+    Get the specific champion data for the champion name.
+    """
     response: requests.Response = requests.get(
         url=DDRAGON_CHAMPION_DATA.format_map(
-            {"version": get_latest_version(), "name": name}
+            {
+                "version": get_latest_version(),
+                "name": name,
+                "locale": locale,
+            }
         ),
         timeout=15,
     )
@@ -107,16 +115,24 @@ def gather_league_data(
         if player["riotId"] == summoners_name:
             raw_champion_name: str = player["rawChampionName"].split("_")[-1]
             champion_data: dict[str, Any] = get_specific_champion_data(
-                name=raw_champion_name
+                name=raw_champion_name,
+                locale=find_game_locale(
+                    league_processes=[
+                        "LeagueClient.exe",
+                        "LeagueClientUx.exe",
+                    ]
+                ),
             )
-
             champion_name = champion_data["data"][raw_champion_name]["id"]
+            skin_name = player.get("skinName", None)
 
-            skin_id = player["skinID"]
+            if skin_name:
+                skin_id = [
+                    x["num"]
+                    for x in champion_data["data"][raw_champion_name]["skins"]
+                    if x["name"] == skin_name
+                ][0]
 
-            if skin_id:
-                # skinName is not always present in the data.
-                skin_name = player["skinName"]
             break
         continue
     return champion_name, skin_id, skin_name
@@ -137,9 +153,13 @@ def get_skin_asset(
         if not check_url(url=url):
             skin_id -= 1
             continue
+
+        print("in while: ", url)
         return url
 
     url = f"{BASE_SKIN_URL}{champion_name}_0.jpg"
+
+    print("outside while", url)
     return url
 
 

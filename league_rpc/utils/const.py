@@ -19,9 +19,7 @@ PROFILE_ICON_BASE_URL = (
     "https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon"
 )
 
-DDRAGON_CHAMPION_DATA = (
-    "https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion/{name}.json"
-)
+DDRAGON_CHAMPION_DATA = "https://ddragon.leagueoflegends.com/cdn/{version}/data/{locale}/champion/{name}.json"
 
 DDRAGON_API_VERSIONS = "https://ddragon.leagueoflegends.com/api/versions.json"
 
