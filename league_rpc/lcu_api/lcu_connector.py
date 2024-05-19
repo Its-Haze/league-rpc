@@ -60,10 +60,8 @@ async def summoner_updated(_: Connection, event: WebsocketEventResponse) -> None
     data: ClientData = module_data.client_data
     event_data: dict[str, Any] = event.data  # type:ignore
 
-    data.summoner_name = event_data[Summoner.DISPLAY_NAME]
-    data.summoner_level = event_data[Summoner.SUMMONER_LEVEL]
-    data.summoner_id = event_data[Summoner.SUMMONER_ID]
-    data.summoner_icon = event_data[Summoner.PROFILE_ICON_ID]
+    data.summoner_level = event_data.get(Summoner.SUMMONER_LEVEL, 0)
+    data.summoner_icon = event_data.get(Summoner.PROFILE_ICON_ID, 0)
 
     rpc_updater.delay_update(module_data=module_data)
 
