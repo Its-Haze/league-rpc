@@ -41,9 +41,7 @@ class ClientData:
     queue_id: int = -1
     queue_is_ranked: bool = False
     summoner_icon: int = 0
-    summoner_id: str = ""
     summoner_level: int = 0
-    summoner_name: str = ""
     summoner_rank: RankedStats = field(default_factory=RankedStats)
     summoner_rank_flex: RankedStats = field(default_factory=RankedStats)
     arena_rank: ArenaStats = field(default_factory=ArenaStats)

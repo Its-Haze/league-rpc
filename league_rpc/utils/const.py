@@ -11,6 +11,12 @@ SMALL_TEXT = "github.com/Its-Haze/league-rpc"
 
 ALL_GAME_DATA_URL = "https://127.0.0.1:2999/liveclientdata/allgamedata"
 
+ACTIVE_PLAYER_URL = "https://127.0.0.1:2999/liveclientdata/activeplayer"
+
+PLAYER_KDA_SCORES_URL = (
+    "https://127.0.0.1:2999/liveclientdata/playerscores?riotId={riotId}"
+)
+
 BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
 
 BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/{map_name}/img/game-select-icon-hover.png"
