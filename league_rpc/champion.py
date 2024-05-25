@@ -3,7 +3,6 @@ from typing import Any, Optional
 
 import requests
 import urllib3
-
 from league_rpc.disable_native_rpc.disable import find_game_locale
 from league_rpc.kda import get_gold, get_level
 from league_rpc.latest_version import get_latest_version
@@ -15,6 +14,7 @@ from league_rpc.utils.const import (
     CHAMPION_NAME_CONVERT_MAP,
     DDRAGON_CHAMPION_DATA,
     GAME_MODE_CONVERT_MAP,
+    MERAKIANALYTICS_CHAMPION_DATA,
 )
 from league_rpc.utils.polling import wait_until_exists
 
@@ -38,16 +38,32 @@ def get_specific_champion_data(name: str, locale: str) -> dict[str, Any]:
     return response.json()
 
 
-def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
+def get_specific_chroma_data(name: str, locale: str) -> dict[str, Any]:
+    """
+    Get the specific chroma champion data for the champion name.
+    """
+    url = MERAKIANALYTICS_CHAMPION_DATA.format_map(
+        {
+            "locale": locale.replace("_", "-"),
+        }
+    )
+    response: requests.Response = requests.get(
+        url=url,
+        timeout=15,
+    )
+    return response.json()[name]
+
+
+def gather_ingame_information() -> tuple[str, str, str, int, str, int, int]:
     """
     Get the current playing champion name.
     """
-    all_game_data_url = ALL_GAME_DATA_URL
     your_summoner_name: str = get_riot_id()
 
     champion_name: str | None = None
     skin_id: int | None = None
     skin_name: str | None = None
+    chroma_name: str | None = None
     game_mode: str | None = (
         None  # Set if the game mode was never found.. Maybe you are playing something new?
     )
@@ -55,7 +71,7 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
     gold: int | None = None
 
     if response := wait_until_exists(
-        url=all_game_data_url,
+        url=ALL_GAME_DATA_URL,
         custom_message="Did not find game data.. Will try again in 5 seconds",
     ):
         parsed_data = response.json()
@@ -69,7 +85,7 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
             level = get_level()
         else:
             # If the gamemode is LEAGUE gather the relevant information.
-            champion_name, skin_id, skin_name = gather_league_data(
+            champion_name, skin_id, skin_name, chroma_name = gather_league_data(
                 parsed_data=parsed_data, summoners_name=your_summoner_name
             )
             if game_mode == "Arena":
@@ -83,6 +99,10 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
                 print(
                     f"{Color.yellow}Skin detected: {Color.green}{skin_name},{Color.yellow} continuing..{Color.reset}"
                 )
+            if chroma_name:
+                print(
+                    f"{Color.yellow}Chroma detected: {Color.green}{chroma_name},{Color.yellow} continuing..{Color.reset}"
+                )
             if game_mode:
                 print(
                     f"{Color.yellow}Game mode detected: {Color.green}{game_mode},{Color.yellow} continuing..{Color.reset}"
@@ -93,6 +113,7 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
     return (
         (champion_name or ""),
         (skin_name or ""),
+        (chroma_name or ""),
         (skin_id or 0),
         (game_mode or ""),
         (level or 0),
@@ -103,39 +124,56 @@ def gather_ingame_information() -> tuple[str, str, int, str, int, int]:
 def gather_league_data(
     parsed_data: dict[str, Any],
     summoners_name: str,
-) -> tuple[Optional[str], int, Optional[str]]:
+) -> tuple[Optional[str], int, Optional[str], Optional[str]]:
     """
     If the gamemode is LEAGUE, gather the relevant information and return it to RPC.
     """
     champion_name: Optional[str] = None
     skin_id: int = 0
+    base_skin_id: int = 0
     skin_name: Optional[str] = None
+    chroma_name: Optional[str] = None
+    locale = find_game_locale(
+        league_processes=["LeagueClient.exe", "LeagueClientUx.exe"]
+    )
 
     for player in parsed_data["allPlayers"]:
         if player["riotId"] == summoners_name:
             raw_champion_name: str = player["rawChampionName"].split("_")[-1]
             champion_data: dict[str, Any] = get_specific_champion_data(
                 name=raw_champion_name,
-                locale=find_game_locale(
-                    league_processes=[
-                        "LeagueClient.exe",
-                        "LeagueClientUx.exe",
-                    ]
-                ),
+                locale=locale,
             )
             champion_name = champion_data["data"][raw_champion_name]["id"]
             skin_name = player.get("skinName", None)
+            skin_id = player.get("skinID", None)
 
             if skin_name:
-                skin_id = [
+                base_skin_id = [
                     x["num"]
                     for x in champion_data["data"][raw_champion_name]["skins"]
                     if x["name"] == skin_name
                 ][0]
+            if skin_id != base_skin_id:
+                # Chroma detected: Get the name of the chroma:
+                chroma_data = get_specific_chroma_data(
+                    name=raw_champion_name,
+                    locale="en-US",
+                )
+                _skin_data: dict[str, Any] = [
+                    x
+                    for x in chroma_data["skins"]
+                    if str(x["id"]).endswith(str(base_skin_id))
+                ][0]
+                chroma_name = [
+                    x["name"]
+                    for x in _skin_data["chromas"]
+                    if str(x["id"]).endswith(str(skin_id))
+                ][0]
 
             break
         continue
-    return champion_name, skin_id, skin_name
+    return champion_name, base_skin_id, skin_name, chroma_name
 
 
 def get_skin_asset(

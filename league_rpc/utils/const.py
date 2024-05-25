@@ -27,6 +27,10 @@ PROFILE_ICON_BASE_URL = (
 
 DDRAGON_CHAMPION_DATA = "https://ddragon.leagueoflegends.com/cdn/{version}/data/{locale}/champion/{name}.json"
 
+MERAKIANALYTICS_CHAMPION_DATA = (
+    "https://cdn.merakianalytics.com/riot/lol/resources/latest/{locale}/champions.json"
+)
+
 DDRAGON_API_VERSIONS = "https://ddragon.leagueoflegends.com/api/versions.json"
 
 MAP_ICON_CONVERT_MAP: dict[int, str] = {
