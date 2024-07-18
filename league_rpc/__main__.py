@@ -144,6 +144,45 @@ def main(cli_args: argparse.Namespace) -> None:
                                 )
                                 discord_reconnect_attempt(rpc=rpc)
                             time.sleep(10)
+
+                    elif gamemode == "Swarm - PVE":
+                        # Swarm PVE RPC
+                        skin_asset: str = get_skin_asset(
+                            champion_name=champ_name,
+                            skin_id=skin_id,
+                        )
+                        print(
+                            f"{Color.green}Successfully gathered all data. Updating your Presence now!{Color.reset}"
+                        )
+                        while player_state() == "InGame":
+                            large_text = (
+                                f"{skin_name} ({chroma_name})"
+                                if chroma_name
+                                else (
+                                    skin_name
+                                    if skin_name
+                                    else CHAMPION_NAME_CONVERT_MAP.get(
+                                        champ_name, champ_name
+                                    )
+                                )
+                            )
+                            try:
+                                rpc.update(  # type:ignore
+                                    large_image=skin_asset,
+                                    large_text=large_text,
+                                    details=gamemode,
+                                    state=f"In Game {f'· {get_creepscore()} · lvl: {get_level()} · gold: {get_gold()}' if not cli_args.no_stats else ''}",
+                                    small_image=LEAGUE_OF_LEGENDS_LOGO,
+                                    small_text=SMALL_TEXT,
+                                    start=int(time.time())
+                                    - get_current_ingame_time(default_time=start_time),
+                                )
+                            except RuntimeError:
+                                print(
+                                    f"{Color.red}Discord seems to be closed, will attempt to reconnect!{Color.reset}"
+                                )
+                                discord_reconnect_attempt(rpc=rpc)
+                            time.sleep(10)
                     else:
                         # LEAGUE RPC
                         skin_asset = get_skin_asset(

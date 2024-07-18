@@ -19,7 +19,7 @@ PLAYER_KDA_SCORES_URL = (
 
 BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
 
-BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/{map_name}/img/game-select-icon-hover.png"
+BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/{map_name}/img/game-select-icon-active.png"
 
 PROFILE_ICON_BASE_URL = (
     "https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon"
@@ -39,6 +39,7 @@ MAP_ICON_CONVERT_MAP: dict[int, str] = {
     21: "gamemodex",
     22: "tft",
     30: "cherry",
+    33: "strawberry",
 }
 
 
@@ -50,6 +51,7 @@ GAME_MODE_CONVERT_MAP: dict[str, str] = {
     "URF": "Summoner's Rift (URF)",
     "NEXUSBLITZ": "Nexux Blitz",
     "CHERRY": "Arena",
+    "STRAWBERRY": "Swarm - PVE",
     "TUTORIAL_MODULE_3": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_2": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_1": "Summoner's Rift (Tutorial)",

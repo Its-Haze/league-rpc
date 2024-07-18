@@ -88,7 +88,7 @@ def gather_ingame_information() -> tuple[str, str, str, int, str, int, int]:
             champion_name, skin_id, skin_name, chroma_name = gather_league_data(
                 parsed_data=parsed_data, summoners_name=your_summoner_name
             )
-            if game_mode == "Arena":
+            if game_mode in ("Arena", "Swarm - PVE"):
                 level, gold = get_level(), get_gold()
             print("-" * 50)
             if champion_name:
