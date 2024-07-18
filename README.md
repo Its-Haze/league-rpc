@@ -58,34 +58,36 @@ If you really don't want to show your rank, then add the ``--no-rank`` argument,
 ![lobby-ranked](images/in_soloq_show_ranked_1.png) ![lobby-ranked-2](images/in_soloq_show_ranked_2.png)
 
 
-<!-- #### Arena Games
+#### Arena Games
 
 To show these Arena ranked emblems, you will need to add the argument ``--show-rank`` when starting this application
 
-![lobby-arena-1](images/in_arena_show_ranked_1.jpeg)
+<!-- ![lobby-arena-1](images/in_arena_show_ranked_1.jpeg)
 
 ![lobby-arena-2](images/in_arena_show_ranked_2.jpeg) -->
+### Arena
+![Arena-rpc-example](images/arena-rpc-1.png)
+![Arena-rpc-example-ranked-emblem](images/arena-rpc-2.png)
+![Arena-ingame-example](images/in_game_arena_jax.png)
+
+
 
 ### In Game
 
-#### Default skin example
+#### Base skin example
 
 ![Yuumi-default-skin-league-rpc](images/in_game_yuumi_league-rpc-project.png)
 
 #### Skin example
 
-Just pick a skin in champ select and the script will automagically detect it and update discord RPC when your game starts!
-
-#### KDA + Minnions calculated and presented in Discord
 
 ![Aphelios-skin](images/in_game_aphelios_skin_kda.png)
 
-### TFT (Teamfight tactics) & Arena
+### TFT (Teamfight tactics)
 
 
 ![Teamfight-Tactics-example](images/in_game_tft.jpeg) 
-<!-- 
-![Arena-example](images/in_game_arena_jax.png) -->
+
 
 
 ## Installation
