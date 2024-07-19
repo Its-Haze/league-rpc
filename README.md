@@ -85,8 +85,12 @@ To show these Arena ranked emblems, you will need to add the argument ``--show-r
 
 ### TFT (Teamfight tactics)
 
-
 ![Teamfight-Tactics-example](images/in_game_tft.jpeg) 
+
+### Swarm
+Swarm PVE is now officially supported
+
+![image](https://github.com/user-attachments/assets/4b7a76a4-0825-4e34-a9e8-e2e5b2b995c6)
 
 
 
