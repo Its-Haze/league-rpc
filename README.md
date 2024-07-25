@@ -16,14 +16,11 @@
 **Enhance your Discord experience while playing League of Legends!** This project brings unique Discord Rich Presence integration for League players, including features not even available natively from the game!
 
 
-Got questions already? Don't hesitate to join the [Discord Community Server](https://discord.gg/FC3JSzmzyS)
+Got questions already? Don't hesitate to join the [Discord Community Server](https://discord.haze.sh)
 
 ## Table of Contents
 - [Showcase](#showcase)
 - [Installation](#installation)
-  - [Download from releases (Recommended)](#download-from-releases-recommended)
-  - [Install from Source (This is what the cool kids do!)](#install-from-source-this-is-what-the-cool-kids-do)
-    - [Build executable from source](#build-executable-from-source)
 - [Command Line Arguments](#command-line-arguments)
 - [Features](#features)
 - [Tips for Running](#tips-for-running)
@@ -34,9 +31,7 @@ Got questions already? Don't hesitate to join the [Discord Community Server](htt
 
 ## Showcase
 
-### In Client
-
-#### Summoner Icons
+### Summoner Icons
 
 Who let the Kitten and the Penguin out? I did 😎. Now you too, can show off your favorite summoner icon, righ there on Discord!
 
@@ -46,7 +41,7 @@ Who let the Kitten and the Penguin out? I did 😎. Now you too, can show off yo
 
 ![summoner-icon-1](images/in_client_icon_1.png) ![summoner-icon-2](images/in_client_icon_2.png)
 
-#### Ranked Games
+### Ranked Games
 
 You can show off your rank emblem right in your Discord Presence.
 - SoloQ/Flex:  Shows off your Rank emblem + LP
@@ -57,29 +52,17 @@ If you really don't want to show your rank, then add the ``--no-rank`` argument,
 
 ![lobby-ranked](images/in_soloq_show_ranked_1.png) ![lobby-ranked-2](images/in_soloq_show_ranked_2.png)
 
-
-#### Arena Games
-
-To show these Arena ranked emblems, you will need to add the argument ``--show-rank`` when starting this application
-
-<!-- ![lobby-arena-1](images/in_arena_show_ranked_1.jpeg)
-
-![lobby-arena-2](images/in_arena_show_ranked_2.jpeg) -->
 ### Arena
+To show these Arena ranked emblems, you will need to add the argument ``--show-rank`` when starting this application
 ![Arena-rpc-example](images/arena-rpc-1.png)
 ![Arena-rpc-example-ranked-emblem](images/arena-rpc-2.png)
 ![Arena-ingame-example](images/in_game_arena_jax.png)
 
-
-
-### In Game
-
-#### Base skin example
+### Base skin example
 
 ![Yuumi-default-skin-league-rpc](images/in_game_yuumi_league-rpc-project.png)
 
-#### Skin example
-
+### Skin example
 
 ![Aphelios-skin](images/in_game_aphelios_skin_kda.png)
 
@@ -92,72 +75,43 @@ Swarm PVE is now officially supported
 
 ![image](https://github.com/user-attachments/assets/4b7a76a4-0825-4e34-a9e8-e2e5b2b995c6)
 
-
+---
 
 ## Installation
 
-Installing LeagueRPC is straightforward. You can either download a pre-built package or clone the repository to build from source. Follow the steps below for the method that best suits your needs.
+### Prerequisites
+- You will need to have [Windows Terminal](https://aka.ms/terminal) installed, and set as your [Default Terminal](https://devblogs.microsoft.com/commandline/windows-terminal-as-your-default-command-line-experience/)
 
 
-### Download from releases (Recommended)
-
-For most users, using the pre-built package is the quickest way to start using LeagueRPC.
-
-#### Download the latest version.
+### Download the latest version.
 1.  Go to the [Releases Page](https://github.com/Its-Haze/league-rpc/releases)
 2.  Find the latest version and download `leagueRPC.exe` located under the assets section.
 
-#### Run the application.
+### Run the application.
 1. Locate the downloaded `leagueRPC.exe` file. Probably in your `Downloads` folder.
 2. Double-click the file to start leagueRPC.
   You will need to accept the windows popup, if one may appear.
 3. Done ✨
 
-#### Command line (Optional) 🧑🏽‍💻
-   If you prefer using the command line, follow these steps:
-   - Open [Windows Terminal](https://aka.ms/terminal).
-   - Navigate to your `Downloads` folder by typing:
-     ```bash
-     cd Downloads
-     ```
-   - To launch the application, enter:
-     ```powershell
-     .\leagueRPC.exe
-     ```
-   - Remember, in Windows🪟, you need to use `.\` to run executables from the current directory.
+---
 
+## Build from source (This is what the cool kids do!)
+If you prefer using the command line, follow these steps:
 
-### Install from Source (This is what the cool kids do!)
-
-1. **Clone the repository**:
-   Use the following command to clone the repository to your local machine:
+- Use the following command to clone the repository to your local machine:
    ```powershell
    git clone https://github.com/Its-Haze/league-rpc.git
    cd league-rpc
    ```
-
-2. **Create and activate a virtual environment**:
-   A virtual environment helps to keep dependencies required by different projects separate, creating isolated python environments for them. This is highly recommended to avoid conflicts between project dependencies.
+- A virtual environment helps to keep dependencies required by different projects separate, creating isolated python environments for them. This is highly recommended to avoid conflicts between project dependencies.
    ```powershell
    python -m venv venv
    .\venv\Scripts\activate
    ```
-
-3. **Install dependencies**:
-   With the virtual environment activated, install the required dependencies using:
+- With the virtual environment activated, install the required dependencies using:
    ```
    pip install -r requirements.txt
    ```
-
-4. **Run the application**:
-   Finally, start the application with:
-   ```powershell
-   python -m league_rpc
-   ```
-
-#### Build executable from source
-This is what i do, to then publish the final `leagueRPC.exe` to Github.
-
 - You will need pyinstaller for this to work
   ```powershell
   pip install pyinstaller
@@ -171,6 +125,8 @@ This is what i do, to then publish the final `leagueRPC.exe` to Github.
   ```powershell
   .\leagueRPC.exe
   ```
+
+---
 
 ## Command Line Arguments
 
@@ -300,7 +256,7 @@ Each of these arguments can be combined to tailor the Discord RPC to your prefer
 
 
 ## Contact and Support
-Got questions? Join the [Discord Server](https://discord.gg/FC3JSzmzyS)
+Got questions? Join the [Discord Server](https://discord.haze.sh) 
 Feel free to open up Help tickets, or contact me directly on Discord (@haze.dev).
 
 For issues related to the code, or project as a whole, please open an [issue on GitHub](https://github.com/Its-Haze/league-rpc/issues).
