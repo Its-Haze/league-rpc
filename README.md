@@ -54,9 +54,10 @@ If you really don't want to show your rank, then add the ``--no-rank`` argument,
 
 ### Arena
 To show these Arena ranked emblems, you will need to add the argument ``--show-rank`` when starting this application
+
 ![Arena-rpc-example](images/arena-rpc-1.png)
 ![Arena-rpc-example-ranked-emblem](images/arena-rpc-2.png)
-![Arena-ingame-example](images/in_game_arena_jax.png)
+<!-- ![Arena-ingame-example](images/in_game_arena_jax.png) -->
 
 ### Base skin example
 
