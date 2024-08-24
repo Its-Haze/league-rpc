@@ -39,6 +39,21 @@ class Color:
     def logo(self) -> str:
         """Just prints the LEAGUE rpc logo, in your favorite Terminal Emulator."""
 
+        latest_version = get_version_from_github()
+        if not latest_version:
+            print("Failed to fetch latest version from GitHub.")
+
+            return rf"""
+        {self.yellow}  _                                  {self.dblue} _____  _____   _____ {self.reset}
+        {self.yellow} | |                                 {self.dblue}|  __ \|  __ \ / ____|{self.reset}
+        {self.yellow} | |     ___  __ _  __ _ _   _  ___  {self.dblue}| |__) | |__) | |     {self.reset}
+        {self.yellow} | |    / _ \/ _` |/ _` | | | |/ _ \ {self.dblue}|  _  /|  ___/| |     {self.reset}
+        {self.yellow} | |___|  __/ (_| | (_| | |_| |  __/ {self.dblue}| | \ \| |    | |____ {self.reset}
+        {self.yellow} |______\___|\__,_|\__, |\__,_|\___| {self.dblue}|_|  \_\_|     \_____|{self.reset}
+        {self.yellow}                    __/ |                                              {self.reset}
+        {self.yellow}                   |___/ By @Haze.dev
+        """
+
         return rf"""
         {self.yellow}  _                                  {self.dblue} _____  _____   _____ {self.reset}
         {self.yellow} | |                                 {self.dblue}|  __ \|  __ \ / ____|{self.reset}
@@ -47,6 +62,6 @@ class Color:
         {self.yellow} | |___|  __/ (_| | (_| | |_| |  __/ {self.dblue}| | \ \| |    | |____ {self.reset}
         {self.yellow} |______\___|\__,_|\__, |\__,_|\___| {self.dblue}|_|  \_\_|     \_____|{self.reset}
         {self.yellow}                    __/ |                                              {self.reset}
-        {self.yellow}                   |___/ By @Haze.dev - (Version: {self.green if not check_latest_version() else self.red}{__version__}{self.yellow})       {self.reset}
-        {f'{self.yellow} A newer version is available at {RELEASES_PAGE} {self.green}[{get_version_from_github()}]{self.reset}' if check_latest_version() else ""}
+        {self.yellow}                   |___/ By @Haze.dev - (Version: {self.green if not check_latest_version(latest_version) else self.red}{__version__}{self.yellow})       {self.reset}
+        {f'{self.yellow} A newer version is available at {RELEASES_PAGE} {self.green}[{latest_version}]{self.reset}' if check_latest_version(latest_version) else ""}
         """

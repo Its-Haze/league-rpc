@@ -54,7 +54,26 @@ def get_specific_chroma_data(name: str, locale: str) -> dict[str, Any]:
     return response.json()[name]
 
 
-def gather_ingame_information() -> tuple[str, str, str, int, str, int, int]:
+def gather_game_mode() -> str:
+    """
+    Get the current game mode.
+    """
+    if response := wait_until_exists(
+        url=ALL_GAME_DATA_URL,
+        custom_message="Did not find game data.. Will try again in 5 seconds",
+    ):
+        parsed_data = response.json()
+        game_mode = GAME_MODE_CONVERT_MAP.get(
+            parsed_data["gameData"]["gameMode"],
+            parsed_data["gameData"]["gameMode"],
+        )
+        return game_mode
+    return ""
+
+
+def gather_ingame_information(
+    silent: bool = False,
+) -> tuple[str, str, str, int, str, int, int]:
     """
     Get the current playing champion name.
     """
@@ -85,29 +104,32 @@ def gather_ingame_information() -> tuple[str, str, str, int, str, int, int]:
             level = get_level()
         else:
             # If the gamemode is LEAGUE gather the relevant information.
+
             champion_name, skin_id, skin_name, chroma_name = gather_league_data(
                 parsed_data=parsed_data, summoners_name=your_summoner_name
             )
             if game_mode in ("Arena", "Swarm - PVE"):
                 level, gold = get_level(), get_gold()
-            print("-" * 50)
-            if champion_name:
-                print(
-                    f"{Color.yellow}Champion name found {Color.green}({CHAMPION_NAME_CONVERT_MAP.get(champion_name, champion_name)}),{Color.yellow} continuing..{Color.reset}"
-                )
-            if skin_name:
-                print(
-                    f"{Color.yellow}Skin detected: {Color.green}{skin_name},{Color.yellow} continuing..{Color.reset}"
-                )
-            if chroma_name:
-                print(
-                    f"{Color.yellow}Chroma detected: {Color.green}{chroma_name},{Color.yellow} continuing..{Color.reset}"
-                )
-            if game_mode:
-                print(
-                    f"{Color.yellow}Game mode detected: {Color.green}{game_mode},{Color.yellow} continuing..{Color.reset}"
-                )
-            print("-" * 50)
+
+            if not silent:
+                print("-" * 50)
+                if champion_name:
+                    print(
+                        f"{Color.yellow}Champion name found {Color.green}({CHAMPION_NAME_CONVERT_MAP.get(champion_name, champion_name)}),{Color.yellow} continuing..{Color.reset}"
+                    )
+                if skin_name:
+                    print(
+                        f"{Color.yellow}Skin detected: {Color.green}{skin_name},{Color.yellow} continuing..{Color.reset}"
+                    )
+                if chroma_name:
+                    print(
+                        f"{Color.yellow}Chroma detected: {Color.green}{chroma_name},{Color.yellow} continuing..{Color.reset}"
+                    )
+                if game_mode:
+                    print(
+                        f"{Color.yellow}Game mode detected: {Color.green}{game_mode},{Color.yellow} continuing..{Color.reset}"
+                    )
+                print("-" * 50)
 
     # Returns default values if information was not found.
     return (

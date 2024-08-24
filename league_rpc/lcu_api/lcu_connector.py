@@ -4,22 +4,25 @@ from typing import Any, Optional
 
 from aiohttp import ClientResponse
 from lcu_driver.connection import Connection  # type:ignore
+
 from lcu_driver.events.responses import WebsocketEventResponse  # type:ignore
 from pypresence import Presence  # type:ignore
+
 
 from league_rpc.disable_native_rpc.disable import check_plugin_status, find_game_path
 from league_rpc.lcu_api.base_data import gather_base_data
 from league_rpc.models.client_data import ArenaStats, ClientData, RankedStats, TFTStats
 from league_rpc.models.lcu.current_chat_status import LolChatUser
-from league_rpc.models.lcu.current_lobby import (
-    LolLobbyLobbyDto,
-    LolLobbyLobbyGameConfigDto,
-)
-from league_rpc.models.lcu.current_queue import LolGameQueuesQueue
+
 from league_rpc.models.lcu.current_summoner import Summoner
 from league_rpc.models.module_data import ModuleData
 from league_rpc.models.rpc_updater import RPCUpdater
 from league_rpc.utils.color import Color
+from league_rpc.utils.const import (
+    TFT_COMPANIONS_URL,
+)
+from pprint import pprint
+import rich
 
 module_data = ModuleData()
 rpc_updater = RPCUpdater()
@@ -39,7 +42,7 @@ async def connect(connection: Connection) -> None:
     print(f"{Color.green}Successfully gathered base data.{Color.reset}")
 
     print(f"\n{Color.orange}Updating Discord rpc with base data{Color.reset}")
-    rpc_updater.delay_update(module_data=module_data)
+    rpc_updater.delay_update(module_data=module_data, connection=connection)
     print(f"{Color.green}Discord RPC successfully updated{Color.reset}")
 
     print(f"\n{Color.cyan}LeagueRPC is ready{Color.reset}")
@@ -56,20 +59,30 @@ async def disconnect(_: Connection) -> None:
 @module_data.connector.ws.register(  # type:ignore
     uri="/lol-summoner/v1/current-summoner", event_types=("UPDATE",)
 )
-async def summoner_updated(_: Connection, event: WebsocketEventResponse) -> None:
+async def summoner_updated(
+    connection: Connection, event: WebsocketEventResponse
+) -> None:
+    print("Summoner updated")
     data: ClientData = module_data.client_data
     event_data: dict[str, Any] = event.data  # type:ignore
 
-    data.summoner_level = event_data.get(Summoner.SUMMONER_LEVEL, 0)
-    data.summoner_icon = event_data.get(Summoner.PROFILE_ICON_ID, 0)
+    new_summoner_icon = event_data.get(Summoner.PROFILE_ICON_ID, 0)
 
-    rpc_updater.delay_update(module_data=module_data)
+    if data.summoner_icon == new_summoner_icon:
+        print("Summoner icon is the same, nothing to update")
+        return
+
+    data.summoner_icon = new_summoner_icon
+
+    print("Updating RPC from summoner_updated")
+    rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
 @module_data.connector.ws.register(  # type:ignore
     uri="/lol-chat/v1/me", event_types=("UPDATE",)
 )
-async def chat_updated(_: Connection, event: WebsocketEventResponse) -> None:
+async def chat_updated(connection: Connection, event: WebsocketEventResponse) -> None:
+    print("Online status updated")
     data: ClientData = module_data.client_data
     event_data: dict[str, Any] = event.data  # type:ignore
 
@@ -80,19 +93,63 @@ async def chat_updated(_: Connection, event: WebsocketEventResponse) -> None:
         case LolChatUser.AWAY:
             data.availability = LolChatUser.AWAY.capitalize()
         case _:
-            ...
-    rpc_updater.delay_update(module_data=module_data)
+            print("Unknown chat status")
+            return None
+
+    print("Updating RPC from chat_updated")
+    rpc_updater.delay_update(module_data=module_data, connection=connection)
+
+
+# Return the selected TFT companion
+@module_data.connector.ws.register(  # type:ignore
+    uri="/lol-cosmetics/v1/inventories/tft/companions", event_types=("UPDATE",)
+)
+async def gather_tft_companion_data_updater(
+    connection: Connection, event: WebsocketEventResponse
+) -> None:
+    """
+    Gather TFT Companion data from the
+    """
+    print("TFT Companion data updated")
+    data: ClientData = module_data.client_data
+    event_data: dict[str, Any] = event.data  # type:ignore
+
+    companion_data = event_data.get("selectedLoadoutItem")
+    if not companion_data:
+        print("No TFT Companion data found.")
+        return
+
+    data.tft_companion_id = companion_data["itemId"]
+
+    companion_icon_path: str = companion_data["loadoutsIcon"]
+    companion_file_name: str = companion_icon_path.split("/")[-1].lower()
+
+    # Set the TFT Companion icon URL
+    data.tft_companion_icon = f"{TFT_COMPANIONS_URL}/{companion_file_name}"
+
+    data.tft_companion_name = companion_data["name"]
+    data.tft_companion_description = companion_data["description"]
+
+    print("Updating RPC from gather_tft_companion_data_updater")
+    rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
 @module_data.connector.ws.register(  # type:ignore
     "/lol-gameflow/v1/gameflow-phase", event_types=("UPDATE",)
 )
-async def gameflow_phase_updated(_: Connection, event: WebsocketEventResponse) -> None:
-    data: ClientData = module_data.client_data
-    event_data: Any = event.data  # type:ignore
+async def gameflow_phase_updated(
+    connection: Connection, event: WebsocketEventResponse
+) -> None:
+    print("Gameflow phase updated")
 
-    data.gameflow_phase = event_data  # returns plain string of the phase
-    rpc_updater.delay_update(module_data=module_data)
+    if module_data.client_data.gameflow_phase == event.data:  # type:ignore
+        print("Gameflow phase is the same, nothing to update")
+        return None
+
+    module_data.client_data.gameflow_phase = event.data  # type:ignore
+
+    print("Updating RPC from gameflow_phase_updated")
+    rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
 # could be used for lobby instead: /lol-gameflow/v1/gameflow-metadata/player-status
@@ -100,70 +157,75 @@ async def gameflow_phase_updated(_: Connection, event: WebsocketEventResponse) -
     uri="/lol-lobby/v2/lobby", event_types=("UPDATE", "CREATE", "DELETE")
 )
 async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> None:
-    data: ClientData = module_data.client_data
-    event_data: Optional[dict[str, Any]] = event.data  # type:ignore
+
+    print("Lobby updated")
+    event_data: Optional[dict[str, Any]] = getattr(event, "data", None)
 
     if event_data is None:
         # Make an early return if data is not present in the event.
+        # Probably us leaving the lobby.
+        print("Updating RPC from in_lobby - event_data is None")
+        # rpc_updater.delay_update(module_data, connection=connection)
         return
 
-    data.queue_id = int(
-        event_data[LolLobbyLobbyDto.GAME_CONFIG][
-            LolLobbyLobbyGameConfigDto.QUEUE_ID
-        ]  # type:ignore
-    )
-    data.lobby_id = event_data[LolLobbyLobbyDto.PARTY_ID]
-    data.players = len(event_data[LolLobbyLobbyDto.MEMBERS])  # type:ignore
-    data.max_players = int(
-        event_data[LolLobbyLobbyDto.GAME_CONFIG][  # type:ignore
-            LolLobbyLobbyGameConfigDto.MAX_LOBBY_SIZE
-        ]
-    )
-    data.map_id = event_data[LolLobbyLobbyDto.GAME_CONFIG][
-        LolLobbyLobbyGameConfigDto.MAP_ID
-    ]
-    data.gamemode = event_data[LolLobbyLobbyDto.GAME_CONFIG][
-        LolLobbyLobbyGameConfigDto.GAME_MODE
-    ]
-    data.is_custom = event_data[LolLobbyLobbyDto.GAME_CONFIG][
-        LolLobbyLobbyGameConfigDto.IS_CUSTOM
-    ]
-    if (
-        event_data[LolLobbyLobbyDto.GAME_CONFIG][LolLobbyLobbyGameConfigDto.GAME_MODE]
-        == "PRACTICETOOL"
-    ):
-        data.is_practice = True
-        data.max_players = 1
-    else:
-        data.is_practice = False
+    game_config: Optional[dict[str, Any]] = event_data.get("gameConfig")
+    if game_config is None:
+        print("Updating RPC from in_lobby - game_config is None")
+        # rpc_updater.delay_update(module_data, connection=connection)
+        return
 
-    if data.queue_id == -1:
+    # Get queue_id
+    module_data.client_data.queue_id = int(game_config["queueId"])
+    module_data.client_data.lobby_id = event_data["partyId"]
+    module_data.client_data.players = len(event_data["members"])
+    module_data.client_data.max_players = int(game_config["maxLobbySize"])
+    module_data.client_data.map_id = game_config["mapId"]
+    module_data.client_data.gamemode = game_config["gameMode"]
+    module_data.client_data.is_custom = game_config["isCustom"]
+    if game_config["gameMode"] == "PRACTICETOOL":
+        module_data.client_data.is_practice = True
+        module_data.client_data.max_players = 1
+    else:
+        module_data.client_data.is_practice = False
+
+    if module_data.client_data.queue_id == -1:
         # custom game / practice tool / tutorial lobby
-        if data.is_practice:
-            data.queue = "Practice Tool"
+        module_data.client_data.queue_detailed_description = ""
+        if module_data.client_data.is_practice:
+            module_data.client_data.queue_name = "Practice Tool"
         else:
-            data.queue = "Custom Game"
-        rpc_updater.delay_update(module_data)
+            module_data.client_data.queue_name = "Custom Game"
+        print("Updating RPC from in_lobby - custom game")
+        rpc_updater.delay_update(module_data, connection=connection)
         return
 
     lobby_queue_info_raw: ClientResponse = await connection.request(
         method="GET",
-        endpoint="/lol-game-queues/v1/queues/{id}".format_map({"id": data.queue_id}),
+        endpoint="/lol-game-queues/v1/queues/{id}".format_map(
+            {"id": module_data.client_data.queue_id}
+        ),
     )
     lobby_queue_info: dict[str, Any] = await lobby_queue_info_raw.json()
 
-    data.queue = lobby_queue_info[LolGameQueuesQueue.NAME]
-    data.queue_type = lobby_queue_info[LolGameQueuesQueue.TYPE]
-    data.queue_is_ranked = lobby_queue_info[LolGameQueuesQueue.IS_RANKED]
-
-    rpc_updater.delay_update(module_data=module_data)
+    # pprint("Lobby queue info")
+    # pprint(lobby_queue_info)
+    module_data.client_data.queue_name = lobby_queue_info["name"]
+    module_data.client_data.queue_type = lobby_queue_info["type"]
+    module_data.client_data.queue_is_ranked = lobby_queue_info["isRanked"]
+    module_data.client_data.queue_detailed_description = lobby_queue_info[
+        "detailedDescription"
+    ]
+    module_data.client_data.queue_description = lobby_queue_info["description"]
+    print("Updating RPC from in_lobby - at the bottom")
+    rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
 # ranked stats
 @module_data.connector.ws.register(  # type:ignore
     uri="/lol-ranked/v1/current-ranked-stats", event_types=("UPDATE",)
 )
-async def ranked(_: Connection, event: WebsocketEventResponse) -> None:
+async def ranked(connection: Connection, event: WebsocketEventResponse) -> None:
+    print("Ranked stats updated")
     data: ClientData = module_data.client_data
     event_data: dict[str, Any] = event.data  # type:ignore
 
@@ -179,17 +241,29 @@ async def ranked(_: Connection, event: WebsocketEventResponse) -> None:
     data.arena_rank = ArenaStats.from_map(obj_map=event_data)
     data.tft_rank = TFTStats.from_map(obj_map=event_data)
 
-    rpc_updater.delay_update(module_data)
+    print("Updating RPC from ranked - at the bottom")
+    rpc_updater.delay_update(module_data, connection)
 
 
-###### Debug ######
+##### Debug ######
 # This will catch all events and print them to the console.
 
+
 # @module_data.connector.ws.register(  # type:ignore
-#    "/", event_types=("UPDATE", "CREATE", "DELETE")
+#     "/",
+#     event_types=(
+#         "UPDATE",
+#         "CREATE",
+#         "DELETE",
+#     ),
 # )
 # async def debug(connection: Connection, event: WebsocketEventResponse) -> None:
-#    print(f"DEBUG - {event.type}: {event.uri}")
+#     print(f"DEBUG - {event.type}: {event.uri}")
+
+
+#     import pprint
+
+#     pprint.pprint(event.data)
 
 
 def start_connector(rpc_from_main: Presence, cli_args: Namespace) -> None:

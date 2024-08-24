@@ -21,6 +21,9 @@ BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
 
 BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/{map_name}/img/game-select-icon-active.png"
 
+TFT_COMPANIONS_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/companions"
+
+
 PROFILE_ICON_BASE_URL = (
     "https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon"
 )
@@ -91,6 +94,22 @@ RANKED_TYPE_MAPPER = {
     "RANKED_TFT_DOUBLE_UP": "Teamfight Tactics (Double Up Workshop)",
     "RANKED_TFT_TURBO": "Teamfight Tactics (Hyper Roll)",
     "CHERRY": "Arena",
+    "NORMAL": "Normal (Draft Pick)",
+}
+
+
+# queue_detailed_description if it exists.. otherwise use queue_name
+QUEUE_MAPPER = {
+    "Normal (Quickplay)",  # detailed description
+    "Normal (Draft Pick)",  # # detailed description
+    "Ranked Solo/Duo",  # name
+    "Ranked Flex",  # name
+    "ARAM",  # name
+    "Arena",  # name
+    "Teamfight Tactics (Normal)",  # detailed description
+    "Teamfight Tactics (Ranked)",  # detailed description
+    "Teamfight Tactics (Double Up Workshop)",  # detailed description
+    "Teamfight Tactics (Hyper Roll)",  # detailed description
 }
 
 DEFAULT_LEAGUE_CLIENT_EXE_PATH = "C:\\Riot Games\\Riot Client\\RiotClientServices.exe"

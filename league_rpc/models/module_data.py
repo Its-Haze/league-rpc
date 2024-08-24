@@ -14,6 +14,7 @@ Usage:
 
 from argparse import Namespace
 from dataclasses import dataclass, field
+import time
 from typing import Optional
 
 from lcu_driver.connector import Connector
@@ -33,3 +34,4 @@ class ModuleData:
     client_data: ClientData = field(default_factory=ClientData)
     rpc: Optional[Presence] = None
     cli_args: Optional[Namespace] = None
+    start_time = int(time.time())
