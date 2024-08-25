@@ -1,9 +1,9 @@
 import json
 import os
 from typing import Any, Optional
-
 import psutil
 
+from league_rpc.logger.richlogger import RichLogger
 from league_rpc.utils.color import Color
 
 LEAGUE_NATIVE_RPC_PLUGIN = "rcp-be-lol-discord-rp"
@@ -11,6 +11,7 @@ LEAGUE_NATIVE_RPC_PLUGIN = "rcp-be-lol-discord-rp"
 
 def check_plugin_status(
     file_path: str,
+    logger: RichLogger,
     plugin_name: str = LEAGUE_NATIVE_RPC_PLUGIN,
 ) -> None:
     """Check if a specific plugin is still in the manifest file and inform the user."""
@@ -22,9 +23,11 @@ def check_plugin_status(
         plugin["name"] == plugin_name for plugin in data.get("plugins", [])
     )
     if plugin_found:
-        print(
-            f"{Color.yellow}The Native League Presence is still active. Please start this application before launching League of legends to fully disable it.{Color.reset}"
+        logger.warning(
+            "The Native League Presence is still active. Please start this application before launching League of legends to fully disable it.",
+            color="yellow",
         )
+
 
 
 def load_json_file(file_path: str) -> Optional[dict[str, Any]]:
@@ -57,24 +60,17 @@ def modify_json_data(
     return modified
 
 
-def check_and_modify_json(file_path: str) -> None:
+def check_and_modify_json(file_path: str, logger: RichLogger) -> None:
     """Remove a specific plugin from the League manifest file."""
     data: dict[str, Any] | None = load_json_file(file_path=file_path)
     if data is None:
         return
 
     if modify_json_data(data=data):
-        print(
-            f"\n{Color.orange}Native league rpc found. Will disable it now.{Color.reset}"
-        )
         save_json_file(file_path=file_path, data=data)
-        print(
-            f"{Color.green}Successfully disabled League Native Rich Presence{Color.reset}\n"
-        )
+        logger.info("Successfully disabled League Native Rich Presence")
+        logger.update_progress_bar(advance=10)
 
-    # For debugging purposes only.
-    # else:
-    #     print(f"{Colors.blue}No modifications necessary.{Colors.reset}")
 
 
 def find_game_locale(league_processes: list[str]) -> str:
@@ -91,7 +87,6 @@ def find_game_locale(league_processes: list[str]) -> str:
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
 
-    print(f"{Color.orange}No locale found, defaulting to en_US{Color.reset}")
     return "en_US"
 
 

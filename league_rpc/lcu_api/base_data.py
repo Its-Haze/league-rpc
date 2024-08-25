@@ -142,10 +142,15 @@ async def gather_tft_companion_data(connection: Connection, data: ClientData) ->
 
     tft_companion_data_json = await tft_companion_data_raw.json()
 
-    companion_data = tft_companion_data_json.get("selectedLoadoutItem")
-    if not companion_data:
-        print("No TFT Companion data found.")
-        return
+    set_tft_companion_data(data, tft_companion_data_json)
+
+
+def set_tft_companion_data(
+    data: ClientData,
+    companion_data_json: dict[str, Any],
+) -> None:
+    """Set TFT Companion data from the LCU API."""
+    companion_data = companion_data_json["selectedLoadoutItem"]
 
     data.tft_companion_id = companion_data["itemId"]
 
@@ -156,12 +161,6 @@ async def gather_tft_companion_data(connection: Connection, data: ClientData) ->
     data.tft_companion_icon = f"{TFT_COMPANIONS_URL}/{companion_file_name}"
     data.tft_companion_name = companion_data["name"]
     data.tft_companion_description = companion_data["description"]
-
-
-def gather_tft_companion_data_synchroneous(
-    connection: Connection, data: ClientData
-) -> None:
-    asyncio.run(gather_tft_companion_data(connection, data))
 
 
 async def gather_chat_status_data(connection: Connection, data: ClientData) -> None:

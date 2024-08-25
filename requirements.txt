@@ -3,3 +3,4 @@ psutil==5.9.6
 requests==2.31.0
 nest_asyncio==1.5.8
 lcu-driver==3.0.1
+rich==13.7.1

@@ -15,22 +15,32 @@ from league_rpc.processes.process import (
 )
 
 from league_rpc.utils.color import Color
-from league_rpc.utils.const import DEFAULT_CLIENT_ID, DEFAULT_LEAGUE_CLIENT_EXE_PATH, DISCORD_PROCESS_NAMES
+from league_rpc.utils.const import (
+    DEFAULT_CLIENT_ID,
+    DEFAULT_LEAGUE_CLIENT_EXE_PATH,
+    DISCORD_PROCESS_NAMES,
+)
+from league_rpc.logger.richlogger import RichLogger
 
 
 def main(cli_args: argparse.Namespace) -> None:
     """
     This is the program that gets executed.
     """
+
+    logger = RichLogger()
+    logger.start_progress_bar(name="Checking league and Discord")
     ############################################################
     ## Check Discord, RiotClient & LeagueClient processes     ##
-    check_league_client_process(cli_args)
+    check_league_client_process(cli_args, logger)
 
     rpc = check_discord_process(
         process_names=DISCORD_PROCESS_NAMES + cli_args.add_process,
         client_id=cli_args.client_id,
         wait_for_discord=cli_args.wait_for_discord,
+        logger=logger,
     )
+    logger.stop_progress_bar()
 
     # Start LCU_Thread
     # This process will connect to the LCU API and updates the rpc based on data subscribed from the LCU API.
@@ -41,17 +51,19 @@ def main(cli_args: argparse.Namespace) -> None:
         args=(
             rpc,
             cli_args,
+            logger,
         ),
         daemon=True,
     )
     lcu_process.start()
 
-    print(f"\n{Color.green}Successfully connected to Discord RPC!{Color.reset}")
+    # print(f"\n{Color.green}Successfully connected to Discord RPC!{Color.reset}")
 
     try:
         asyncio.get_event_loop().run_forever()
     except KeyboardInterrupt:
-        print(f"{Color.red}Shutting down the program..{Color.reset}")
+        logger.error("KeyboardInterrupt detected. Shutting down the program..")
+        # print(f"{Color.red}Shutting down the program..{Color.reset}")
         rpc.close()
         sys.exit()
 

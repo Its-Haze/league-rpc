@@ -108,7 +108,7 @@ def gather_ingame_information(
             champion_name, skin_id, skin_name, chroma_name = gather_league_data(
                 parsed_data=parsed_data, summoners_name=your_summoner_name
             )
-            if game_mode in ("Arena", "Swarm - PVE"):
+            if game_mode in ("Arena", "Swarm"):
                 level, gold = get_level(), get_gold()
 
             if not silent:

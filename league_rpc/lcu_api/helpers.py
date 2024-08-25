@@ -11,7 +11,7 @@ from league_rpc.champion import (
 )
 from league_rpc.gametime import get_current_ingame_time
 from league_rpc.kda import get_creepscore, get_kda, get_level
-from league_rpc.lcu_api.base_data import gather_tft_companion_data_synchroneous
+from league_rpc.lcu_api.base_data import set_tft_companion_data
 
 from league_rpc.models.module_data import ModuleData
 from league_rpc.utils.const import (
@@ -20,7 +20,7 @@ from league_rpc.utils.const import (
     SMALL_TEXT,
 )
 import rich
-from league_rpc.models.client_data import ArenaStats, ClientData, RankedStats, TFTStats
+from league_rpc.models.client_data import ArenaStats, RankedStats, TFTStats
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -33,29 +33,25 @@ async def get_current_state(connection: Connection) -> str:
     return state
 
 
-def get_current_state_sync(connection: Connection) -> str:
+def get_lcu_data_sync(connection: Connection, endpoint: str) -> Any:
     """
-    Fetch the current game flow state synchronously using requests.
-
-    Args:
-        connection (Connection): A connection object containing the address and authentication key.
-
-    Returns:
-        str: The current game flow state or an error message.
+    fetch data from the LCU api synchronously
     """
     # Inspecting connection details for debugging
 
+    assert endpoint.startswith("/"), "Endpoint must start with a /"
+
     # Define the endpoint
-    endpoint = f"{connection.address}/lol-gameflow/v1/gameflow-phase"
+    target_endpoint = f"{connection.address}{endpoint}"
 
     try:
         # Perform the synchronous GET request
 
         response = requests.get(
-            endpoint,
+            target_endpoint,
             auth=HTTPBasicAuth("riot", connection.auth_key),
             verify=False,  # Disabling SSL verification; adjust as necessary
-            timeout=15,  # Set a timeout to prevent hanging
+            timeout=30,  # Set a timeout to prevent hanging
         )
 
         # Raise an error if the response was not successful
@@ -63,13 +59,9 @@ def get_current_state_sync(connection: Connection) -> str:
 
         # Parse the JSON response
         state = response.json()
-
-        # Inspecting the response for debugging
-        # rich.inspect(state)
         return state
 
-    except requests.RequestException as e:
-        rich.print(f"An error occurred: {e}")
+    except requests.RequestException:
         return "Error"
 
 
@@ -155,10 +147,10 @@ def handle_in_game(
         handle_tft_game(connection, silent, module_data)
     elif game_mode == "Arena":
         handle_arena_game(silent, module_data)
-    elif game_mode == "Swarm - PVE":
+    elif game_mode == "Swarm":
         handle_swarm_game(silent, module_data)
     else:
-        print(f"Unknown game mode: {game_mode}")
+        module_data.logger.error(f"Unknown game mode: {game_mode}")
         return None
 
 
@@ -166,6 +158,9 @@ def handle_swarm_game(silent: bool, module_data: ModuleData) -> None:
     """
     Gather data specific to Swarm games
     """
+
+    if not module_data.client_data.queue_name:
+        module_data.client_data.queue_name = "Swarm"
     (
         champ_name,
         skin_name,
@@ -188,22 +183,30 @@ def handle_swarm_game(silent: bool, module_data: ModuleData) -> None:
             else CHAMPION_NAME_CONVERT_MAP.get(champ_name, champ_name)
         )
     )
-    module_data.rpc.update(  # type:ignore
-        large_image=skin_asset,
-        large_text=large_text,
-        details=module_data.client_data.get_queue_name,
-        state=f"In Game {f'· {get_creepscore()} · lvl: {level} · gold: {gold}' if not module_data.cli_args.no_stats else ''}",
-        small_image=LEAGUE_OF_LEGENDS_LOGO,
-        small_text=SMALL_TEXT,
-        start=int(time.time())
-        - get_current_ingame_time(default_time=module_data.start_time),
-    )
+    try:
+        module_data.rpc.update(  # type:ignore
+            large_image=skin_asset,
+            large_text=large_text,
+            details=module_data.client_data.get_queue_name,
+            state=f"In Game {f'· {get_creepscore()} · lvl: {level} · gold: {gold}' if not module_data.cli_args.no_stats else ''}",
+            small_image=LEAGUE_OF_LEGENDS_LOGO,
+            small_text=SMALL_TEXT,
+            start=int(time.time())
+            - get_current_ingame_time(default_time=module_data.start_time),
+        )
+    except RuntimeError:
+        module_data.logger.debug("Error updating RPC, likely due to the game ending.")
 
 
 def handle_arena_game(silent: bool, module_data: ModuleData) -> None:
     """
     Gather data specific to Arena games
     """
+
+    # Set queue name to arena
+    if not module_data.client_data.queue_name:
+        module_data.client_data.queue_name = "Arena"
+
     (
         champ_name,
         skin_name,
@@ -227,20 +230,36 @@ def handle_arena_game(silent: bool, module_data: ModuleData) -> None:
             else CHAMPION_NAME_CONVERT_MAP.get(champ_name, champ_name)
         )
     )
+    small_image = LEAGUE_OF_LEGENDS_LOGO
+    small_text = SMALL_TEXT
 
-    module_data.rpc.update(  # type:ignore
-        large_image=skin_asset,
-        large_text=large_text,
-        details=module_data.client_data.get_queue_name,
-        state=f"In Game {f'· {get_kda()} · lvl: {level} · gold: {gold}' if not module_data.cli_args.no_stats else ''}",
-        small_image=LEAGUE_OF_LEGENDS_LOGO,
-        small_text=SMALL_TEXT,
-        start=int(time.time())
-        - get_current_ingame_time(default_time=module_data.start_time),
-    )
+    if not module_data.cli_args.no_rank:  # type: ignore
+        _, _small_image, _small_text = show_ranked_data(module_data)
+        if all([_small_image, _small_text]):
+            small_image, small_text = (
+                _small_image,
+                _small_text,
+            )
+
+    try:
+        module_data.rpc.update(  # type:ignore
+            large_image=skin_asset,
+            large_text=large_text,
+            details=module_data.client_data.get_queue_name,
+            state=f"In Game {f'· {get_kda()} · lvl: {level} · gold: {gold}' if not module_data.cli_args.no_stats else ''}",
+            small_image=small_image,
+            small_text=small_text,
+            start=int(time.time())
+            - get_current_ingame_time(default_time=module_data.start_time),
+        )
+    except RuntimeError:
+        module_data.logger.debug("Error updating RPC, likely due to the game ending.")
 
 
-def handle_normal_game(silent: bool, module_data: ModuleData) -> None:
+def handle_normal_game(
+    silent: bool,
+    module_data: ModuleData,
+) -> None:
     """
     Gather data specific to summoners rift games
     """
@@ -280,16 +299,19 @@ def handle_normal_game(silent: bool, module_data: ModuleData) -> None:
                 _small_text,
             )
 
-    module_data.rpc.update(  # type:ignore
-        large_image=skin_asset,
-        large_text=large_text,
-        details=module_data.client_data.get_queue_name,
-        state=f"In Game {f'· {get_kda()} · {get_creepscore()}' if not module_data.cli_args.no_stats else ''}",
-        small_image=small_image,
-        small_text=small_text,
-        start=int(time.time())
-        - get_current_ingame_time(default_time=module_data.start_time),
-    )
+    try:
+        module_data.rpc.update(  # type:ignore
+            large_image=skin_asset,
+            large_text=large_text,
+            details=module_data.client_data.get_queue_name,
+            state=f"In Game {f'· {get_kda()} · {get_creepscore()}' if not module_data.cli_args.no_stats else ''}",
+            small_image=small_image,
+            small_text=small_text,
+            start=int(time.time())
+            - get_current_ingame_time(default_time=module_data.start_time),
+        )
+    except RuntimeError:
+        module_data.logger.debug("Error updating RPC, likely due to the game ending.")
 
 
 def handle_tft_game(
@@ -297,15 +319,21 @@ def handle_tft_game(
 ) -> None:
     if not silent:
         # only gather this data once.
-        gather_tft_companion_data_synchroneous(connection, module_data.client_data)
+        companion_data_json = get_lcu_data_sync(
+            connection, endpoint="/lol-cosmetics/v1/inventories/tft/companions"
+        )
+        set_tft_companion_data(module_data.client_data, companion_data_json)
 
-    module_data.rpc.update(  # type:ignore
-        large_image=module_data.client_data.tft_companion_icon,
-        large_text=module_data.client_data.tft_companion_name,
-        details=module_data.client_data.get_queue_name,
-        state=f"In Game · lvl: {get_level()}",
-        small_image=LEAGUE_OF_LEGENDS_LOGO,
-        small_text=SMALL_TEXT,
-        start=int(time.time())
-        - get_current_ingame_time(default_time=module_data.start_time),
-    )
+    try:
+        module_data.rpc.update(  # type:ignore
+            large_image=module_data.client_data.tft_companion_icon,
+            large_text=module_data.client_data.tft_companion_name,
+            details=module_data.client_data.get_queue_name,
+            state=f"In Game · lvl: {get_level()}",
+            small_image=LEAGUE_OF_LEGENDS_LOGO,
+            small_text=SMALL_TEXT,
+            start=int(time.time())
+            - get_current_ingame_time(default_time=module_data.start_time),
+        )
+    except RuntimeError:
+        module_data.logger.debug("Error updating RPC, likely due to the game ending.")

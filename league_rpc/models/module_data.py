@@ -20,6 +20,7 @@ from typing import Optional
 from lcu_driver.connector import Connector
 from pypresence import Presence
 
+from league_rpc.logger.richlogger import RichLogger
 from league_rpc.models.client_data import ClientData
 
 
@@ -32,6 +33,7 @@ class ModuleData:
 
     connector: Connector = field(default_factory=Connector)
     client_data: ClientData = field(default_factory=ClientData)
+    logger: RichLogger = field(default_factory=RichLogger)
     rpc: Optional[Presence] = None
     cli_args: Optional[Namespace] = None
     start_time = int(time.time())

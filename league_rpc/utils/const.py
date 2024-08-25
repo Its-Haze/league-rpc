@@ -54,7 +54,7 @@ GAME_MODE_CONVERT_MAP: dict[str, str] = {
     "URF": "Summoner's Rift (URF)",
     "NEXUSBLITZ": "Nexux Blitz",
     "CHERRY": "Arena",
-    "STRAWBERRY": "Swarm - PVE",
+    "STRAWBERRY": "Swarm",
     "TUTORIAL_MODULE_3": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_2": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_1": "Summoner's Rift (Tutorial)",

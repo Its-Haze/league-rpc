@@ -33,4 +33,9 @@ class LolChatUser:
     SUMMONER_ID = "summonerId"
     TIME = "time"
 
-    AVAILABLE_CHAT_STATUSES = {CHAT := "chat", AWAY := "away", ONLINE := "online"}
+    AVAILABLE_CHAT_STATUSES = {
+        CHAT := "chat",
+        AWAY := "away",
+        ONLINE := "online",
+        DND := "dnd",
+    }

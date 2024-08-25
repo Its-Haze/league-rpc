@@ -11,6 +11,7 @@ Usage:
 """
 
 import time
+import copy
 from dataclasses import dataclass, field
 from threading import Timer
 from lcu_driver.connection import Connection  # type:ignore
@@ -18,14 +19,13 @@ from pypresence import Presence  # type:ignore
 import rich
 
 from league_rpc.lcu_api.helpers import (
-    get_current_state_sync,
+    get_lcu_data_sync,
     handle_in_game,
     show_ranked_data,
 )
 from league_rpc.models.module_data import ModuleData
 from league_rpc.models.client_data import ClientData
 from league_rpc.models.lcu.current_chat_status import LolChatUser
-from league_rpc.models.lcu.current_ranked_stats import ArenaStats, RankedStats, TFTStats
 from league_rpc.models.lcu.gameflow_phase import GameFlowPhase
 from league_rpc.utils.color import Color
 from league_rpc.utils.const import (
@@ -34,10 +34,8 @@ from league_rpc.utils.const import (
     LEAGUE_OF_LEGENDS_LOGO,
     MAP_ICON_CONVERT_MAP,
     PROFILE_ICON_BASE_URL,
-    RANKED_TYPE_MAPPER,
     SMALL_TEXT,
 )
-import copy
 
 
 # As some events are called multiple times, we should limit the amount of updates to the RPC.
@@ -53,12 +51,6 @@ class RPCUpdater:
     def has_client_data_changed(self, current_client_data: ClientData) -> bool:
         """
         Compares the current client data with the previous client data to detect any changes.
-
-        Args:
-            current_client_data (ClientData): The current client data to compare.
-
-        Returns:
-            bool: True if the client data has changed, False otherwise.
         """
         if self.previous_client_data is None:
             # No previous data exists, so consider it as changed
@@ -75,27 +67,16 @@ class RPCUpdater:
         """Schedules an update if one is not already scheduled within a short delay (1 second)."""
         # Check if the client data has changed
         if self.has_client_data_changed(module_data.client_data):
-            print("Client data has changed. Scheduling Update RPC")
-
-            print("Current Client Data:")
-            rich.inspect(module_data.client_data)
-            print("Previous Client Data:")
-            rich.inspect(self.previous_client_data)
-
             Timer(
                 interval=1.0,
                 function=self.update_rpc_and_reset_flag,
                 args=(module_data, connection),
             ).start()
-        else:
-            print("No changes detected in client data. Update skipped.")
 
     def update_rpc_and_reset_flag(
         self, module_data: ModuleData, connection: Connection
     ) -> None:
         """Executes the update to Rich Presence and resets the scheduling flag."""
-
-        print("Update RPC and Reset Flag Called")
         self.update_rpc(
             module_data=module_data,
             connection=connection,
@@ -112,8 +93,6 @@ class RPCUpdater:
         """
         Updates Rich Presence when the user is in the client.
         """
-        print("In Client RPC Update Called")
-
         details: str = f"{module_data.client_data.availability}"
         show_emojis: bool = module_data.cli_args.show_emojis  # type:ignore
 
@@ -124,15 +103,18 @@ class RPCUpdater:
             # details = status_emojis + details
             details = status_emojis + "  " + details
 
-        rpc.update(  # type: ignore
-            large_image=f"{PROFILE_ICON_BASE_URL}{module_data.client_data.summoner_icon}.png",
-            large_text="In Client",
-            small_image=LEAGUE_OF_LEGENDS_LOGO,
-            small_text=SMALL_TEXT,
-            details=details,
-            state="In Client",
-            start=module_data.client_data.application_start_time,
-        )
+        try:
+            rpc.update(  # type: ignore
+                large_image=f"{PROFILE_ICON_BASE_URL}{module_data.client_data.summoner_icon}.png",
+                large_text="In Client",
+                small_image=LEAGUE_OF_LEGENDS_LOGO,
+                small_text=SMALL_TEXT,
+                details=details,
+                state="In Client",
+                start=module_data.client_data.application_start_time,
+            )
+        except RuntimeError:
+            module_data.logger.debug("Error in Client RPC: Probably safe to ignore")
 
     @staticmethod
     def in_lobby_rpc(
@@ -176,8 +158,7 @@ class RPCUpdater:
                 start=module_data.client_data.application_start_time,
             )
         except RuntimeError:
-            print("Error in Lobby RPC: Probably safe to ignore")
-        return None
+            module_data.logger.debug("Error in Lobby RPC: Probably safe to ignore")
 
     @staticmethod
     def in_custom_lobby_rpc(
@@ -208,7 +189,9 @@ class RPCUpdater:
                 start=module_data.client_data.application_start_time,
             )
         except RuntimeError:
-            print("Error in Custom Lobby RPC: Probably safe to ignore")
+            module_data.logger.debug(
+                "Error in Custom Lobby RPC: Probably safe to ignore"
+            )
 
     @staticmethod
     def in_queue_rpc(rpc: Presence, module_data: ModuleData) -> None:
@@ -232,16 +215,18 @@ class RPCUpdater:
                     _small_image,
                     _small_text,
                 )
-
-        rpc.update(  # type: ignore
-            large_image=large_image,
-            large_text=large_text,
-            small_image=small_image,
-            small_text=small_text,
-            details=f"{module_data.client_data.get_queue_name}",
-            state="In Queue",
-            start=int(time.time()),
-        )
+        try:
+            rpc.update(  # type: ignore
+                large_image=large_image,
+                large_text=large_text,
+                small_image=small_image,
+                small_text=small_text,
+                details=f"{module_data.client_data.get_queue_name}",
+                state="In Queue",
+                start=int(time.time()),
+            )
+        except RuntimeError:
+            module_data.logger.debug("Error in Queue RPC: Probably safe to ignore")
 
     @staticmethod
     def in_champ_select_rpc(rpc: Presence, module_data: ModuleData) -> None:
@@ -265,17 +250,20 @@ class RPCUpdater:
                     _small_image,
                     _small_text,
                 )
-
-        rich.inspect(module_data.client_data)
-        rpc.update(  # type: ignore
-            large_image=large_image,
-            large_text=large_text,
-            small_image=small_image,
-            small_text=small_text,
-            details=f"{module_data.client_data.get_queue_name}",
-            state="In Champ Select",
-            start=int(time.time()),
-        )
+        try:
+            rpc.update(  # type: ignore
+                large_image=large_image,
+                large_text=large_text,
+                small_image=small_image,
+                small_text=small_text,
+                details=f"{module_data.client_data.get_queue_name}",
+                state="In Champ Select",
+                start=int(time.time()),
+            )
+        except RuntimeError:
+            module_data.logger.debug(
+                "Error in Champ Select RPC: Probably safe to ignore"
+            )
 
     # The function that updates discord rich presence, depending on the data
     def update_rpc(self, module_data: ModuleData, connection: Connection) -> None:
@@ -287,17 +275,9 @@ class RPCUpdater:
 
         if not isinstance(rpc, Presence):
             # Only continue if rpc is of type Presence.
-            print(f"{Color.red}RPC is not of type Presence{Color.reset}")
+            module_data.logger.error("RPC is not of type Presence")
             return
 
-        # print("BEFORE:: In Update_RPC:: data.gameflow_phase: ", data.gameflow_phase)
-
-        # # get gameflow phase, just for sanity check
-        # gameflow_phase = get_current_state_sync(connection=connection)
-        # data.gameflow_phase = gameflow_phase
-
-        # print("AFTER:: In Update_RPC:: data.gameflow_phase: ", data.gameflow_phase)
-        print(f"Gameflow Phase: {data.gameflow_phase}")
         match data.gameflow_phase:
             # This value will be set by "/lol-gameflow/v1/gameflow-phase"
             case GameFlowPhase.IN_PROGRESS:
@@ -307,7 +287,10 @@ class RPCUpdater:
                     module_data=module_data,
                 )  # Print champion details
                 while (
-                    get_current_state_sync(connection=connection)
+                    get_lcu_data_sync(
+                        connection=connection,
+                        endpoint="/lol-gameflow/v1/gameflow-phase",
+                    )
                     == GameFlowPhase.IN_PROGRESS
                 ):
                     handle_in_game(
@@ -316,6 +299,8 @@ class RPCUpdater:
                         module_data=module_data,
                     )
                     time.sleep(10)
+                # After the game is over, we will drop back to the main client.
+                self.in_client_rpc(rpc=rpc, module_data=module_data)
             case GameFlowPhase.READY_CHECK:
                 # When the READY check comes. We want to just ignore (IN_QUEUE rpc will still show.)
                 return
@@ -345,16 +330,23 @@ class RPCUpdater:
                     self.in_lobby_rpc(rpc=rpc, module_data=module_data)
                 return
             case GameFlowPhase.GAME_START:
-                print("Game is starting...")
+                module_data.logger.info("Game is starting...")
             case _:
                 # other unhandled gameflow phases
-                print(f"Unhandled Gameflow Phase: {data.gameflow_phase}")
-                rpc.update(  # type: ignore
-                    large_image=f"{PROFILE_ICON_BASE_URL}{str(data.summoner_icon)}.png",
-                    large_text=f"{data.gameflow_phase}",
-                    small_image=LEAGUE_OF_LEGENDS_LOGO,
-                    small_text=SMALL_TEXT,
-                    details=f"{data.gameflow_phase}",
-                    state="Unhandled Gameflow Phase",
-                    start=module_data.client_data.application_start_time,
+                module_data.logger.info(
+                    f"Unhandled Gameflow Phase: {data.gameflow_phase}"
                 )
+                try:
+                    rpc.update(  # type: ignore
+                        large_image=f"{PROFILE_ICON_BASE_URL}{str(data.summoner_icon)}.png",
+                        large_text=f"{data.gameflow_phase}",
+                        small_image=LEAGUE_OF_LEGENDS_LOGO,
+                        small_text=SMALL_TEXT,
+                        details=f"{data.gameflow_phase}",
+                        state="Unhandled Gameflow Phase",
+                        start=module_data.client_data.application_start_time,
+                    )
+                except RuntimeError:
+                    module_data.logger.debug(
+                        "Error in Unhandled Gameflow Phase RPC: Probably safe to ignore"
+                    )
