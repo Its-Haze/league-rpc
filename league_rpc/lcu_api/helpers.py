@@ -1,8 +1,9 @@
 import time
 from typing import Any
 
+import requests
 from lcu_driver.connection import Connection  # type:ignore
-
+from requests.auth import HTTPBasicAuth
 
 from league_rpc.champion import (
     gather_game_mode,
@@ -12,17 +13,13 @@ from league_rpc.champion import (
 from league_rpc.gametime import get_current_ingame_time
 from league_rpc.kda import get_creepscore, get_kda, get_level
 from league_rpc.lcu_api.base_data import set_tft_companion_data
-
+from league_rpc.models.client_data import ArenaStats, RankedStats, TFTStats
 from league_rpc.models.module_data import ModuleData
 from league_rpc.utils.const import (
     CHAMPION_NAME_CONVERT_MAP,
     LEAGUE_OF_LEGENDS_LOGO,
     SMALL_TEXT,
 )
-import rich
-from league_rpc.models.client_data import ArenaStats, RankedStats, TFTStats
-import requests
-from requests.auth import HTTPBasicAuth
 
 
 async def get_current_state(connection: Connection) -> str:

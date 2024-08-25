@@ -10,24 +10,23 @@ Usage:
     which could disrupt the user experience or exceed API rate limits.
 """
 
-import time
 import copy
+import time
 from dataclasses import dataclass, field
 from threading import Timer
+
 from lcu_driver.connection import Connection  # type:ignore
 from pypresence import Presence  # type:ignore
-import rich
 
 from league_rpc.lcu_api.helpers import (
     get_lcu_data_sync,
     handle_in_game,
     show_ranked_data,
 )
-from league_rpc.models.module_data import ModuleData
 from league_rpc.models.client_data import ClientData
 from league_rpc.models.lcu.current_chat_status import LolChatUser
 from league_rpc.models.lcu.gameflow_phase import GameFlowPhase
-from league_rpc.utils.color import Color
+from league_rpc.models.module_data import ModuleData
 from league_rpc.utils.const import (
     BASE_MAP_ICON_URL,
     GAME_MODE_CONVERT_MAP,

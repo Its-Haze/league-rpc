@@ -1,6 +1,7 @@
 import json
 import os
 from typing import Any, Optional
+
 import psutil
 
 from league_rpc.logger.richlogger import RichLogger

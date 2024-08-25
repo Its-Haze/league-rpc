@@ -3,11 +3,11 @@ This module provides the RichLogger class for logging with colorful output using
 """
 
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
 from rich.console import Console
 from rich.logging import RichHandler
-from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn, TaskID
+from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeRemainingColumn
 from rich.table import Table
 
 

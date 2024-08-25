@@ -4,23 +4,17 @@ from typing import Any, Optional
 
 from aiohttp import ClientResponse
 from lcu_driver.connection import Connection  # type:ignore
-
 from lcu_driver.events.responses import WebsocketEventResponse  # type:ignore
 from pypresence import Presence  # type:ignore
-
 
 from league_rpc.disable_native_rpc.disable import check_plugin_status, find_game_path
 from league_rpc.lcu_api.base_data import gather_base_data, set_tft_companion_data
 from league_rpc.logger.richlogger import RichLogger
 from league_rpc.models.client_data import ArenaStats, ClientData, RankedStats, TFTStats
 from league_rpc.models.lcu.current_chat_status import LolChatUser
-
 from league_rpc.models.lcu.current_summoner import Summoner
 from league_rpc.models.module_data import ModuleData
 from league_rpc.models.rpc_updater import RPCUpdater
-from league_rpc.utils.const import (
-    TFT_COMPANIONS_URL,
-)
 
 module_data = ModuleData()
 rpc_updater = RPCUpdater()

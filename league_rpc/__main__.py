@@ -1,26 +1,22 @@
 import argparse
+import asyncio
 import sys
 import threading
 
-import asyncio
-
 import nest_asyncio  # type:ignore
 
-
 from league_rpc.lcu_api.lcu_connector import start_connector
-
+from league_rpc.logger.richlogger import RichLogger
 from league_rpc.processes.process import (
     check_discord_process,
     check_league_client_process,
 )
-
 from league_rpc.utils.color import Color
 from league_rpc.utils.const import (
     DEFAULT_CLIENT_ID,
     DEFAULT_LEAGUE_CLIENT_EXE_PATH,
     DISCORD_PROCESS_NAMES,
 )
-from league_rpc.logger.richlogger import RichLogger
 
 
 def main(cli_args: argparse.Namespace) -> None:

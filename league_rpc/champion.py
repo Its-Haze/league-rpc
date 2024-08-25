@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 import requests
 import urllib3
+
 from league_rpc.disable_native_rpc.disable import find_game_locale
 from league_rpc.kda import get_gold, get_level
 from league_rpc.latest_version import get_latest_version

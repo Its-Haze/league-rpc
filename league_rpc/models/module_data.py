@@ -12,9 +12,9 @@ Usage:
     by ensuring that essential state and connection information is easily accessible and systematically organized.
 """
 
+import time
 from argparse import Namespace
 from dataclasses import dataclass, field
-import time
 from typing import Optional
 
 from lcu_driver.connector import Connector

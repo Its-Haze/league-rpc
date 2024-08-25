@@ -14,7 +14,6 @@ from league_rpc.models.lcu.gameflow_phase import (
 )
 from league_rpc.models.module_data import ModuleData
 from league_rpc.utils.const import TFT_COMPANIONS_URL
-import asyncio
 
 
 # Base Data
