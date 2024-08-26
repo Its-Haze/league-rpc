@@ -59,6 +59,7 @@ If you really don't want to show your rank, then add the ``--no-rank`` argument,
 
 ### TFT (Teamfight tactics)
 Showcase your favorite TFT Companion!
+
 ![tft-companion-1](images/tft_companion_showcase_1.png) ![tft-companion-2](images/tft_companion_showcase_2.png)
 
 ### Arena
