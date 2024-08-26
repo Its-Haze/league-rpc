@@ -173,10 +173,10 @@ Hide your League rank on Discord (SoloQ/Flex/TFT/Arena) By default, this will be
 **Example**: `.\leagueRPC.exe --no-rank`
 
 
-### `--show-emojis` ✨
-Do you want to show your Online/Away status with a emoji, then add this argument. By default, this will be hidden.
+### `--hide-emojis`
+Do you want to hide your Online/Away emoji?. Then add this argument. By default, this will be shown.
 
-**Example**: `.\leagueRPC.exe --show-emojis`
+**Example**: `.\leagueRPC.exe --hide-emojis`
 
   ![Online](images/in_client_online_status.png) ![Away](images/in_client_away_status.png)
 

@@ -36,14 +36,28 @@ class ClientData:
     map_id: int = 0  # 11, 12, 21, 22, 30
     max_players: int = 0  # max players in lobby
     players: int = 0  # players in lobby
-    queue: str = ""
+    queue_name: str = ""
     queue_type: str = ""
-    queue_id: int = -1
     queue_is_ranked: bool = False
+    queue_detailed_description: str = ""
+    queue_description: str = ""
+    queue_id: int = -1
     summoner_icon: int = 0
-    summoner_level: int = 0
     summoner_rank: RankedStats = field(default_factory=RankedStats)
     summoner_rank_flex: RankedStats = field(default_factory=RankedStats)
     arena_rank: ArenaStats = field(default_factory=ArenaStats)
     tft_rank: TFTStats = field(default_factory=TFTStats)
+    tft_companion_id: int = 0
+    tft_companion_icon: str = ""
+    tft_companion_name: str = ""
+    tft_companion_description: str = ""
     application_start_time: int = int(time.time())
+
+    @property
+    def get_queue_name(self) -> str:
+        """Return the detailed descriptive name of the queue if available, otherwise return the queue name."""
+        return (
+            self.queue_detailed_description
+            if self.queue_detailed_description
+            else self.queue_name
+        )

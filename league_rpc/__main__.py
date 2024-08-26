@@ -1,49 +1,45 @@
 import argparse
+import asyncio
 import sys
 import threading
-import time
 
 import nest_asyncio  # type:ignore
-import pypresence  # type:ignore
 
-from league_rpc.champion import gather_ingame_information, get_skin_asset
-from league_rpc.gametime import get_current_ingame_time
-from league_rpc.kda import get_creepscore, get_gold, get_kda, get_level
 from league_rpc.lcu_api.lcu_connector import start_connector
+from league_rpc.logger.richlogger import RichLogger
 from league_rpc.processes.process import (
     check_discord_process,
     check_league_client_process,
-    player_state,
 )
-from league_rpc.reconnect import discord_reconnect_attempt
 from league_rpc.utils.color import Color
 from league_rpc.utils.const import (
-    ALL_GAME_DATA_URL,
-    CHAMPION_NAME_CONVERT_MAP,
     DEFAULT_CLIENT_ID,
     DEFAULT_LEAGUE_CLIENT_EXE_PATH,
     DISCORD_PROCESS_NAMES,
-    LEAGUE_OF_LEGENDS_LOGO,
-    SMALL_TEXT,
 )
-from league_rpc.utils.polling import wait_until_exists
-
-# Discord Application: League of Linux
 
 
 def main(cli_args: argparse.Namespace) -> None:
     """
     This is the program that gets executed.
     """
+
+    logger = RichLogger(show_debugs=cli_args.debug)
+    logger.start_progress_bar(name="Checking League")
     ############################################################
     ## Check Discord, RiotClient & LeagueClient processes     ##
-    check_league_client_process(cli_args)
+    check_league_client_process(cli_args, logger)
 
+    logger.stop_progress_bar()
+
+    logger.start_progress_bar(name="Checking Discord")
     rpc = check_discord_process(
         process_names=DISCORD_PROCESS_NAMES + cli_args.add_process,
         client_id=cli_args.client_id,
         wait_for_discord=cli_args.wait_for_discord,
+        logger=logger,
     )
+    logger.stop_progress_bar()
 
     # Start LCU_Thread
     # This process will connect to the LCU API and updates the rpc based on data subscribed from the LCU API.
@@ -54,196 +50,23 @@ def main(cli_args: argparse.Namespace) -> None:
         args=(
             rpc,
             cli_args,
+            logger,
         ),
         daemon=True,
     )
     lcu_process.start()
 
-    print(f"\n{Color.green}Successfully connected to Discord RPC!{Color.reset}")
+    # print(f"\n{Color.green}Successfully connected to Discord RPC!{Color.reset}")
+
+    try:
+        asyncio.get_event_loop().run_forever()
+    except KeyboardInterrupt:
+        logger.error("KeyboardInterrupt detected. Shutting down the program..")
+        # print(f"{Color.red}Shutting down the program..{Color.reset}")
+        rpc.close()
+        sys.exit()
+
     ############################################################
-
-    start_time = int(time.time())
-    while True:
-        try:
-            match player_state():
-                case "InGame":
-                    print(
-                        f"\n{Color.dblue}Detected game! Will soon gather data and update discord RPC{Color.reset}"
-                    )
-
-                    # Poll the local league api until 200 response.
-                    wait_until_exists(
-                        url=ALL_GAME_DATA_URL,
-                        custom_message="Failed to reach the local league api",
-                        startup=True,
-                    )
-                    (
-                        champ_name,
-                        skin_name,
-                        chroma_name,
-                        skin_id,
-                        gamemode,
-                        _,
-                        _,
-                    ) = gather_ingame_information()
-                    if gamemode == "TFT":
-                        # TFT RPC
-                        while player_state() == "InGame":
-                            try:
-                                rpc.update(  # type:ignore
-                                    large_image="https://wallpapercave.com/wp/wp7413493.jpg",
-                                    large_text="Playing TFT",
-                                    details="Teamfight Tactics",
-                                    state=f"In Game · lvl: {get_level()}",
-                                    small_image=LEAGUE_OF_LEGENDS_LOGO,
-                                    small_text=SMALL_TEXT,
-                                    start=int(time.time())
-                                    - get_current_ingame_time(default_time=start_time),
-                                )
-                            except RuntimeError:
-                                print(
-                                    f"{Color.red}Discord seems to be closed, will attempt to reconnect!{Color.reset}"
-                                )
-                                discord_reconnect_attempt(rpc=rpc)
-                            time.sleep(10)
-                    elif gamemode == "Arena":
-                        # ARENA RPC
-                        skin_asset: str = get_skin_asset(
-                            champion_name=champ_name,
-                            skin_id=skin_id,
-                        )
-                        print(
-                            f"{Color.green}Successfully gathered all data. Updating your Presence now!{Color.reset}"
-                        )
-                        while player_state() == "InGame":
-                            large_text = (
-                                f"{skin_name} ({chroma_name})"
-                                if chroma_name
-                                else (
-                                    skin_name
-                                    if skin_name
-                                    else CHAMPION_NAME_CONVERT_MAP.get(
-                                        champ_name, champ_name
-                                    )
-                                )
-                            )
-                            try:
-                                rpc.update(  # type:ignore
-                                    large_image=skin_asset,
-                                    large_text=large_text,
-                                    details=gamemode,
-                                    state=f"In Game {f'· {get_kda()} · lvl: {get_level()} · gold: {get_gold()}' if not cli_args.no_stats else ''}",
-                                    small_image=LEAGUE_OF_LEGENDS_LOGO,
-                                    small_text=SMALL_TEXT,
-                                    start=int(time.time())
-                                    - get_current_ingame_time(default_time=start_time),
-                                )
-                            except RuntimeError:
-                                print(
-                                    f"{Color.red}Discord seems to be closed, will attempt to reconnect!{Color.reset}"
-                                )
-                                discord_reconnect_attempt(rpc=rpc)
-                            time.sleep(10)
-
-                    elif gamemode == "Swarm - PVE":
-                        # Swarm PVE RPC
-                        skin_asset: str = get_skin_asset(
-                            champion_name=champ_name,
-                            skin_id=skin_id,
-                        )
-                        print(
-                            f"{Color.green}Successfully gathered all data. Updating your Presence now!{Color.reset}"
-                        )
-                        while player_state() == "InGame":
-                            large_text = (
-                                f"{skin_name} ({chroma_name})"
-                                if chroma_name
-                                else (
-                                    skin_name
-                                    if skin_name
-                                    else CHAMPION_NAME_CONVERT_MAP.get(
-                                        champ_name, champ_name
-                                    )
-                                )
-                            )
-                            try:
-                                rpc.update(  # type:ignore
-                                    large_image=skin_asset,
-                                    large_text=large_text,
-                                    details=gamemode,
-                                    state=f"In Game {f'· {get_creepscore()} · lvl: {get_level()} · gold: {get_gold()}' if not cli_args.no_stats else ''}",
-                                    small_image=LEAGUE_OF_LEGENDS_LOGO,
-                                    small_text=SMALL_TEXT,
-                                    start=int(time.time())
-                                    - get_current_ingame_time(default_time=start_time),
-                                )
-                            except RuntimeError:
-                                print(
-                                    f"{Color.red}Discord seems to be closed, will attempt to reconnect!{Color.reset}"
-                                )
-                                discord_reconnect_attempt(rpc=rpc)
-                            time.sleep(10)
-                    else:
-                        # LEAGUE RPC
-                        skin_asset = get_skin_asset(
-                            champion_name=champ_name,
-                            skin_id=skin_id,
-                        )
-                        print(
-                            f"{Color.green}Successfully gathered all data. Updating your Presence now!{Color.reset}"
-                        )
-                        while player_state() == "InGame":
-                            if not champ_name or not gamemode:
-                                break
-                            large_text = (
-                                f"{skin_name} ({chroma_name})"
-                                if chroma_name
-                                else (
-                                    skin_name
-                                    if skin_name
-                                    else CHAMPION_NAME_CONVERT_MAP.get(
-                                        champ_name, champ_name
-                                    )
-                                )
-                            )
-                            try:
-                                rpc.update(  # type:ignore
-                                    large_image=skin_asset,
-                                    large_text=large_text,
-                                    details=gamemode,
-                                    state=f"In Game {f'· {get_kda()} · {get_creepscore()}' if not cli_args.no_stats else ''}",
-                                    small_image=LEAGUE_OF_LEGENDS_LOGO,
-                                    small_text=SMALL_TEXT,
-                                    start=int(time.time())
-                                    - get_current_ingame_time(default_time=start_time),
-                                )
-                            except RuntimeError:
-                                print(
-                                    f"{Color.red}Discord seems to be closed, will attempt to reconnect!{Color.reset}"
-                                )
-                                discord_reconnect_attempt(rpc=rpc)
-                            time.sleep(10)
-
-                case "InLobby":
-                    # Handled by lcu_process thread
-                    # It will subscribe to websockets and update discord on events.
-
-                    time.sleep(10)
-
-                case _:
-                    print(
-                        f"{Color.red}LeagueOfLegends.exe was terminated. rpc shuting down..{Color.reset}."
-                    )
-                    rpc.close()
-                    sys.exit()
-        except pypresence.exceptions.PipeClosed:
-            # If the program crashes because pypresence failed to connect to a pipe. (Typically if Discord is closed.)
-            # The script will automatically try to reconnect..
-            # if it fails it will keep going until you either reconnect or after a long enough period of time has passed
-            print(
-                f"{Color.red}Discord seems to be closed, will attempt to reconnect!{Color.reset}"
-            )
-            discord_reconnect_attempt(rpc=rpc, amount_of_tries=12, amount_of_waiting=5)
 
 
 if __name__ == "__main__":
@@ -263,10 +86,14 @@ if __name__ == "__main__":
         help="use '--no-stats' to Opt out of showing in-game stats (KDA, minions) in Discord RPC",
     )
     parser.add_argument(
-        "--show-emojis",
-        "--emojis",
+        "--hide-emojis",
         action="store_true",
-        help="use '--show-emojis' to show green/red circle emoji, depending on your Online status in league.",
+        help="use '--hide-emojis' to hide the green/red circle emoji, depending on your Online status in league.",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="use '--debug' to see additional logging data. Otherwise logs from INFO -> CRITICAL will show. Debug logs are hidden by default",
     )
     parser.add_argument(
         "--no-rank",
@@ -311,9 +138,13 @@ if __name__ == "__main__":
         print(
             f"{Color.green}Argument {Color.blue}--no-rank{Color.green} detected.. Will hide your league rank.{Color.reset}"
         )
-    if args.show_emojis:
+    if args.hide_emojis:
         print(
-            f"{Color.green}Argument {Color.blue}--show-emojis, --emojis{Color.green} detected.. Will show emojis. such as league status indicators on Discord.{Color.reset}"
+            f"{Color.green}Argument {Color.blue}--hide-emojis{Color.green} detected.. Will hide emojis. such as league status indicators on Discord.{Color.reset}"
+        )
+    if args.debug:
+        print(
+            f"{Color.green}Argument {Color.blue}--debug{Color.green} detected.. Will show debug logs.{Color.reset}"
         )
     if args.add_process:
         print(

@@ -7,7 +7,7 @@ DISCORD_PROCESS_NAMES: list[str] = [
     "electron",
 ]
 LEAGUE_OF_LEGENDS_LOGO = "https://github.com/Its-Haze/league-rpc/blob/master/assets/leagueoflegends.png?raw=true"
-SMALL_TEXT = "github.com/Its-Haze/league-rpc"
+SMALL_TEXT = "its-haze/league-rpc @Github.com"
 
 ALL_GAME_DATA_URL = "https://127.0.0.1:2999/liveclientdata/allgamedata"
 
@@ -20,6 +20,9 @@ PLAYER_KDA_SCORES_URL = (
 BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
 
 BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/{map_name}/img/game-select-icon-active.png"
+
+TFT_COMPANIONS_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/companions"
+
 
 PROFILE_ICON_BASE_URL = (
     "https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon"
@@ -51,7 +54,7 @@ GAME_MODE_CONVERT_MAP: dict[str, str] = {
     "URF": "Summoner's Rift (URF)",
     "NEXUSBLITZ": "Nexux Blitz",
     "CHERRY": "Arena",
-    "STRAWBERRY": "Swarm - PVE",
+    "STRAWBERRY": "Swarm",
     "TUTORIAL_MODULE_3": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_2": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_1": "Summoner's Rift (Tutorial)",
@@ -80,6 +83,7 @@ CHAMPION_NAME_CONVERT_MAP = {
     "XinZhao": "Xin Zhao",
 }
 
+
 LEAGUE_RANKED_EMBLEM = "https://github.com/Its-Haze/league-assets/blob/master/ranked_emblems/{tier}.png?raw=true"
 LEAGUE_CHERRY_RANKED_EMBLEM = "https://github.com/Its-Haze/league-assets/blob/master/cherry_rated_medallions/{tier}.png?raw=true"
 
@@ -91,7 +95,42 @@ RANKED_TYPE_MAPPER = {
     "RANKED_TFT_DOUBLE_UP": "Teamfight Tactics (Double Up Workshop)",
     "RANKED_TFT_TURBO": "Teamfight Tactics (Hyper Roll)",
     "CHERRY": "Arena",
+    "NORMAL": "Normal (Draft Pick)",
+}
+
+
+# queue_detailed_description if it exists.. otherwise use queue_name
+QUEUE_MAPPER = {
+    "Normal (Quickplay)",  # detailed description
+    "Normal (Draft Pick)",  # # detailed description
+    "Ranked Solo/Duo",  # name
+    "Ranked Flex",  # name
+    "ARAM",  # name
+    "Arena",  # name
+    "Teamfight Tactics (Normal)",  # detailed description
+    "Teamfight Tactics (Ranked)",  # detailed description
+    "Teamfight Tactics (Double Up Workshop)",  # detailed description
+    "Teamfight Tactics (Hyper Roll)",  # detailed description
 }
 
 DEFAULT_LEAGUE_CLIENT_EXE_PATH = "C:\\Riot Games\\Riot Client\\RiotClientServices.exe"
 DEFAULT_LEAGUE_CLIENT_EXECUTABLE = "RiotClientServices.exe"
+
+
+# example: Ahri_86
+ANIMATED_SKIN_URL = "https://github.com/Its-Haze/league-assets/blob/master/animated_skins/{filename}.gif?raw=true"
+
+# https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/characters/
+# Search for animatedsplash
+ANIMATED_SKINS = [
+    "Ahri_86",
+    "Ezreal_5",
+    "Lux_7",
+    "MissFortune_16",
+    "Samira_30",
+    "Seraphine_1",
+    "Seraphine_2",
+    "Seraphine_3",
+    "Sona_6",
+    "Udyr_3",
+]

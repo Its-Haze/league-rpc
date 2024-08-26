@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 import requests
 import urllib3
+
 from league_rpc.disable_native_rpc.disable import find_game_locale
 from league_rpc.kda import get_gold, get_level
 from league_rpc.latest_version import get_latest_version
@@ -10,6 +11,8 @@ from league_rpc.username import get_riot_id
 from league_rpc.utils.color import Color
 from league_rpc.utils.const import (
     ALL_GAME_DATA_URL,
+    ANIMATED_SKIN_URL,
+    ANIMATED_SKINS,
     BASE_SKIN_URL,
     CHAMPION_NAME_CONVERT_MAP,
     DDRAGON_CHAMPION_DATA,
@@ -54,7 +57,26 @@ def get_specific_chroma_data(name: str, locale: str) -> dict[str, Any]:
     return response.json()[name]
 
 
-def gather_ingame_information() -> tuple[str, str, str, int, str, int, int]:
+def gather_game_mode() -> str:
+    """
+    Get the current game mode.
+    """
+    if response := wait_until_exists(
+        url=ALL_GAME_DATA_URL,
+        custom_message="Did not find game data.. Will try again in 5 seconds",
+    ):
+        parsed_data = response.json()
+        game_mode = GAME_MODE_CONVERT_MAP.get(
+            parsed_data["gameData"]["gameMode"],
+            parsed_data["gameData"]["gameMode"],
+        )
+        return game_mode
+    return ""
+
+
+def gather_ingame_information(
+    silent: bool = False,
+) -> tuple[str, str, str, int, str, int, int]:
     """
     Get the current playing champion name.
     """
@@ -85,29 +107,32 @@ def gather_ingame_information() -> tuple[str, str, str, int, str, int, int]:
             level = get_level()
         else:
             # If the gamemode is LEAGUE gather the relevant information.
+
             champion_name, skin_id, skin_name, chroma_name = gather_league_data(
                 parsed_data=parsed_data, summoners_name=your_summoner_name
             )
-            if game_mode in ("Arena", "Swarm - PVE"):
+            if game_mode in ("Arena", "Swarm"):
                 level, gold = get_level(), get_gold()
-            print("-" * 50)
-            if champion_name:
-                print(
-                    f"{Color.yellow}Champion name found {Color.green}({CHAMPION_NAME_CONVERT_MAP.get(champion_name, champion_name)}),{Color.yellow} continuing..{Color.reset}"
-                )
-            if skin_name:
-                print(
-                    f"{Color.yellow}Skin detected: {Color.green}{skin_name},{Color.yellow} continuing..{Color.reset}"
-                )
-            if chroma_name:
-                print(
-                    f"{Color.yellow}Chroma detected: {Color.green}{chroma_name},{Color.yellow} continuing..{Color.reset}"
-                )
-            if game_mode:
-                print(
-                    f"{Color.yellow}Game mode detected: {Color.green}{game_mode},{Color.yellow} continuing..{Color.reset}"
-                )
-            print("-" * 50)
+
+            if not silent:
+                print("-" * 50)
+                if champion_name:
+                    print(
+                        f"{Color.yellow}Champion name found {Color.green}({CHAMPION_NAME_CONVERT_MAP.get(champion_name, champion_name)}),{Color.yellow} continuing..{Color.reset}"
+                    )
+                if skin_name:
+                    print(
+                        f"{Color.yellow}Skin detected: {Color.green}{skin_name},{Color.yellow} continuing..{Color.reset}"
+                    )
+                if chroma_name:
+                    print(
+                        f"{Color.yellow}Chroma detected: {Color.green}{chroma_name},{Color.yellow} continuing..{Color.reset}"
+                    )
+                if game_mode:
+                    print(
+                        f"{Color.yellow}Game mode detected: {Color.green}{game_mode},{Color.yellow} continuing..{Color.reset}"
+                    )
+                print("-" * 50)
 
     # Returns default values if information was not found.
     return (
@@ -192,6 +217,11 @@ def get_skin_asset(
             skin_id -= 1
             continue
 
+        # If the Champ_skinID matches a animated skin, then return the URL for the animated skin instead.
+        if f"{champion_name}_{skin_id}" in ANIMATED_SKINS:
+            url = ANIMATED_SKIN_URL.format_map(
+                {"filename": f"{champion_name}_{skin_id}"}
+            )
         return url
     url = f"{BASE_SKIN_URL}{champion_name}_0.jpg"
     return url
