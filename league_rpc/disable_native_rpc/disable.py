@@ -30,7 +30,6 @@ def check_plugin_status(
         )
 
 
-
 def load_json_file(file_path: str) -> Optional[dict[str, Any]]:
     """Load a JSON file from the provided path."""
     try:
@@ -61,17 +60,15 @@ def modify_json_data(
     return modified
 
 
-def check_and_modify_json(file_path: str, logger: RichLogger) -> None:
+def check_and_modify_json(file_path: str) -> None:
     """Remove a specific plugin from the League manifest file."""
     data: dict[str, Any] | None = load_json_file(file_path=file_path)
+
     if data is None:
         return
 
     if modify_json_data(data=data):
         save_json_file(file_path=file_path, data=data)
-        logger.info("Successfully disabled League Native Rich Presence")
-        logger.update_progress_bar(advance=10)
-
 
 
 def find_game_locale(league_processes: list[str]) -> str:

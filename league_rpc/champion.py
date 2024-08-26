@@ -11,6 +11,8 @@ from league_rpc.username import get_riot_id
 from league_rpc.utils.color import Color
 from league_rpc.utils.const import (
     ALL_GAME_DATA_URL,
+    ANIMATED_SKIN_URL,
+    ANIMATED_SKINS,
     BASE_SKIN_URL,
     CHAMPION_NAME_CONVERT_MAP,
     DDRAGON_CHAMPION_DATA,
@@ -215,6 +217,11 @@ def get_skin_asset(
             skin_id -= 1
             continue
 
+        # If the Champ_skinID matches a animated skin, then return the URL for the animated skin instead.
+        if f"{champion_name}_{skin_id}" in ANIMATED_SKINS:
+            url = ANIMATED_SKIN_URL.format_map(
+                {"filename": f"{champion_name}_{skin_id}"}
+            )
         return url
     url = f"{BASE_SKIN_URL}{champion_name}_0.jpg"
     return url

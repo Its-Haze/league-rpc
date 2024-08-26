@@ -8,7 +8,6 @@ from league_rpc.models.lcu.current_chat_status import LolChatUser
 from league_rpc.models.lcu.current_queue import LolGameQueuesQueue
 from league_rpc.models.lcu.current_summoner import Summoner
 from league_rpc.models.lcu.gameflow_phase import (
-    GameFlowPhase,
     LolGameflowLobbyStatus,
     LolGameflowPlayerStatus,
 )
@@ -35,14 +34,6 @@ async def gather_base_data(connection: Connection, module_data: ModuleData) -> N
     await gather_ranked_data(connection=connection, data=data)
 
     await gather_gameflow_data(connection=connection, data=data)
-
-    if data.gameflow_phase == GameFlowPhase.IN_PROGRESS:
-        # In Game
-        return
-
-    if data.gameflow_phase == GameFlowPhase.NONE:
-        # In Client
-        return
 
     await gather_lobby_data(connection=connection, data=data)
 

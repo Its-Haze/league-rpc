@@ -7,14 +7,14 @@ from typing import Any, Dict, List, Optional
 
 from rich.console import Console
 from rich.logging import RichHandler
-from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeRemainingColumn
+from rich.progress import BarColumn, Progress, TaskID, TextColumn
 from rich.table import Table
 
 
 class RichLogger:
     """A logger that utilizes the Rich library for colorful, formatted output."""
 
-    def __init__(self, name: str = "LeagueRPC") -> None:
+    def __init__(self, name: str = "LeagueRPC", show_debugs: bool = False) -> None:
         # Create a Console instance for rich output
         self.console: Console = Console()
 
@@ -38,6 +38,7 @@ class RichLogger:
         self.logger: logging.Logger = logging.getLogger(name)
         self.progress: Optional[Progress] = None
         self.task: Optional[TaskID] = None
+        self.show_debugs: bool = show_debugs
 
     def debug(
         self,
@@ -47,7 +48,8 @@ class RichLogger:
         highlight: Optional[List[Dict[str, str]]] = None,
     ) -> None:
         """Log a debug message."""
-        self._log("DEBUG", message, color, highlight, *args)
+        if self.show_debugs:
+            self._log("DEBUG", message, color, highlight, *args)
 
     def info(
         self,
@@ -143,7 +145,6 @@ class RichLogger:
         self.progress = Progress(
             TextColumn("[progress.description]{task.description}"),
             BarColumn(),
-            TimeRemainingColumn(),
             console=self.console,
         )
 
@@ -162,3 +163,7 @@ class RichLogger:
                 self.task, advance=self.progress.tasks[self.task].remaining
             )
             self.progress.stop()
+
+    def inspect(self, obj: Any) -> None:
+        """Inspect an object using the Rich library."""
+        self.console.print(obj)

@@ -13,6 +13,7 @@ from league_rpc.logger.richlogger import RichLogger
 from league_rpc.models.client_data import ArenaStats, ClientData, RankedStats, TFTStats
 from league_rpc.models.lcu.current_chat_status import LolChatUser
 from league_rpc.models.lcu.current_summoner import Summoner
+from league_rpc.models.lcu.gameflow_phase import GameFlowPhase
 from league_rpc.models.module_data import ModuleData
 from league_rpc.models.rpc_updater import RPCUpdater
 
@@ -23,24 +24,35 @@ rpc_updater = RPCUpdater()
 @module_data.connector.ready  # type:ignore
 async def connect(connection: Connection) -> None:
     logger = module_data.logger
-    logger.info("Connected to the League Client API.")
-    time.sleep(2)  # Give the client some time to load
 
-    logger.start_progress_bar(name="Gathering Base Data")
+    logger.start_progress_bar(name="Start LeagueRPC Engine")
+    time.sleep(1)
+
+    logger.info("Connected to the League Client API.")
+    logger.update_progress_bar(advance=20)
+
+    time.sleep(1)  # Give the client some time to load
+    logger.update_progress_bar(advance=10)
+
+    time.sleep(1)  # Give the client some time to load
+    logger.update_progress_bar(advance=10)
+
+    time.sleep(1)
+    logger.update_progress_bar(advance=20)
 
     time.sleep(2)
     await gather_base_data(connection=connection, module_data=module_data)
-
     logger.info("Successfully gathered base data.")
+    logger.update_progress_bar(advance=30)
 
-    logger.update_progress_bar(advance=50)
-
-    logger.info("Updating Discord rpc with base data", color="yellow")
+    time.sleep(1)
     rpc_updater.delay_update(module_data=module_data, connection=connection)
     logger.info("Discord RPC successfully updated")
-    logger.update_progress_bar(advance=50)
+    logger.update_progress_bar(advance=40)
 
     logger.stop_progress_bar()
+
+    time.sleep(0.5)
 
     logger.info("LeagueRPC is ready!", color="cyan")
     if game_path := find_game_path():
@@ -98,7 +110,7 @@ async def chat_updated(connection: Connection, event: WebsocketEventResponse) ->
         return None
 
     module_data.client_data.availability = new_status
-    logger.info("Online/Away status updated")
+    logger.info(f"Status updated to: {new_status}")
     rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
@@ -130,8 +142,11 @@ async def gameflow_phase_updated(
     if module_data.client_data.gameflow_phase == event.data:  # type:ignore
         return None
 
-    module_data.client_data.gameflow_phase = event.data  # type:ignore
+    if GameFlowPhase.GAME_START == event.data:  # type:ignore
+        module_data.logger.info("Game is starting. Good luck!", color="blue")
+        return None
 
+    module_data.client_data.gameflow_phase = event.data  # type:ignore
     rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 

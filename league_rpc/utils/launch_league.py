@@ -1,5 +1,4 @@
 import subprocess
-import time
 from argparse import Namespace
 
 from league_rpc.utils.const import DEFAULT_LEAGUE_CLIENT_EXECUTABLE
@@ -22,4 +21,3 @@ def launch_league_client(cli_args: Namespace) -> None:
         commands = [cli_args.launch_league]
 
     subprocess.Popen(commands, shell=True)
-    time.sleep(5)

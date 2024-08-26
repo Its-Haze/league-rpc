@@ -1,4 +1,5 @@
 import sys
+import threading
 import time
 from argparse import Namespace
 
@@ -9,6 +10,13 @@ from league_rpc.disable_native_rpc.disable import check_and_modify_json, find_ga
 from league_rpc.logger.richlogger import RichLogger
 from league_rpc.utils.color import Color
 from league_rpc.utils.launch_league import launch_league_client
+
+
+def disable_native_presence() -> None:
+    """Disable the native presence of League of Legends."""
+    while True:
+        if game_path := find_game_path():
+            check_and_modify_json(file_path=game_path)
 
 
 def processes_exists(process_names: list[str]) -> bool:
@@ -40,12 +48,21 @@ def check_league_client_process(cli_args: Namespace, logger: RichLogger) -> None
 
     logger.info("Checking if LeagueClient.exe is running...", color="yellow")
     time.sleep(1)
-    logger.update_progress_bar(advance=10)
+    logger.update_progress_bar(advance=40)
 
     if cli_args.launch_league:
         # launch league if it's not already running.
         if not processes_exists(league_processes):
+            disable_native_thread = threading.Thread(
+                target=disable_native_presence,
+                daemon=True,
+            )
+            disable_native_thread.start()
             launch_league_client(cli_args)
+
+            time.sleep(0.5)
+            logger.info("League Client has been launched!")
+            logger.info("Disabling the Native league presence", color="yellow")
 
     if not processes_exists(process_names=league_processes):
         # If league process is still not running, even after launching the client.
@@ -65,41 +82,30 @@ def check_league_client_process(cli_args: Namespace, logger: RichLogger) -> None
             )
 
     wait_time = 0
-    while True:
-        if not processes_exists(process_names=league_processes):
-            if process_exists(process_name="RiotClientServices.exe"):
-                # Disable native RPC only if the RiotClientService.exe is running,
-                # but not the league client.
-                if game_path := find_game_path():
-                    check_and_modify_json(file_path=game_path, logger=logger)
-                else:
-                    logger.error(
-                        "Did not find the game path for league.. Can't disable the native RPC."
-                    )
+    while not processes_exists(process_names=league_processes):
+        if cli_args.wait_for_league == -1:
+            continue
+        elif wait_time >= cli_args.wait_for_league:
+            logger.error(
+                f"League Client is not running! Exiting after waiting {cli_args.wait_for_league} seconds."
+            )
 
-            if cli_args.wait_for_league == -1:
-                continue
-            elif wait_time >= cli_args.wait_for_league:
-                logger.error(
-                    f"League Client is not running! Exiting after waiting {cli_args.wait_for_league} seconds."
-                )
-
-                if not cli_args.wait_for_league:
-                    logger.info(
-                        "Want to add waiting time for League? Use --wait-for-league <seconds>. (-1 = infinite, or until CTRL + C)",
-                        color="green",
-                    )
-
-                sys.exit()
-            else:
+            if not cli_args.wait_for_league:
                 logger.info(
-                    f"Will wait for League to start. Time left: {cli_args.wait_for_league - wait_time} seconds...",
-                    color="yellow",
+                    "Want to add waiting time for League? Use --wait-for-league <seconds>. (-1 = infinite, or until CTRL + C)",
+                    color="green",
                 )
 
-                time.sleep(5)
-                wait_time += 5
-                continue
+            sys.exit()
+        else:
+            logger.info(
+                f"Will wait for League to start. Time left: {cli_args.wait_for_league - wait_time} seconds...",
+                color="yellow",
+            )
+
+            time.sleep(5)
+            wait_time += 5
+            continue
         break
 
     logger.info("League client is running!", color="green")
@@ -118,6 +124,7 @@ def check_discord_process(
     look_for_processes = f"({Color.green}{', '.join(process_names)}{Color.blue})"
 
     time.sleep(1)
+    logger.update_progress_bar(advance=20)
 
     if not processes_exists(process_names=process_names):
         if wait_for_discord == -1:
@@ -132,12 +139,11 @@ def check_discord_process(
                 ],
             )
 
-
     wait_time = 0
     while True:
         if not processes_exists(process_names=process_names):
             if wait_for_discord == -1:
-                time.sleep(10)
+                time.sleep(3)
                 continue
             elif wait_time >= wait_for_discord:
 
@@ -167,7 +173,7 @@ def check_discord_process(
         break
 
     logger.info("Discord is running!", color="green")
-    logger.update_progress_bar(advance=10)
+    logger.update_progress_bar(advance=50)
 
     for _ in range(5):
         time.sleep(3)

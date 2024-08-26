@@ -7,7 +7,7 @@ DISCORD_PROCESS_NAMES: list[str] = [
     "electron",
 ]
 LEAGUE_OF_LEGENDS_LOGO = "https://github.com/Its-Haze/league-rpc/blob/master/assets/leagueoflegends.png?raw=true"
-SMALL_TEXT = "github.com/Its-Haze/league-rpc"
+SMALL_TEXT = "its-haze/league-rpc @Github.com"
 
 ALL_GAME_DATA_URL = "https://127.0.0.1:2999/liveclientdata/allgamedata"
 
@@ -83,6 +83,7 @@ CHAMPION_NAME_CONVERT_MAP = {
     "XinZhao": "Xin Zhao",
 }
 
+
 LEAGUE_RANKED_EMBLEM = "https://github.com/Its-Haze/league-assets/blob/master/ranked_emblems/{tier}.png?raw=true"
 LEAGUE_CHERRY_RANKED_EMBLEM = "https://github.com/Its-Haze/league-assets/blob/master/cherry_rated_medallions/{tier}.png?raw=true"
 
@@ -114,3 +115,22 @@ QUEUE_MAPPER = {
 
 DEFAULT_LEAGUE_CLIENT_EXE_PATH = "C:\\Riot Games\\Riot Client\\RiotClientServices.exe"
 DEFAULT_LEAGUE_CLIENT_EXECUTABLE = "RiotClientServices.exe"
+
+
+# example: Ahri_86
+ANIMATED_SKIN_URL = "https://github.com/Its-Haze/league-assets/blob/master/animated_skins/{filename}.gif?raw=true"
+
+# https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/characters/
+# Search for animatedsplash
+ANIMATED_SKINS = [
+    "Ahri_86",
+    "Ezreal_5",
+    "Lux_7",
+    "MissFortune_16",
+    "Samira_30",
+    "Seraphine_1",
+    "Seraphine_2",
+    "Seraphine_3",
+    "Sona_6",
+    "Udyr_3",
+]

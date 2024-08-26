@@ -192,7 +192,7 @@ def handle_swarm_game(silent: bool, module_data: ModuleData) -> None:
             - get_current_ingame_time(default_time=module_data.start_time),
         )
     except RuntimeError:
-        module_data.logger.debug("Error updating RPC, likely due to the game ending.")
+        module_data.logger.debug("Error updating RPC, probably safe to ignore.")
 
 
 def handle_arena_game(silent: bool, module_data: ModuleData) -> None:
@@ -250,7 +250,7 @@ def handle_arena_game(silent: bool, module_data: ModuleData) -> None:
             - get_current_ingame_time(default_time=module_data.start_time),
         )
     except RuntimeError:
-        module_data.logger.debug("Error updating RPC, likely due to the game ending.")
+        module_data.logger.debug("Error updating RPC, probably safe to ignore.")
 
 
 def handle_normal_game(
@@ -287,7 +287,6 @@ def handle_normal_game(
     )
     small_image = LEAGUE_OF_LEGENDS_LOGO
     small_text = SMALL_TEXT
-    module_data.client_data.queue_detailed_description = "Ranked Flex"
     if not module_data.cli_args.no_rank:  # type: ignore
         _, _small_image, _small_text = show_ranked_data(module_data)
         if all([_small_image, _small_text]):
@@ -308,7 +307,7 @@ def handle_normal_game(
             - get_current_ingame_time(default_time=module_data.start_time),
         )
     except RuntimeError:
-        module_data.logger.debug("Error updating RPC, likely due to the game ending.")
+        module_data.logger.debug("Error updating RPC, probably safe to ignore.")
 
 
 def handle_tft_game(
@@ -333,4 +332,4 @@ def handle_tft_game(
             - get_current_ingame_time(default_time=module_data.start_time),
         )
     except RuntimeError:
-        module_data.logger.debug("Error updating RPC, likely due to the game ending.")
+        module_data.logger.debug("Error updating RPC, probably safe to ignore.")

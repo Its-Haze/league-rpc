@@ -67,7 +67,7 @@ class RPCUpdater:
         # Check if the client data has changed
         if self.has_client_data_changed(module_data.client_data):
             Timer(
-                interval=1.0,
+                interval=1.5,
                 function=self.update_rpc_and_reset_flag,
                 args=(module_data, connection),
             ).start()
@@ -76,13 +76,13 @@ class RPCUpdater:
         self, module_data: ModuleData, connection: Connection
     ) -> None:
         """Executes the update to Rich Presence and resets the scheduling flag."""
+        # Store the current client data as the previous state
+        self.previous_client_data = copy.copy(module_data.client_data)
+
         self.update_rpc(
             module_data=module_data,
             connection=connection,
         )  # Assuming update_rpc is defined elsewhere
-
-        # After updating, store the current client data as the previous state
-        self.previous_client_data = copy.copy(module_data.client_data)
 
     @staticmethod
     def in_client_rpc(
@@ -93,9 +93,9 @@ class RPCUpdater:
         Updates Rich Presence when the user is in the client.
         """
         details: str = f"{module_data.client_data.availability}"
-        show_emojis: bool = module_data.cli_args.show_emojis  # type:ignore
+        hide_emojis: bool = module_data.cli_args.hide_emojis  # type:ignore
 
-        if show_emojis:
+        if not hide_emojis:
             status_emojis: str = (
                 f"{'🟢' if module_data.client_data.availability == LolChatUser.ONLINE.capitalize() else '  🔴'}"
             )
@@ -332,20 +332,6 @@ class RPCUpdater:
                 module_data.logger.info("Game is starting...")
             case _:
                 # other unhandled gameflow phases
-                module_data.logger.info(
+                module_data.logger.warning(
                     f"Unhandled Gameflow Phase: {data.gameflow_phase}"
                 )
-                try:
-                    rpc.update(  # type: ignore
-                        large_image=f"{PROFILE_ICON_BASE_URL}{str(data.summoner_icon)}.png",
-                        large_text=f"{data.gameflow_phase}",
-                        small_image=LEAGUE_OF_LEGENDS_LOGO,
-                        small_text=SMALL_TEXT,
-                        details=f"{data.gameflow_phase}",
-                        state="Unhandled Gameflow Phase",
-                        start=module_data.client_data.application_start_time,
-                    )
-                except RuntimeError:
-                    module_data.logger.debug(
-                        "Error in Unhandled Gameflow Phase RPC: Probably safe to ignore"
-                    )

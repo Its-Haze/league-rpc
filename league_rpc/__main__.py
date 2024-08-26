@@ -24,12 +24,15 @@ def main(cli_args: argparse.Namespace) -> None:
     This is the program that gets executed.
     """
 
-    logger = RichLogger()
-    logger.start_progress_bar(name="Checking league and Discord")
+    logger = RichLogger(show_debugs=cli_args.debug)
+    logger.start_progress_bar(name="Checking League")
     ############################################################
     ## Check Discord, RiotClient & LeagueClient processes     ##
     check_league_client_process(cli_args, logger)
 
+    logger.stop_progress_bar()
+
+    logger.start_progress_bar(name="Checking Discord")
     rpc = check_discord_process(
         process_names=DISCORD_PROCESS_NAMES + cli_args.add_process,
         client_id=cli_args.client_id,
@@ -83,10 +86,14 @@ if __name__ == "__main__":
         help="use '--no-stats' to Opt out of showing in-game stats (KDA, minions) in Discord RPC",
     )
     parser.add_argument(
-        "--show-emojis",
-        "--emojis",
+        "--hide-emojis",
         action="store_true",
-        help="use '--show-emojis' to show green/red circle emoji, depending on your Online status in league.",
+        help="use '--hide-emojis' to hide the green/red circle emoji, depending on your Online status in league.",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="use '--debug' to see additional logging data. Otherwise logs from INFO -> CRITICAL will show. Debug logs are hidden by default",
     )
     parser.add_argument(
         "--no-rank",
@@ -131,9 +138,13 @@ if __name__ == "__main__":
         print(
             f"{Color.green}Argument {Color.blue}--no-rank{Color.green} detected.. Will hide your league rank.{Color.reset}"
         )
-    if args.show_emojis:
+    if args.hide_emojis:
         print(
-            f"{Color.green}Argument {Color.blue}--show-emojis, --emojis{Color.green} detected.. Will show emojis. such as league status indicators on Discord.{Color.reset}"
+            f"{Color.green}Argument {Color.blue}--hide-emojis{Color.green} detected.. Will hide emojis. such as league status indicators on Discord.{Color.reset}"
+        )
+    if args.debug:
+        print(
+            f"{Color.green}Argument {Color.blue}--debug{Color.green} detected.. Will show debug logs.{Color.reset}"
         )
     if args.add_process:
         print(
