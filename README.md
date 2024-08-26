@@ -40,10 +40,6 @@ Got questions already? Don't hesitate to join the [Discord Community Server](htt
 
 Who let the Kitten and the Penguin out? I did 😎. Now you too, can show off your favorite summoner icon, righ there on Discord!
 
-<!-- ![summoner-icon-1](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_client_icon_1.jpeg?raw=true)
-
-![summoner-icon-2](https://github.com/Its-Haze/league-assets/blob/master/league-rpc/in_client_icon_3.jpeg?raw=true) -->
-
 ![summoner-icon-1](images/in_client_icon_1.png) ![summoner-icon-2](images/in_client_icon_2.png)
 
 #### Ranked Games
@@ -62,32 +58,24 @@ If you really don't want to show your rank, then add the ``--no-rank`` argument,
 
 To show these Arena ranked emblems, you will need to add the argument ``--show-rank`` when starting this application
 
-<!-- ![lobby-arena-1](images/in_arena_show_ranked_1.jpeg)
 
-![lobby-arena-2](images/in_arena_show_ranked_2.jpeg) -->
 ### Arena
-![Arena-rpc-example](images/arena-rpc-1.png)
-![Arena-rpc-example-ranked-emblem](images/arena-rpc-2.png)
+![Arena-rpc-example](images/arena-rpc-1.png) ![Arena-rpc-example-ranked-emblem](images/arena-rpc-2.png)
 ![Arena-ingame-example](images/in_game_arena_jax.png)
-
-
 
 ### In Game
 
-#### Base skin example
-
-![Yuumi-default-skin-league-rpc](images/in_game_yuumi_league-rpc-project.png)
-
-#### Skin example
-
+#### Skins (Animated ones are included)
+![Ezreal-Animated](images/animated_ezreal_showcase.gif)
+![Lux-Animated](images/animated_lux_showcase.gif)
 
 ![Aphelios-skin](images/in_game_aphelios_skin_kda.png)
 
+
 ### TFT (Teamfight tactics)
+Showcase your favorite TFT Companion!
 
-
-![Teamfight-Tactics-example](images/in_game_tft.jpeg) 
-
+![tft-companion-1](images/tft_companion_showcase_1.png) ![tft-companion-2](images/tft_companion_showcase_2.png)
 
 
 ## Installation
