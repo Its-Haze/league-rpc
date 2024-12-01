@@ -24,9 +24,7 @@ BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-g
 TFT_COMPANIONS_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/companions"
 
 
-PROFILE_ICON_BASE_URL = (
-    "https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon"
-)
+PROFILE_ICON_BASE_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/{icon_id}.jpg"
 
 DDRAGON_CHAMPION_DATA = "https://ddragon.leagueoflegends.com/cdn/{version}/data/{locale}/champion/{name}.json"
 

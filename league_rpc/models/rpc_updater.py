@@ -84,9 +84,8 @@ class RPCUpdater:
             connection=connection,
         )  # Assuming update_rpc is defined elsewhere
 
-    @staticmethod
     def in_client_rpc(
-        rpc: Presence,
+        self,
         module_data: ModuleData,
     ) -> None:
         """
@@ -96,33 +95,31 @@ class RPCUpdater:
         hide_emojis: bool = module_data.cli_args.hide_emojis  # type:ignore
 
         if not hide_emojis:
-            status_emojis: str = (
-                f"{'🟢' if module_data.client_data.availability == LolChatUser.ONLINE.capitalize() else '  🔴'}"
-            )
+            status_emojis: str = f"{'🟢' if module_data.client_data.availability == LolChatUser.ONLINE.capitalize() else '  🔴'}"
             # details = status_emojis + details
             details = status_emojis + "  " + details
 
-        try:
-            rpc.update(  # type: ignore
-                large_image=f"{PROFILE_ICON_BASE_URL}{module_data.client_data.summoner_icon}.png",
-                large_text="In Client",
-                small_image=LEAGUE_OF_LEGENDS_LOGO,
-                small_text=SMALL_TEXT,
-                details=details,
-                state="In Client",
-                start=module_data.client_data.application_start_time,
-            )
-        except RuntimeError:
-            module_data.logger.debug("Error in Client RPC: Probably safe to ignore")
+        module_data.rpc_data = RPCData(
+            large_image=PROFILE_ICON_BASE_URL.format_map(
+                {"icon_id": module_data.client_data.summoner_icon}
+            ),
+            large_text="In Client",
+            small_image=LEAGUE_OF_LEGENDS_LOGO,
+            small_text=SMALL_TEXT,
+            details=details,
+            state="In Client",
+            start=module_data.client_data.application_start_time,
+        )
 
-    @staticmethod
+        self.trigger_rpc_update(module_data)
+
     def in_lobby_rpc(
-        rpc: Presence,
+        self,
         module_data: ModuleData,
     ) -> None:
         """Updates Rich Presence for lobby status, handling custom and standard lobbies."""
-        large_image = (
-            f"{PROFILE_ICON_BASE_URL}{str(module_data.client_data.summoner_icon)}.png"
+        large_image = PROFILE_ICON_BASE_URL.format_map(
+            {"icon_id": module_data.client_data.summoner_icon}
         )
 
         large_text = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
@@ -146,27 +143,25 @@ class RPCUpdater:
             large_image = module_data.client_data.tft_companion_icon
             large_text = module_data.client_data.tft_companion_name
 
-        try:
-            rpc.update(  # type: ignore
-                large_image=large_image,
-                large_text=large_text,
-                small_image=small_image,
-                small_text=f"{small_text}",
-                details=details,
-                state=state,
-                start=module_data.client_data.application_start_time,
-            )
-        except RuntimeError:
-            module_data.logger.debug("Error in Lobby RPC: Probably safe to ignore")
+        module_data.rpc_data = RPCData(
+            large_image=large_image,
+            large_text=large_text,
+            small_image=small_image,
+            small_text=f"{small_text}",
+            details=details,
+            state=state,
+            start=module_data.client_data.application_start_time,
+        )
+        self.trigger_rpc_update(module_data)
 
-    @staticmethod
+
     def in_custom_lobby_rpc(
-        rpc: Presence,
+        self,
         module_data: ModuleData,
     ) -> None:
         """Updates Rich Presence for lobby status, handling custom and standard lobbies."""
-        large_image = (
-            f"{PROFILE_ICON_BASE_URL}{str(module_data.client_data.summoner_icon)}.png"
+        large_image = PROFILE_ICON_BASE_URL.format_map(
+            {"icon_id": module_data.client_data.summoner_icon}
         )
 
         large_text = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
@@ -177,30 +172,25 @@ class RPCUpdater:
 
         details: str = f"In Lobby: {module_data.client_data.queue_name}"
         state = "Custom Lobby"
-        try:
-            rpc.update(  # type: ignore
-                large_image=large_image,
-                large_text=large_text,
-                small_image=small_image,
-                small_text=small_text,
-                details=details,
-                state=state,
-                start=module_data.client_data.application_start_time,
-            )
-        except RuntimeError:
-            module_data.logger.debug(
-                "Error in Custom Lobby RPC: Probably safe to ignore"
-            )
 
-    @staticmethod
-    def in_queue_rpc(rpc: Presence, module_data: ModuleData) -> None:
+        module_data.rpc_data = RPCData(
+            large_image=large_image,
+            large_text=large_text,
+            small_image=small_image,
+            small_text=small_text,
+            details=details,
+            state=state,
+            start=module_data.client_data.application_start_time,
+        )
+        self.trigger_rpc_update(module_data)
+
+
+    def in_queue_rpc(self, module_data: ModuleData) -> None:
         """Updates Rich Presence during the queue phase."""
-        large_image: str = (
-            f"{PROFILE_ICON_BASE_URL}{module_data.client_data.summoner_icon}.png"
+        large_image: str = PROFILE_ICON_BASE_URL.format_map(
+            {"icon_id": module_data.client_data.summoner_icon}
         )
-        large_text: str = (
-            f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
-        )
+        large_text: str = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
         small_image: str = BASE_MAP_ICON_URL.format(
             map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id)
         )
@@ -214,28 +204,25 @@ class RPCUpdater:
                     _small_image,
                     _small_text,
                 )
-        try:
-            rpc.update(  # type: ignore
-                large_image=large_image,
-                large_text=large_text,
-                small_image=small_image,
-                small_text=small_text,
-                details=f"{module_data.client_data.get_queue_name}",
-                state="In Queue",
-                start=int(time.time()),
-            )
-        except RuntimeError:
-            module_data.logger.debug("Error in Queue RPC: Probably safe to ignore")
 
-    @staticmethod
-    def in_champ_select_rpc(rpc: Presence, module_data: ModuleData) -> None:
+        module_data.rpc_data = RPCData(
+            large_image=large_image,
+            large_text=large_text,
+            small_image=small_image,
+            small_text=small_text,
+            details=f"{module_data.client_data.get_queue_name}",
+            state="In Queue",
+            start=int(time.time()),
+        )
+        self.trigger_rpc_update(module_data)
+
+
+    def in_champ_select_rpc(self, module_data: ModuleData) -> None:
         """Updates Rich Presence during champion selection."""
-        large_image: str = (
-            f"{PROFILE_ICON_BASE_URL}{module_data.client_data.summoner_icon}.png"
+        large_image: str = PROFILE_ICON_BASE_URL.format_map(
+            {"icon_id": module_data.client_data.summoner_icon}
         )
-        large_text: str = (
-            f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
-        )
+        large_text: str = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
         small_image: str = BASE_MAP_ICON_URL.format(
             map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id)
         )
@@ -249,20 +236,18 @@ class RPCUpdater:
                     _small_image,
                     _small_text,
                 )
-        try:
-            rpc.update(  # type: ignore
-                large_image=large_image,
-                large_text=large_text,
-                small_image=small_image,
-                small_text=small_text,
-                details=f"{module_data.client_data.get_queue_name}",
-                state="In Champ Select",
-                start=int(time.time()),
-            )
-        except RuntimeError:
-            module_data.logger.debug(
-                "Error in Champ Select RPC: Probably safe to ignore"
-            )
+
+        module_data.rpc_data = RPCData(
+            large_image=large_image,
+            large_text=large_text,
+            small_image=small_image,
+            small_text=small_text,
+            details=f"{module_data.client_data.get_queue_name}",
+            state="In Champ Select",
+            start=int(time.time()),
+        )
+        self.trigger_rpc_update(module_data)
+
 
     # The function that updates discord rich presence, depending on the data
     def update_rpc(self, module_data: ModuleData, connection: Connection) -> None:
