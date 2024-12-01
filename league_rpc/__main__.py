@@ -12,11 +12,8 @@ from league_rpc.processes.process import (
     check_league_client_process,
 )
 from league_rpc.utils.color import Color
-from league_rpc.utils.const import (
-    DEFAULT_CLIENT_ID,
-    DEFAULT_LEAGUE_CLIENT_EXE_PATH,
-    DISCORD_PROCESS_NAMES,
-)
+from league_rpc.utils.const import DEFAULT_CLIENT_ID, DISCORD_PROCESS_NAMES
+from league_rpc.utils.launch_league import find_default_path
 
 
 def main(cli_args: argparse.Namespace) -> None:
@@ -71,6 +68,8 @@ if __name__ == "__main__":
     # Patch for asyncio - read more here: https://pypi.org/project/nest-asyncio/
     nest_asyncio.apply()  # type: ignore
 
+    default_league_path = find_default_path()
+
     parser = argparse.ArgumentParser(description="Script with Discord RPC.")
     parser.add_argument(
         "--client-id",
@@ -119,8 +118,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--launch-league",
         type=str,
-        default=DEFAULT_LEAGUE_CLIENT_EXE_PATH,
-        help=f"Path to the League of Legends client executable. Default path is: {DEFAULT_LEAGUE_CLIENT_EXE_PATH}",
+        default=default_league_path,
+        help=f"Path to the League of Legends client executable. Default path is: {default_league_path}",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -163,9 +162,9 @@ if __name__ == "__main__":
         )
 
     if args.launch_league:
-        if args.launch_league == DEFAULT_LEAGUE_CLIENT_EXE_PATH:
+        if args.launch_league == default_league_path:
             print(
-                f"{Color.green}Attempting to launch the League client at the default location{Color.reset} {Color.blue}{args.launch_league}{Color.reset}\n"
+                f"{Color.green}Attempting to launch the League client at the default location{Color.reset} {Color.blue}{default_league_path}{Color.reset}\n"
                 f"{Color.green}If league is already running, it will not launch a new instance.{Color.reset}\n"
                 f"{Color.orange}If the League client does not launch, please specify the path manually using: --launch-league <path>{Color.reset}\n"
             )

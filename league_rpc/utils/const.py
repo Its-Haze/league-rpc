@@ -113,7 +113,8 @@ QUEUE_MAPPER = {
     "Teamfight Tactics (Hyper Roll)",  # detailed description
 }
 
-DEFAULT_LEAGUE_CLIENT_EXE_PATH = "C:\\Riot Games\\Riot Client\\RiotClientServices.exe"
+COMMON_DRIVES = ["C:", "D:", "E:", "F:", "G:", "H:", "I:", "J:", "K:", "L:", "Z:"]
+DEFAULT_LEAGUE_CLIENT_EXE_PATH = "\\Riot Games\\Riot Client\\RiotClientServices.exe"
 DEFAULT_LEAGUE_CLIENT_EXECUTABLE = "RiotClientServices.exe"
 
 

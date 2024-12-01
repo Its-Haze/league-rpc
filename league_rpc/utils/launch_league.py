@@ -1,7 +1,25 @@
+import os
 import subprocess
 from argparse import Namespace
+from typing import LiteralString
 
-from league_rpc.utils.const import DEFAULT_LEAGUE_CLIENT_EXECUTABLE
+from league_rpc.utils.const import (
+    COMMON_DRIVES,
+    DEFAULT_LEAGUE_CLIENT_EXE_PATH,
+    DEFAULT_LEAGUE_CLIENT_EXECUTABLE,
+)
+
+
+def find_default_path() -> str | LiteralString:
+    """Find the default path of the League Client executable."""
+
+    # Check each drive for the executable
+    for drive in COMMON_DRIVES:
+        full_path = os.path.join(drive, DEFAULT_LEAGUE_CLIENT_EXE_PATH)
+        if os.path.exists(full_path):
+            return full_path
+    # Fallback if the executable is not found
+    return os.path.join("C:", DEFAULT_LEAGUE_CLIENT_EXE_PATH)
 
 
 def launch_league_client(cli_args: Namespace) -> None:
