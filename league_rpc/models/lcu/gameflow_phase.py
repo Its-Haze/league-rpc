@@ -1,15 +1,15 @@
 """
-This module defines classes for encapsulating various stages of the game flow and lobby/player statuses 
-in League of Legends, interfacing with two specific API endpoints: /lol-summoner/v1/current-summoner 
-for game flow phases and /lol-gameflow/v1/gameflow-metadata/player-status for lobby and player statuses. 
-These classes organize data relevant to game progression and lobby management, ensuring it can be accessed 
+This module defines classes for encapsulating various stages of the game flow and lobby/player statuses
+in League of Legends, interfacing with two specific API endpoints: /lol-summoner/v1/current-summoner
+for game flow phases and /lol-gameflow/v1/gameflow-metadata/player-status for lobby and player statuses.
+These classes organize data relevant to game progression and lobby management, ensuring it can be accessed
 and manipulated efficiently.
 
 Usage:
-    These classes are crucial for developing features that require tracking or responding to changes in the game's 
-    status or managing interactions within the game lobby. They facilitate the creation of responsive and interactive 
-    features in client tools, enhancing the user experience by providing real-time updates and controls based on the 
-    game flow and lobby conditions. This structured approach helps maintain clarity and consistency when interacting 
+    These classes are crucial for developing features that require tracking or responding to changes in the game's
+    status or managing interactions within the game lobby. They facilitate the creation of responsive and interactive
+    features in client tools, enhancing the user experience by providing real-time updates and controls based on the
+    game flow and lobby conditions. This structured approach helps maintain clarity and consistency when interacting
     with the related APIs, supporting a robust development environment for League of Legends client applications.
 """
 

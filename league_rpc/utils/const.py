@@ -56,6 +56,7 @@ GAME_MODE_CONVERT_MAP: dict[str, str] = {
     "TUTORIAL_MODULE_3": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_2": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_1": "Summoner's Rift (Tutorial)",
+    "ULTBOOK": "Ultimate Spellbook",
 }
 
 CHAMPION_NAME_CONVERT_MAP = {
