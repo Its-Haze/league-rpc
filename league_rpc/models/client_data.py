@@ -1,5 +1,5 @@
 """
-This module defines the ClientData class, a data structure designed to hold comprehensive 
+This module defines the ClientData class, a data structure designed to hold comprehensive
 client-related information about a player's session in League of Legends. This class is particularly
 useful for tracking real-time client state and player statistics, encapsulating everything from the
 current game mode to the player's ranked stats across different game formats.
@@ -27,9 +27,7 @@ class ClientData:
 
     availability: str = "Online"  # "Online", "Away
     gamemode: str = ""
-    gameflow_phase: str = (
-        "None"  # None, Lobby, Matchmaking, ReadyCheck, ChampSelect, InProgress, WaitingForStats, EndOfGame
-    )
+    gameflow_phase: str = "None"  # None, Lobby, Matchmaking, ReadyCheck, ChampSelect, InProgress, WaitingForStats, EndOfGame
     is_custom: bool = False
     is_practice: bool = False
     lobby_id: str = ""  # unique lobby id

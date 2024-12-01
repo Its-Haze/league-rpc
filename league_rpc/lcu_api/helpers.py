@@ -1,5 +1,10 @@
+from __future__ import annotations
+
 import time
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from league_rpc.models.module_data import ModuleData
 
 import requests
 from lcu_driver.connection import Connection  # type:ignore
@@ -14,7 +19,7 @@ from league_rpc.gametime import get_current_ingame_time
 from league_rpc.kda import get_creepscore, get_kda, get_level
 from league_rpc.lcu_api.base_data import set_tft_companion_data
 from league_rpc.models.client_data import ArenaStats, RankedStats, TFTStats
-from league_rpc.models.module_data import ModuleData
+from league_rpc.models.rpc_data import RPCData
 from league_rpc.utils.const import (
     CHAMPION_NAME_CONVERT_MAP,
     LEAGUE_OF_LEGENDS_LOGO,
@@ -71,7 +76,7 @@ async def get_ingame_data(connection: Connection) -> dict[str, Any]:
 
 
 def show_ranked_data(
-    module_data: ModuleData,
+    module_data: "ModuleData",
 ) -> tuple[str, ...]:
     """Helper method to fetch formatted ranked data for display in Rich Presence."""
     large_text = small_text = small_image = ""
@@ -146,9 +151,60 @@ def handle_in_game(
         handle_arena_game(silent, module_data)
     elif game_mode == "Swarm":
         handle_swarm_game(silent, module_data)
+    elif game_mode == "Ultimate Spellbook":
+        handle_ultimate_spellbook_game(silent, module_data)
     else:
         module_data.logger.error(f"Unknown game mode: {game_mode}")
         return None
+
+
+def handle_ultimate_spellbook_game(
+    silent: bool,
+    module_data: ModuleData,
+) -> None:
+    """
+    Gather data specific to summoners rift games
+    """
+    (
+        champ_name,
+        skin_name,
+        chroma_name,
+        skin_id,
+        gamemode,
+        _,
+        _,
+    ) = gather_ingame_information(silent=silent)
+
+    skin_asset = get_skin_asset(
+        champion_name=champ_name,
+        skin_id=skin_id,
+    )
+    if not champ_name or not gamemode:
+        return
+    large_text = (
+        f"{skin_name} ({chroma_name})"
+        if chroma_name
+        else (
+            skin_name
+            if skin_name
+            else CHAMPION_NAME_CONVERT_MAP.get(champ_name, champ_name)
+        )
+    )
+    small_image = LEAGUE_OF_LEGENDS_LOGO
+    small_text = SMALL_TEXT
+
+    module_data.rpc_data = RPCData(
+        large_image=skin_asset,
+        large_text=large_text,
+        details=module_data.client_data.get_queue_name,
+        state=f"In Game {f'· {get_kda()} · {get_creepscore()}' if not module_data.cli_args.no_stats else ''}",
+        small_image=small_image,
+        small_text=small_text,
+        start=int(time.time())
+        - get_current_ingame_time(default_time=module_data.start_time),
+    )
+
+    module_data.rpc_updater.trigger_rpc_update(module_data)
 
 
 def handle_swarm_game(silent: bool, module_data: ModuleData) -> None:
@@ -180,19 +236,19 @@ def handle_swarm_game(silent: bool, module_data: ModuleData) -> None:
             else CHAMPION_NAME_CONVERT_MAP.get(champ_name, champ_name)
         )
     )
-    try:
-        module_data.rpc.update(  # type:ignore
-            large_image=skin_asset,
-            large_text=large_text,
-            details=module_data.client_data.get_queue_name,
-            state=f"In Game {f'· {get_creepscore()} · lvl: {level} · gold: {gold}' if not module_data.cli_args.no_stats else ''}",
-            small_image=LEAGUE_OF_LEGENDS_LOGO,
-            small_text=SMALL_TEXT,
-            start=int(time.time())
-            - get_current_ingame_time(default_time=module_data.start_time),
-        )
-    except RuntimeError:
-        module_data.logger.debug("Error updating RPC, probably safe to ignore.")
+
+    module_data.rpc_data = RPCData(
+        large_image=skin_asset,
+        large_text=large_text,
+        details=module_data.client_data.get_queue_name,
+        state=f"In Game {f'· {get_creepscore()} · lvl: {level} · gold: {gold}' if not module_data.cli_args.no_stats else ''}",
+        small_image=LEAGUE_OF_LEGENDS_LOGO,
+        small_text=SMALL_TEXT,
+        start=int(time.time())
+        - get_current_ingame_time(default_time=module_data.start_time),
+    )
+
+    module_data.rpc_updater.trigger_rpc_update(module_data)
 
 
 def handle_arena_game(silent: bool, module_data: ModuleData) -> None:
@@ -238,19 +294,18 @@ def handle_arena_game(silent: bool, module_data: ModuleData) -> None:
                 _small_text,
             )
 
-    try:
-        module_data.rpc.update(  # type:ignore
-            large_image=skin_asset,
-            large_text=large_text,
-            details=module_data.client_data.get_queue_name,
-            state=f"In Game {f'· {get_kda()} · lvl: {level} · gold: {gold}' if not module_data.cli_args.no_stats else ''}",
-            small_image=small_image,
-            small_text=small_text,
-            start=int(time.time())
-            - get_current_ingame_time(default_time=module_data.start_time),
-        )
-    except RuntimeError:
-        module_data.logger.debug("Error updating RPC, probably safe to ignore.")
+    module_data.rpc_data = RPCData(
+        large_image=skin_asset,
+        large_text=large_text,
+        details=module_data.client_data.get_queue_name,
+        state=f"In Game {f'· {get_kda()} · lvl: {level} · gold: {gold}' if not module_data.cli_args.no_stats else ''}",
+        small_image=small_image,
+        small_text=small_text,
+        start=int(time.time())
+        - get_current_ingame_time(default_time=module_data.start_time),
+    )
+
+    module_data.rpc_updater.trigger_rpc_update(module_data)
 
 
 def handle_normal_game(
@@ -295,19 +350,17 @@ def handle_normal_game(
                 _small_text,
             )
 
-    try:
-        module_data.rpc.update(  # type:ignore
-            large_image=skin_asset,
-            large_text=large_text,
-            details=module_data.client_data.get_queue_name,
-            state=f"In Game {f'· {get_kda()} · {get_creepscore()}' if not module_data.cli_args.no_stats else ''}",
-            small_image=small_image,
-            small_text=small_text,
-            start=int(time.time())
-            - get_current_ingame_time(default_time=module_data.start_time),
-        )
-    except RuntimeError:
-        module_data.logger.debug("Error updating RPC, probably safe to ignore.")
+    module_data.rpc_data = RPCData(
+        large_image=skin_asset,
+        large_text=large_text,
+        details=module_data.client_data.get_queue_name,
+        state=f"In Game {f'· {get_kda()} · {get_creepscore()}' if not module_data.cli_args.no_stats else ''}",
+        small_image=small_image,
+        small_text=small_text,
+        start=int(time.time())
+        - get_current_ingame_time(default_time=module_data.start_time),
+    )
+    module_data.rpc_updater.trigger_rpc_update(module_data)
 
 
 def handle_tft_game(
@@ -320,16 +373,14 @@ def handle_tft_game(
         )
         set_tft_companion_data(module_data.client_data, companion_data_json)
 
-    try:
-        module_data.rpc.update(  # type:ignore
-            large_image=module_data.client_data.tft_companion_icon,
-            large_text=module_data.client_data.tft_companion_name,
-            details=module_data.client_data.get_queue_name,
-            state=f"In Game · lvl: {get_level()}",
-            small_image=LEAGUE_OF_LEGENDS_LOGO,
-            small_text=SMALL_TEXT,
-            start=int(time.time())
-            - get_current_ingame_time(default_time=module_data.start_time),
-        )
-    except RuntimeError:
-        module_data.logger.debug("Error updating RPC, probably safe to ignore.")
+    module_data.rpc_data = RPCData(
+        large_image=module_data.client_data.tft_companion_icon,
+        large_text=module_data.client_data.tft_companion_name,
+        details=module_data.client_data.get_queue_name,
+        state=f"In Game · lvl: {get_level()}",
+        small_image=LEAGUE_OF_LEGENDS_LOGO,
+        small_text=SMALL_TEXT,
+        start=int(time.time())
+        - get_current_ingame_time(default_time=module_data.start_time),
+    )
+    module_data.rpc_updater.trigger_rpc_update(module_data)

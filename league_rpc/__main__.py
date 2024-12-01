@@ -1,7 +1,7 @@
 import argparse
-import asyncio
 import sys
 import threading
+import time
 
 import nest_asyncio  # type:ignore
 
@@ -12,11 +12,8 @@ from league_rpc.processes.process import (
     check_league_client_process,
 )
 from league_rpc.utils.color import Color
-from league_rpc.utils.const import (
-    DEFAULT_CLIENT_ID,
-    DEFAULT_LEAGUE_CLIENT_EXE_PATH,
-    DISCORD_PROCESS_NAMES,
-)
+from league_rpc.utils.const import DEFAULT_CLIENT_ID, DISCORD_PROCESS_NAMES
+from league_rpc.utils.launch_league import find_default_path
 
 
 def main(cli_args: argparse.Namespace) -> None:
@@ -56,15 +53,13 @@ def main(cli_args: argparse.Namespace) -> None:
     )
     lcu_process.start()
 
-    # print(f"\n{Color.green}Successfully connected to Discord RPC!{Color.reset}")
-
     try:
-        asyncio.get_event_loop().run_forever()
-    except KeyboardInterrupt:
-        logger.error("KeyboardInterrupt detected. Shutting down the program..")
-        # print(f"{Color.red}Shutting down the program..{Color.reset}")
+        while lcu_process.is_alive():
+            time.sleep(1)
+    except KeyboardInterrupt as e:
+        logger.info(f"{e.__class__.__name__} detected. Shutting down the program..")
         rpc.close()
-        sys.exit()
+        sys.exit(0)
 
     ############################################################
 
@@ -72,6 +67,8 @@ def main(cli_args: argparse.Namespace) -> None:
 if __name__ == "__main__":
     # Patch for asyncio - read more here: https://pypi.org/project/nest-asyncio/
     nest_asyncio.apply()  # type: ignore
+
+    default_league_path = find_default_path()
 
     parser = argparse.ArgumentParser(description="Script with Discord RPC.")
     parser.add_argument(
@@ -121,8 +118,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--launch-league",
         type=str,
-        default=DEFAULT_LEAGUE_CLIENT_EXE_PATH,
-        help=f"Path to the League of Legends client executable. Default path is: {DEFAULT_LEAGUE_CLIENT_EXE_PATH}",
+        default=default_league_path,
+        help=f"Path to the League of Legends client executable. Default path is: {default_league_path}",
     )
 
     args: argparse.Namespace = parser.parse_args()
@@ -165,9 +162,9 @@ if __name__ == "__main__":
         )
 
     if args.launch_league:
-        if args.launch_league == DEFAULT_LEAGUE_CLIENT_EXE_PATH:
+        if args.launch_league == default_league_path:
             print(
-                f"{Color.green}Attempting to launch the League client at the default location{Color.reset} {Color.blue}{args.launch_league}{Color.reset}\n"
+                f"{Color.green}Attempting to launch the League client at the default location{Color.reset} {Color.blue}{default_league_path}{Color.reset}\n"
                 f"{Color.green}If league is already running, it will not launch a new instance.{Color.reset}\n"
                 f"{Color.orange}If the League client does not launch, please specify the path manually using: --launch-league <path>{Color.reset}\n"
             )

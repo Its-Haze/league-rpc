@@ -1,13 +1,13 @@
 """
-This module defines classes for representing various data structures related to the 
-League of Legends lobby system. These classes are specifically tailored to encapsulate 
-fields extracted from the /lol-lobby/v2/lobby endpoint. Each class is used to organize 
-and access data properties critical for managing lobbies, participants, and game configurations 
+This module defines classes for representing various data structures related to the
+League of Legends lobby system. These classes are specifically tailored to encapsulate
+fields extracted from the /lol-lobby/v2/lobby endpoint. Each class is used to organize
+and access data properties critical for managing lobbies, participants, and game configurations
 in a structured manner.
 
 Usage:
-    These classes are primarily used for type-safe access to lobby-related data when interacting with the 
-    League of Legends client APIs. They provide a clear schema for data manipulation and retrieval, aiding 
+    These classes are primarily used for type-safe access to lobby-related data when interacting with the
+    League of Legends client APIs. They provide a clear schema for data manipulation and retrieval, aiding
     in the development of features that require interaction with lobby configurations and participant management.
 """
 
