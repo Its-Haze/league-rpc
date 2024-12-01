@@ -61,8 +61,12 @@ async def connect(connection: Connection) -> None:
 
 @module_data.connector.close  # type:ignore
 async def disconnect(_: Connection) -> None:
+    """
+    This function will be called when the connection to the League Client API is closed.
+    """
     logger = module_data.logger
-    logger.error("Disconnected from the League Client API.", color="red")
+    logger.info("Disconnected from the League Client API.", color="red")
+    await module_data.connector.stop()
 
 
 @module_data.connector.ws.register(  # type:ignore

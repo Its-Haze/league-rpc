@@ -1,7 +1,7 @@
 import argparse
-import asyncio
 import sys
 import threading
+import time
 
 import nest_asyncio  # type:ignore
 
@@ -56,15 +56,13 @@ def main(cli_args: argparse.Namespace) -> None:
     )
     lcu_process.start()
 
-    # print(f"\n{Color.green}Successfully connected to Discord RPC!{Color.reset}")
-
     try:
-        asyncio.get_event_loop().run_forever()
-    except KeyboardInterrupt:
-        logger.error("KeyboardInterrupt detected. Shutting down the program..")
-        # print(f"{Color.red}Shutting down the program..{Color.reset}")
+        while lcu_process.is_alive():
+            time.sleep(1)
+    except KeyboardInterrupt as e:
+        logger.info(f"{e.__class__.__name__} detected. Shutting down the program..")
         rpc.close()
-        sys.exit()
+        sys.exit(0)
 
     ############################################################
 
