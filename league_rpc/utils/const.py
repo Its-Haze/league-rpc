@@ -1,3 +1,5 @@
+from league_rpc.__version__ import __version__
+
 # Discord Application: League of Legends
 DEFAULT_CLIENT_ID = "1194034071588851783"
 DISCORD_PROCESS_NAMES: list[str] = [
@@ -7,7 +9,7 @@ DISCORD_PROCESS_NAMES: list[str] = [
     "electron",
 ]
 LEAGUE_OF_LEGENDS_LOGO = "https://github.com/Its-Haze/league-rpc/blob/master/assets/leagueoflegends.png?raw=true"
-SMALL_TEXT = "its-haze/league-rpc @Github.com"
+SMALL_TEXT = f"its-haze/league-rpc @Github.com ({__version__})"
 
 ALL_GAME_DATA_URL = "https://127.0.0.1:2999/liveclientdata/allgamedata"
 
