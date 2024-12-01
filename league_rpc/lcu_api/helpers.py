@@ -207,7 +207,6 @@ def handle_ultimate_spellbook_game(
     module_data.rpc_updater.trigger_rpc_update(module_data)
 
 
-
 def handle_swarm_game(silent: bool, module_data: ModuleData) -> None:
     """
     Gather data specific to Swarm games
@@ -250,7 +249,6 @@ def handle_swarm_game(silent: bool, module_data: ModuleData) -> None:
     )
 
     module_data.rpc_updater.trigger_rpc_update(module_data)
-
 
 
 def handle_arena_game(silent: bool, module_data: ModuleData) -> None:
@@ -310,7 +308,6 @@ def handle_arena_game(silent: bool, module_data: ModuleData) -> None:
     module_data.rpc_updater.trigger_rpc_update(module_data)
 
 
-
 def handle_normal_game(
     silent: bool,
     module_data: ModuleData,
@@ -366,7 +363,6 @@ def handle_normal_game(
     module_data.rpc_updater.trigger_rpc_update(module_data)
 
 
-
 def handle_tft_game(
     connection: Connection, silent: bool, module_data: ModuleData
 ) -> None:
@@ -388,4 +384,3 @@ def handle_tft_game(
         - get_current_ingame_time(default_time=module_data.start_time),
     )
     module_data.rpc_updater.trigger_rpc_update(module_data)
-

@@ -208,7 +208,6 @@ class RPCUpdater:
         )
         self.trigger_rpc_update(module_data)
 
-
     def in_custom_lobby_rpc(
         self,
         module_data: ModuleData,
@@ -237,7 +236,6 @@ class RPCUpdater:
             start=module_data.client_data.application_start_time,
         )
         self.trigger_rpc_update(module_data)
-
 
     def in_queue_rpc(self, module_data: ModuleData) -> None:
         """Updates Rich Presence during the queue phase."""
@@ -270,7 +268,6 @@ class RPCUpdater:
         )
         self.trigger_rpc_update(module_data)
 
-
     def in_champ_select_rpc(self, module_data: ModuleData) -> None:
         """Updates Rich Presence during champion selection."""
         large_image: str = PROFILE_ICON_BASE_URL.format_map(
@@ -301,7 +298,6 @@ class RPCUpdater:
             start=int(time.time()),
         )
         self.trigger_rpc_update(module_data)
-
 
     # The function that updates discord rich presence, depending on the data
     def update_rpc(self, module_data: ModuleData, connection: Connection) -> None:
