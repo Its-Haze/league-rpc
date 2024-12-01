@@ -59,9 +59,10 @@ class RPCUpdater:
         """
 
         # Debugging what function called trigger_rpc_update
-        stack = inspect.stack()
-        caller = stack[1].function
-        module_data.logger.debug(f"Caller of trigger_rpc_update: {caller}")
+        if module_data.cli_args.debug: # type:ignore
+            stack = inspect.stack()
+            caller = stack[1].function
+            module_data.logger.debug(f"Caller of trigger_rpc_update: {caller}")
 
         if self.has_rpc_data_changed(module_data.rpc_data):
             self.previous_rpc_data = copy.copy(module_data.rpc_data)
@@ -114,9 +115,10 @@ class RPCUpdater:
         """Schedules an update if one is not already scheduled within a short delay (1 second)."""
 
         # Debugging what function called delay_update
-        inspect.stack()
-        caller = inspect.stack()[1].function
-        module_data.logger.debug(f"Caller in delay_update: {caller}")
+        if module_data.cli_args.debug: # type:ignore
+            inspect.stack()
+            caller = inspect.stack()[1].function
+            module_data.logger.debug(f"Caller in delay_update: {caller}")
 
         # Check if the client data has changed
         if self.has_client_data_changed(module_data.client_data):

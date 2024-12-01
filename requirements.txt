@@ -4,6 +4,17 @@ requests==2.31.0
 nest_asyncio==1.5.8
 
 # just wait for lcu-driver==3.0.3 to be released
+# 8mb non-debug mode.
 git+https://github.com/its-haze/lcu-driver.git@v3.0.3#egg=lcu-driver
+
+
+# debug 4mb
+#git+https://github.com/its-haze/lcu-driver.git@cecf19036b6c2520eb6d0ccb0cc48a97fa452f9a#egg=lcu-driver
+
+# debug 8mb
+#git+https://github.com/its-haze/lcu-driver.git@31542a602551d038b008df8fea3a238bf89a33d2#egg=lcu-driver
+
+# debug 64mb
+#git+https://github.com/its-haze/lcu-driver.git@60602fe3d1659d47e6e238b0f2b743a1b646420d#egg=lcu-driver
 
 rich==13.7.1
