@@ -17,6 +17,7 @@ from league_rpc.models.lcu.gameflow_phase import GameFlowPhase
 from league_rpc.models.module_data import ModuleData
 from league_rpc.models.rpc_data import RPCData
 from league_rpc.models.rpc_updater import RPCUpdater
+from league_rpc.processes.process import processes_exists
 
 module_data = ModuleData(
     client_data=ClientData(),
@@ -39,13 +40,13 @@ async def connect(connection: Connection) -> None:
     logger.info("Connected to the League Client API.")
     logger.update_progress_bar(advance=20)
 
-    time.sleep(1)  # Give the client some time to load
+    time.sleep(0.5)  # Give the client some time to load
     logger.update_progress_bar(advance=10)
 
-    time.sleep(1)  # Give the client some time to load
+    time.sleep(0.5)  # Give the client some time to load
     logger.update_progress_bar(advance=10)
 
-    time.sleep(1)
+    time.sleep(0.5)
     logger.update_progress_bar(advance=20)
 
     time.sleep(2)
@@ -53,7 +54,6 @@ async def connect(connection: Connection) -> None:
     logger.info("Successfully gathered base data.")
     logger.update_progress_bar(advance=30)
 
-    time.sleep(1)
     rpc_updater.delay_update(module_data=module_data, connection=connection)
     logger.info("Discord RPC successfully updated")
     logger.update_progress_bar(advance=40)
@@ -74,7 +74,16 @@ async def disconnect(_: Connection) -> None:
     """
     logger = module_data.logger
     logger.info("Disconnected from the League Client API.", color="red")
-    await module_data.connector.stop()
+
+    league_processes: list[str] = ["LeagueClient.exe", "LeagueClientUx.exe"]
+
+    logger.info(
+        "Will attemt to reconnect in 5 seconds, if the client is still running."
+    )
+    time.sleep(5)
+    if not processes_exists(league_processes):
+        logger.info("League Client is closed. Stopping the connector.")
+        await module_data.connector.stop()
 
 
 @module_data.connector.ws.register(  # type:ignore
