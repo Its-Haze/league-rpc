@@ -146,7 +146,6 @@ def check_discord_process(
                 time.sleep(3)
                 continue
             elif wait_time >= wait_for_discord:
-
                 logger.error(
                     f"Discord not running! Could not find any process with the names {look_for_processes} running on your system."
                 )

@@ -11,12 +11,13 @@ Usage:
 """
 
 import copy
+import inspect
 import time
 from dataclasses import dataclass, field
 from threading import Timer
 
+import pypresence
 from lcu_driver.connection import Connection  # type:ignore
-from pypresence import Presence  # type:ignore
 
 from league_rpc.lcu_api.helpers import (
     get_lcu_data_sync,
@@ -27,6 +28,7 @@ from league_rpc.models.client_data import ClientData
 from league_rpc.models.lcu.current_chat_status import LolChatUser
 from league_rpc.models.lcu.gameflow_phase import GameFlowPhase
 from league_rpc.models.module_data import ModuleData
+from league_rpc.models.rpc_data import RPCData
 from league_rpc.utils.const import (
     BASE_MAP_ICON_URL,
     GAME_MODE_CONVERT_MAP,
@@ -46,6 +48,41 @@ class RPCUpdater:
     """
 
     previous_client_data: ClientData | None = field(default=None, init=False)
+    previous_rpc_data: RPCData | None = field(default=None, init=False)
+
+    def trigger_rpc_update(
+        self,
+        module_data: ModuleData,
+    ) -> None:
+        """
+        Handles the update of the Rich Presence with the provided data, catching and logging any exceptions that occur.
+        """
+
+        # Debugging what function called trigger_rpc_update
+        stack = inspect.stack()
+        caller = stack[1].function
+        module_data.logger.debug(f"Caller of trigger_rpc_update: {caller}")
+
+        if self.has_rpc_data_changed(module_data.rpc_data):
+            self.previous_rpc_data = copy.copy(module_data.rpc_data)
+            try:
+                module_data.logger.debug("Updating Discord Rich Presence")
+                module_data.rpc.update(  # type: ignore
+                    large_image=module_data.rpc_data.large_image,
+                    large_text=module_data.rpc_data.large_text,
+                    small_image=module_data.rpc_data.small_image,
+                    small_text=module_data.rpc_data.small_text,
+                    details=module_data.rpc_data.details,
+                    state=module_data.rpc_data.state,
+                    start=module_data.rpc_data.start,
+                )
+
+            except Exception as e:
+                module_data.logger.info(
+                    f"Exception occured while updating discord: {e}"
+                )
+        else:
+            module_data.logger.debug("RPC data has not changed. Skipping update.")
 
     def has_client_data_changed(self, current_client_data: ClientData) -> bool:
         """
@@ -58,12 +95,29 @@ class RPCUpdater:
         # Compare the current and previous client data
         return current_client_data != self.previous_client_data
 
+    def has_rpc_data_changed(self, current_rpc_data: RPCData) -> bool:
+        """
+        Compares the current RPC data with the previous RPC data to detect any changes.
+        """
+        if self.previous_rpc_data is None:
+            # No previous data exists, so consider it as changed
+            return True
+
+        # Compare the current and previous RPC data
+        return current_rpc_data != self.previous_rpc_data
+
     def delay_update(
         self,
         module_data: ModuleData,
         connection: Connection,
     ) -> None:
         """Schedules an update if one is not already scheduled within a short delay (1 second)."""
+
+        # Debugging what function called delay_update
+        inspect.stack()
+        caller = inspect.stack()[1].function
+        module_data.logger.debug(f"Caller in delay_update: {caller}")
+
         # Check if the client data has changed
         if self.has_client_data_changed(module_data.client_data):
             Timer(
@@ -255,9 +309,9 @@ class RPCUpdater:
         Determines the appropriate Rich Presence status based on the game flow phase and updates Discord.
         """
         data: ClientData = module_data.client_data
-        rpc: Presence | None = module_data.rpc
+        rpc: pypresence.Presence | None = module_data.rpc
 
-        if not isinstance(rpc, Presence):
+        if not isinstance(rpc, pypresence.Presence):
             # Only continue if rpc is of type Presence.
             module_data.logger.error("RPC is not of type Presence")
             return
@@ -284,7 +338,7 @@ class RPCUpdater:
                     )
                     time.sleep(10)
                 # After the game is over, we will drop back to the main client.
-                self.in_client_rpc(rpc=rpc, module_data=module_data)
+                self.in_client_rpc(module_data=module_data)
             case GameFlowPhase.READY_CHECK:
                 # When the READY check comes. We want to just ignore (IN_QUEUE rpc will still show.)
                 return
@@ -295,23 +349,23 @@ class RPCUpdater:
                 | GameFlowPhase.PRE_END_OF_GAME
                 | GameFlowPhase.END_OF_GAME
             ):
-                self.in_client_rpc(rpc=rpc, module_data=module_data)
+                self.in_client_rpc(module_data=module_data)
                 return
             case GameFlowPhase.CHAMP_SELECT | GameFlowPhase.GAME_START:
                 # In Champ Select
-                self.in_champ_select_rpc(rpc=rpc, module_data=module_data)
+                self.in_champ_select_rpc(module_data=module_data)
                 return
             case GameFlowPhase.MATCHMAKING | GameFlowPhase.READY_CHECK:
                 # In Queue
-                self.in_queue_rpc(rpc=rpc, module_data=module_data)
+                self.in_queue_rpc(module_data=module_data)
                 return
             case GameFlowPhase.LOBBY:
                 # In Lobby
                 if data.is_custom or data.is_practice:
-                    self.in_custom_lobby_rpc(rpc=rpc, module_data=module_data)
+                    self.in_custom_lobby_rpc(module_data=module_data)
                 else:
                     # matchmaking lobby
-                    self.in_lobby_rpc(rpc=rpc, module_data=module_data)
+                    self.in_lobby_rpc(module_data=module_data)
                 return
             case GameFlowPhase.GAME_START:
                 module_data.logger.info("Game is starting...")

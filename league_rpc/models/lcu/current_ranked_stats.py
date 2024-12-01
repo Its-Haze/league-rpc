@@ -1,6 +1,6 @@
 """
 This module defines data structures for handling ranked statistics in League of Legends,
-specifically tailored to interface with the /lol-ranked/v1/current-ranked-stats API endpoint. 
+specifically tailored to interface with the /lol-ranked/v1/current-ranked-stats API endpoint.
 It provides a structured way to parse, organize, and display ranked data across different game modes
 within the game, ensuring that data is accessible and usable within other components of a League client or tool.
 

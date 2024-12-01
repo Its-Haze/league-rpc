@@ -1,4 +1,9 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from league_rpc.models.module_data import ModuleData
 
 from aiohttp import ClientResponse
 from lcu_driver.connection import Connection
@@ -11,13 +16,12 @@ from league_rpc.models.lcu.gameflow_phase import (
     LolGameflowLobbyStatus,
     LolGameflowPlayerStatus,
 )
-from league_rpc.models.module_data import ModuleData
 from league_rpc.utils.const import TFT_COMPANIONS_URL
 
 
 # Base Data
 # Gather base data from the LCU API on startup
-async def gather_base_data(connection: Connection, module_data: ModuleData) -> None:
+async def gather_base_data(connection: Connection, module_data: "ModuleData") -> None:
     data: ClientData = module_data.client_data
 
     # Epoch time from which league client was started.
@@ -76,23 +80,15 @@ async def gather_lobby_data(connection: Connection, data: ClientData) -> None:
     )
     lobby_data: dict[str, Any] = await lobby_raw_data.json()
 
-    data.queue_id = lobby_data[LolGameflowPlayerStatus.CURRENT_LOBBY_STATUS][
-        LolGameflowLobbyStatus.QUEUE_ID
-    ]
-    data.lobby_id = lobby_data[LolGameflowPlayerStatus.CURRENT_LOBBY_STATUS][
-        LolGameflowLobbyStatus.LOBBY_ID
-    ]
-    data.players = len(
-        lobby_data[LolGameflowPlayerStatus.CURRENT_LOBBY_STATUS][
-            LolGameflowLobbyStatus.MEMBER_SUMMONER_IDS
-        ]
-    )
-    data.is_practice = lobby_data[LolGameflowPlayerStatus.CURRENT_LOBBY_STATUS][
-        LolGameflowLobbyStatus.IS_PRACTICE_TOOL
-    ]
-    data.is_custom = lobby_data[LolGameflowPlayerStatus.CURRENT_LOBBY_STATUS][
-        LolGameflowLobbyStatus.IS_CUSTOM
-    ]
+    lobby_status = lobby_data.get(LolGameflowPlayerStatus.CURRENT_LOBBY_STATUS)
+    if lobby_status is None:
+        return
+
+    data.queue_id = lobby_status[LolGameflowLobbyStatus.QUEUE_ID]
+    data.lobby_id = lobby_status[LolGameflowLobbyStatus.LOBBY_ID]
+    data.players = len(lobby_status[LolGameflowLobbyStatus.MEMBER_SUMMONER_IDS])
+    data.is_practice = lobby_status[LolGameflowLobbyStatus.IS_PRACTICE_TOOL]
+    data.is_custom = lobby_status[LolGameflowLobbyStatus.IS_CUSTOM]
 
 
 async def gather_gameflow_data(connection: Connection, data: ClientData) -> None:
@@ -178,10 +174,8 @@ async def gather_summoner_data(connection: Connection, data: ClientData) -> None
 
 
 async def gather_telemetry_data(connection: Connection, data: ClientData) -> None:
-    application_start_time_raw: ClientResponse = (
-        await connection.request(  # type:ignore
-            method="GET", endpoint="/telemetry/v1/application-start-time"
-        )
+    application_start_time_raw: ClientResponse = await connection.request(  # type:ignore
+        method="GET", endpoint="/telemetry/v1/application-start-time"
     )
     application_start_time: int = await application_start_time_raw.json()
     data.application_start_time = application_start_time

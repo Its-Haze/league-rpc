@@ -15,15 +15,23 @@ from league_rpc.models.lcu.current_chat_status import LolChatUser
 from league_rpc.models.lcu.current_summoner import Summoner
 from league_rpc.models.lcu.gameflow_phase import GameFlowPhase
 from league_rpc.models.module_data import ModuleData
+from league_rpc.models.rpc_data import RPCData
 from league_rpc.models.rpc_updater import RPCUpdater
 
-module_data = ModuleData()
-rpc_updater = RPCUpdater()
+module_data = ModuleData(
+    client_data=ClientData(),
+    rpc_updater=RPCUpdater(),
+    rpc_data=RPCData(),
+)
 
 
 @module_data.connector.ready  # type:ignore
 async def connect(connection: Connection) -> None:
+    """
+    This function will be called when the connection to the League Client API is established.
+    """
     logger = module_data.logger
+    rpc_updater = module_data.rpc_updater
 
     logger.start_progress_bar(name="Start LeagueRPC Engine")
     time.sleep(1)
@@ -86,7 +94,7 @@ async def summoner_updated(
     module_data.client_data.summoner_icon = new_summoner_icon
     logger.info("Summoner icon updated.")
 
-    rpc_updater.delay_update(module_data=module_data, connection=connection)
+    module_data.rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
 @module_data.connector.ws.register(  # type:ignore
@@ -115,7 +123,7 @@ async def chat_updated(connection: Connection, event: WebsocketEventResponse) ->
 
     module_data.client_data.availability = new_status
     logger.info(f"Status updated to: {new_status}")
-    rpc_updater.delay_update(module_data=module_data, connection=connection)
+    module_data.rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
 # Return the selected TFT companion
@@ -134,7 +142,7 @@ async def gather_tft_companion_data_updater(
     set_tft_companion_data(module_data.client_data, event_data)
 
     logger.info("TFT Companion data updated.")
-    rpc_updater.delay_update(module_data=module_data, connection=connection)
+    module_data.rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
 @module_data.connector.ws.register(  # type:ignore
@@ -151,7 +159,7 @@ async def gameflow_phase_updated(
         return None
 
     module_data.client_data.gameflow_phase = event.data  # type:ignore
-    rpc_updater.delay_update(module_data=module_data, connection=connection)
+    module_data.rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
 @module_data.connector.ws.register(  # type:ignore
@@ -188,7 +196,7 @@ async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> Non
             module_data.client_data.queue_name = "Practice Tool"
         else:
             module_data.client_data.queue_name = "Custom Game"
-        rpc_updater.delay_update(module_data, connection=connection)
+        module_data.rpc_updater.delay_update(module_data, connection=connection)
         return
 
     lobby_queue_info_raw: ClientResponse = await connection.request(
@@ -206,7 +214,7 @@ async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> Non
         "detailedDescription"
     ]
     module_data.client_data.queue_description = lobby_queue_info["description"]
-    rpc_updater.delay_update(module_data=module_data, connection=connection)
+    module_data.rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
 # ranked stats
@@ -229,7 +237,7 @@ async def ranked(connection: Connection, event: WebsocketEventResponse) -> None:
     data.arena_rank = ArenaStats.from_map(obj_map=event_data)
     data.tft_rank = TFTStats.from_map(obj_map=event_data)
 
-    rpc_updater.delay_update(module_data, connection)
+    module_data.rpc_updater.delay_update(module_data, connection)
 
 
 ##### Debug ######
