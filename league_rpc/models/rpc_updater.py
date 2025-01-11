@@ -259,13 +259,20 @@ class RPCUpdater:
                     _small_text,
                 )
 
+        state = "In Queue"
+        if (
+            module_data.client_data.gameflow_phase
+            == GameFlowPhase.CHECKED_INTO_TOURNAMENT
+        ):
+            state = "In Queue (Clash)"
+
         module_data.rpc_data = RPCData(
             large_image=large_image,
             large_text=large_text,
             small_image=small_image,
             small_text=small_text,
             details=f"{module_data.client_data.get_queue_name}",
-            state="In Queue",
+            state=state,
             start=int(time.time()),
         )
         self.trigger_rpc_update(module_data)
@@ -353,7 +360,11 @@ class RPCUpdater:
                 # In Champ Select
                 self.in_champ_select_rpc(module_data=module_data)
                 return
-            case GameFlowPhase.MATCHMAKING | GameFlowPhase.READY_CHECK:
+            case (
+                GameFlowPhase.MATCHMAKING
+                | GameFlowPhase.READY_CHECK
+                | GameFlowPhase.CHECKED_INTO_TOURNAMENT
+            ):
                 # In Queue
                 self.in_queue_rpc(module_data=module_data)
                 return
