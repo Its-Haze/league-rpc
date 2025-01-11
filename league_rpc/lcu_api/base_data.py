@@ -140,11 +140,16 @@ def set_tft_companion_data(
 
     data.tft_companion_id = companion_data["itemId"]
 
-    companion_icon_path: str = companion_data["loadoutsIcon"]
-    companion_file_name: str = companion_icon_path.split("/")[-1].lower()
+    # Get the full path of the TFT Companion icon
+    full_companion_icon_path: str = companion_data["loadoutsIcon"]
+
+    # Only get the final part and add it to community dragon URL
+    final_companion_icon_path: str = full_companion_icon_path.split("ASSETS/")[
+        -1
+    ].lower()
 
     # Set the TFT Companion icon URL
-    data.tft_companion_icon = f"{TFT_COMPANIONS_URL}/{companion_file_name}"
+    data.tft_companion_icon = f"{TFT_COMPANIONS_URL}/{final_companion_icon_path}"
     data.tft_companion_name = companion_data["name"]
     data.tft_companion_description = companion_data["description"]
 
@@ -174,8 +179,10 @@ async def gather_summoner_data(connection: Connection, data: ClientData) -> None
 
 
 async def gather_telemetry_data(connection: Connection, data: ClientData) -> None:
-    application_start_time_raw: ClientResponse = await connection.request(  # type:ignore
-        method="GET", endpoint="/telemetry/v1/application-start-time"
+    application_start_time_raw: ClientResponse = (
+        await connection.request(  # type:ignore
+            method="GET", endpoint="/telemetry/v1/application-start-time"
+        )
     )
     application_start_time: int = await application_start_time_raw.json()
     data.application_start_time = application_start_time
