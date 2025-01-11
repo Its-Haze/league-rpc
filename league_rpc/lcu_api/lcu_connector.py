@@ -7,7 +7,12 @@ from lcu_driver.connection import Connection  # type:ignore
 from lcu_driver.events.responses import WebsocketEventResponse  # type:ignore
 from pypresence import Presence  # type:ignore
 
-from league_rpc.disable_native_rpc.disable import check_plugin_status, find_game_path
+from league_rpc.disable_native_rpc.disable import (
+    check_plugin_status,
+    find_game_path,
+    add_plugin,
+    DISCORD_PLUGIN_BLOB,
+)
 from league_rpc.lcu_api.base_data import gather_base_data, set_tft_companion_data
 from league_rpc.logger.richlogger import RichLogger
 from league_rpc.models.client_data import ArenaStats, ClientData, RankedStats, TFTStats
@@ -63,8 +68,14 @@ async def connect(connection: Connection) -> None:
     time.sleep(0.5)
 
     logger.info("LeagueRPC is ready!", color="cyan")
+
     if game_path := find_game_path():
-        check_plugin_status(file_path=game_path, logger=logger)
+        native_presence = check_plugin_status(file_path=game_path, logger=logger)
+        if native_presence:
+            logger.warning(
+                "The Native League Presence is still active. Please start this application before launching League of legends to fully disable it.",
+                color="yellow",
+            )
 
 
 @module_data.connector.close  # type:ignore
@@ -82,7 +93,24 @@ async def disconnect(_: Connection) -> None:
     )
     time.sleep(5)
     if not processes_exists(league_processes):
-        logger.info("League Client is closed. Stopping the connector.")
+
+        # When we close leagueRPC, re-enable the native presence plugin.
+        # This prevents users needing to repair the client, the next time they open league.
+        if game_path := find_game_path():
+            native_presence = check_plugin_status(file_path=game_path, logger=logger)
+            if not native_presence and native_presence is not None:
+                # If the discord plugin is not present in the manifest.json file, add it.
+                if add_plugin(file_path=game_path, plugin_blob=DISCORD_PLUGIN_BLOB):
+                    logger.info(
+                        "Native League Presence has been re-enabled.", color="yellow"
+                    )
+                else:
+                    logger.error(
+                        "Failed to re-enable the Native League Presence.", color="red"
+                    )
+
+        # Give people time to read the last messages.
+        time.sleep(3)
         await module_data.connector.stop()
 
 
@@ -150,7 +178,7 @@ async def gather_tft_companion_data_updater(
 
     set_tft_companion_data(module_data.client_data, event_data)
 
-    logger.info("TFT Companion data updated.")
+    logger.info("TFT Companion updated")
     module_data.rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 

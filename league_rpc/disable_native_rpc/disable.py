@@ -9,25 +9,33 @@ from league_rpc.utils.color import Color
 
 LEAGUE_NATIVE_RPC_PLUGIN = "rcp-be-lol-discord-rp"
 
+DISCORD_PLUGIN_BLOB: dict[str, Any] = {
+    "as": [],
+    "name": LEAGUE_NATIVE_RPC_PLUGIN,
+    "affinity": None,
+    "lazy": False,
+}
+
 
 def check_plugin_status(
     file_path: str,
     logger: RichLogger,
     plugin_name: str = LEAGUE_NATIVE_RPC_PLUGIN,
-) -> None:
-    """Check if a specific plugin is still in the manifest file and inform the user."""
+) -> bool | None:
+    """Check if a specific plugin is still in the manifest file."""
     data: dict[str, Any] | None = load_json_file(file_path=file_path)
     if data is None:
-        return
+        logger.error("Was unable to find the plugin-manifest.json file.")
+        return None
 
-    plugin_found: bool = any(
+    plugin_state: bool = False
+
+    plugin_state = any(
         plugin["name"] == plugin_name for plugin in data.get("plugins", [])
     )
-    if plugin_found:
-        logger.warning(
-            "The Native League Presence is still active. Please start this application before launching League of legends to fully disable it.",
-            color="yellow",
-        )
+
+    # True if the plugin is still in the manifest file
+    return plugin_state
 
 
 def load_json_file(file_path: str) -> Optional[dict[str, Any]]:
@@ -47,28 +55,49 @@ def save_json_file(file_path: str, data: dict[str, Any]) -> None:
         file.truncate()
 
 
-def modify_json_data(
-    data: dict[str, Any],
+def remove_plugin(
+    file_path: str,
     plugin_name: str = LEAGUE_NATIVE_RPC_PLUGIN,
 ) -> bool:
     """Remove the specified plugin from the data."""
+
+    data: dict[str, Any] | None = load_json_file(file_path=file_path)
+
+    if data is None:
+        return False
+
     modified = False
     for plugin in data.get("plugins", []):
         if plugin["name"] == plugin_name:
             data["plugins"].remove(plugin)
+            save_json_file(file_path=file_path, data=data)
             modified = True
+
     return modified
 
 
-def check_and_modify_json(file_path: str) -> None:
-    """Remove a specific plugin from the League manifest file."""
+def add_plugin(
+    file_path: str,
+    plugin_blob: dict[str, Any],
+) -> bool:
+    """Add the specified plugin"""
+
     data: dict[str, Any] | None = load_json_file(file_path=file_path)
 
     if data is None:
-        return
+        return False
 
-    if modify_json_data(data=data):
+    modified = False
+
+    for plugin in data.get("plugins", []):
+        if plugin["name"] == plugin_blob["name"]:
+            break
+    else:
+        data["plugins"].append(plugin_blob)
         save_json_file(file_path=file_path, data=data)
+        modified = True
+
+    return modified
 
 
 def find_game_locale(league_processes: list[str]) -> str:
