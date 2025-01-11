@@ -6,7 +6,7 @@ from argparse import Namespace
 import psutil
 import pypresence  # type:ignore
 
-from league_rpc.disable_native_rpc.disable import check_and_modify_json, find_game_path
+from league_rpc.disable_native_rpc.disable import remove_plugin, find_game_path
 from league_rpc.logger.richlogger import RichLogger
 from league_rpc.utils.color import Color
 from league_rpc.utils.launch_league import launch_league_client
@@ -14,9 +14,17 @@ from league_rpc.utils.launch_league import launch_league_client
 
 def disable_native_presence() -> None:
     """Disable the native presence of League of Legends."""
+
+    start_time = time.time()
+    duration = 60  # 1 minute
+
     while True:
         if game_path := find_game_path():
-            check_and_modify_json(file_path=game_path)
+            remove_plugin(file_path=game_path)
+
+        if time.time() - start_time >= duration:
+            # After 1 minute, stop the process.
+            break
 
 
 def processes_exists(process_names: list[str]) -> bool:

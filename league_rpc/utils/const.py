@@ -23,7 +23,8 @@ BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
 
 BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/{map_name}/img/game-select-icon-active.png"
 
-TFT_COMPANIONS_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/companions"
+
+TFT_COMPANIONS_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets"
 
 
 PROFILE_ICON_BASE_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/{icon_id}.jpg"
@@ -59,6 +60,7 @@ GAME_MODE_CONVERT_MAP: dict[str, str] = {
     "TUTORIAL_MODULE_2": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_1": "Summoner's Rift (Tutorial)",
     "ULTBOOK": "Ultimate Spellbook",
+    "SWIFTPLAY": "Swiftplay",
 }
 
 CHAMPION_NAME_CONVERT_MAP = {

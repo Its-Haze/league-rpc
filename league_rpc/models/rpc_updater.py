@@ -59,7 +59,7 @@ class RPCUpdater:
         """
 
         # Debugging what function called trigger_rpc_update
-        if module_data.cli_args.debug: # type:ignore
+        if module_data.cli_args.debug:  # type:ignore
             stack = inspect.stack()
             caller = stack[1].function
             module_data.logger.debug(f"Caller of trigger_rpc_update: {caller}")
@@ -115,7 +115,7 @@ class RPCUpdater:
         """Schedules an update if one is not already scheduled within a short delay (1 second)."""
 
         # Debugging what function called delay_update
-        if module_data.cli_args.debug: # type:ignore
+        if module_data.cli_args.debug:  # type:ignore
             inspect.stack()
             caller = inspect.stack()[1].function
             module_data.logger.debug(f"Caller in delay_update: {caller}")
@@ -138,7 +138,7 @@ class RPCUpdater:
         self.update_rpc(
             module_data=module_data,
             connection=connection,
-        )  # Assuming update_rpc is defined elsewhere
+        )
 
     def in_client_rpc(
         self,
@@ -151,7 +151,9 @@ class RPCUpdater:
         hide_emojis: bool = module_data.cli_args.hide_emojis  # type:ignore
 
         if not hide_emojis:
-            status_emojis: str = f"{'🟢' if module_data.client_data.availability == LolChatUser.ONLINE.capitalize() else '  🔴'}"
+            status_emojis: str = (
+                f"{'🟢' if module_data.client_data.availability == LolChatUser.ONLINE.capitalize() else '  🔴'}"
+            )
             # details = status_emojis + details
             details = status_emojis + "  " + details
 
@@ -244,7 +246,9 @@ class RPCUpdater:
         large_image: str = PROFILE_ICON_BASE_URL.format_map(
             {"icon_id": module_data.client_data.summoner_icon}
         )
-        large_text: str = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
+        large_text: str = (
+            f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
+        )
         small_image: str = BASE_MAP_ICON_URL.format(
             map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id)
         )
@@ -259,13 +263,20 @@ class RPCUpdater:
                     _small_text,
                 )
 
+        state = "In Queue"
+        if (
+            module_data.client_data.gameflow_phase
+            == GameFlowPhase.CHECKED_INTO_TOURNAMENT
+        ):
+            state = "In Queue (Clash)"
+
         module_data.rpc_data = RPCData(
             large_image=large_image,
             large_text=large_text,
             small_image=small_image,
             small_text=small_text,
             details=f"{module_data.client_data.get_queue_name}",
-            state="In Queue",
+            state=state,
             start=int(time.time()),
         )
         self.trigger_rpc_update(module_data)
@@ -275,7 +286,9 @@ class RPCUpdater:
         large_image: str = PROFILE_ICON_BASE_URL.format_map(
             {"icon_id": module_data.client_data.summoner_icon}
         )
-        large_text: str = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
+        large_text: str = (
+            f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
+        )
         small_image: str = BASE_MAP_ICON_URL.format(
             map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id)
         )
@@ -353,7 +366,11 @@ class RPCUpdater:
                 # In Champ Select
                 self.in_champ_select_rpc(module_data=module_data)
                 return
-            case GameFlowPhase.MATCHMAKING | GameFlowPhase.READY_CHECK:
+            case (
+                GameFlowPhase.MATCHMAKING
+                | GameFlowPhase.READY_CHECK
+                | GameFlowPhase.CHECKED_INTO_TOURNAMENT
+            ):
                 # In Queue
                 self.in_queue_rpc(module_data=module_data)
                 return
@@ -367,6 +384,20 @@ class RPCUpdater:
                 return
             case GameFlowPhase.GAME_START:
                 module_data.logger.info("Game is starting...")
+            case GameFlowPhase.FAILED_TO_LAUNCH:
+                module_data.logger.warning(
+                    "Oops! League failed to launch. This issue comes from the game itself, not LeagueRPC. "
+                    "If your game runs smoothly, feel free to ignore this. Otherwise, try restarting the client or checking for updates."
+                )
+            case GameFlowPhase.RECONNECT:
+                module_data.logger.info(
+                    "Looks like you're reconnecting to your game. Hang in there and good luck!"
+                )
+            case GameFlowPhase.TERMINATED_IN_ERROR:
+                module_data.logger.warning(
+                    "The game has unexpectedly closed due to an error. This seems to be a League of Legends issue, not caused by LeagueRPC. "
+                    "If everything else is running fine, you can safely ignore this message. Otherwise, consider restarting the client."
+                )
             case _:
                 # other unhandled gameflow phases
                 module_data.logger.warning(
