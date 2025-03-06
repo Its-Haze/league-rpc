@@ -28,10 +28,12 @@ def get_specific_champion_data(name: str, locale: str) -> dict[str, Any]:
     """
     Get the specific champion data for the champion name.
     """
+    version: str = get_latest_version()
+
     response: requests.Response = requests.get(
         url=DDRAGON_CHAMPION_DATA.format_map(
             {
-                "version": get_latest_version(),
+                "version": version,
                 "name": name,
                 "locale": locale,
             }
@@ -146,6 +148,35 @@ def gather_ingame_information(
     )
 
 
+def fetch_current_player_data(
+    all_game_data: list[dict[str, Any]], summoner_name: str
+) -> dict[str, Any]:
+    """
+    Fetch the current player data from the allPlayers list.
+    """
+    for player in all_game_data:
+        if player["riotId"] == summoner_name:
+            return player
+
+    raise ValueError(
+        f"Unable to find in game data about the summoner ({summoner_name})"
+    )
+
+
+def get_champion_name_from_raw_skin_name(
+    raw_skin_name: str,
+) -> str:
+    """
+    Extract the Champion name from the raw skin name.
+
+    This is done because it's the most consisten way of getting the champion name.
+    """
+
+    raw_champ_name_data = raw_skin_name.split("_")
+    raw_champion_name = raw_champ_name_data[-2]
+    return raw_champion_name
+
+
 def gather_league_data(
     parsed_data: dict[str, Any],
     summoners_name: str,
@@ -162,43 +193,70 @@ def gather_league_data(
         league_processes=["LeagueClient.exe", "LeagueClientUx.exe"]
     )
 
-    for player in parsed_data["allPlayers"]:
-        if player["riotId"] == summoners_name:
-            raw_champion_name: str = player["rawChampionName"].split("_")[-1]
-            champion_data: dict[str, Any] = get_specific_champion_data(
-                name=raw_champion_name,
-                locale=locale,
-            )
-            champion_name = champion_data["data"][raw_champion_name]["id"]
-            skin_name = player.get("skinName", None)
-            skin_id = player.get("skinID", None)
+    current_summoner_data = fetch_current_player_data(
+        all_game_data=parsed_data["allPlayers"],
+        summoner_name=summoners_name,
+    )
 
-            if skin_name:
-                base_skin_id = [
-                    x["num"]
-                    for x in champion_data["data"][raw_champion_name]["skins"]
-                    if x["name"] == skin_name
-                ][0]
-            if skin_id != base_skin_id:
-                # Chroma detected: Get the name of the chroma:
-                chroma_data = get_specific_chroma_data(
-                    name=raw_champion_name,
-                    locale="en-US",
-                )
-                _skin_data: dict[str, Any] = [
-                    x
-                    for x in chroma_data["skins"]
-                    if str(x["id"]).endswith(str(base_skin_id))
-                ][0]
-                chroma_name = [
-                    x["name"]
-                    for x in _skin_data["chromas"]
-                    if str(x["id"]).endswith(str(skin_id))
-                ][0]
+    raw_champion_name = get_champion_name_from_raw_skin_name(
+        raw_skin_name=current_summoner_data["rawSkinName"]
+    )
 
-            break
-        continue
+    ddragon_champion_data = get_specific_champion_data(
+        name=raw_champion_name,
+        locale=locale,
+    )
+
+    champion_name = ddragon_champion_data["data"][raw_champion_name]["id"]
+    skin_name = current_summoner_data.get("skinName", None)
+    skin_id = current_summoner_data.get("skinID", None)
+
+    if skin_name:
+        base_skin_id = get_base_skin_id(
+            skin_name, raw_champion_name, ddragon_champion_data
+        )
+
+    if skin_is_chroma(skin_id, base_skin_id):
+        # Chroma detected: Get the name of the chroma:
+        chroma_data = get_specific_chroma_data(
+            name=raw_champion_name,
+            locale="en-US",
+        )
+        chroma_name = get_chroma_name(skin_id, base_skin_id, chroma_data)
+
     return champion_name, base_skin_id, skin_name, chroma_name
+
+
+def get_chroma_name(
+    skin_id: int, base_skin_id: int, chroma_data: dict[str, Any]
+) -> str:
+    """Get the chroma name for the skin"""
+    _skin_data: dict[str, Any] = [
+        x for x in chroma_data["skins"] if str(x["id"]).endswith(str(base_skin_id))
+    ][0]
+    chroma_name: str = [
+        x["name"] for x in _skin_data["chromas"] if str(x["id"]).endswith(str(skin_id))
+    ][0]
+
+    return chroma_name
+
+
+def skin_is_chroma(skin_id: int, base_skin_id: int) -> bool:
+    """Check if the skin is a chroma"""
+    return skin_id != base_skin_id
+
+
+def get_base_skin_id(
+    skin_name: str, raw_champion_name: str, ddragon_champion_data: dict[str, Any]
+) -> int:
+    """Get the base skin id for the skin"""
+    base_skin_id: int = [
+        x["num"]
+        for x in ddragon_champion_data["data"][raw_champion_name]["skins"]
+        if x["name"] == skin_name
+    ][0]
+
+    return base_skin_id
 
 
 def get_skin_asset(
