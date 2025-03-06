@@ -4,9 +4,9 @@ requests==2.32.3
 nest_asyncio==1.6.0
 
 # 8mb non-debug mode.
-# git+https://github.com/its-haze/lcu-driver.git@v3.0.3#egg=lcu-driver
+git+https://github.com/its-haze/lcu-driver.git@v3.0.3#egg=lcu-driver
 
-lcu-driver==3.0.2
+# lcu-driver==3.0.2
 
 
 rich==13.7.1
