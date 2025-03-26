@@ -53,6 +53,7 @@ class RPCUpdater:
     def trigger_rpc_update(
         self,
         module_data: ModuleData,
+        clear_instead_of_update: bool = False,
     ) -> None:
         """
         Handles the update of the Rich Presence with the provided data, catching and logging any exceptions that occur.
@@ -68,15 +69,20 @@ class RPCUpdater:
             self.previous_rpc_data = copy.copy(module_data.rpc_data)
             try:
                 module_data.logger.debug("Updating Discord Rich Presence")
-                module_data.rpc.update(  # type: ignore
-                    large_image=module_data.rpc_data.large_image,
-                    large_text=module_data.rpc_data.large_text,
-                    small_image=module_data.rpc_data.small_image,
-                    small_text=module_data.rpc_data.small_text,
-                    details=module_data.rpc_data.details,
-                    state=module_data.rpc_data.state,
-                    start=module_data.rpc_data.start,
-                )
+
+                if clear_instead_of_update:
+                    module_data.logger.debug("Clearing Discord Rich Presence")
+                    module_data.rpc.clear()  # type:ignore
+                else:
+                    module_data.rpc.update(  # type: ignore
+                        large_image=module_data.rpc_data.large_image,
+                        large_text=module_data.rpc_data.large_text,
+                        small_image=module_data.rpc_data.small_image,
+                        small_text=module_data.rpc_data.small_text,
+                        details=module_data.rpc_data.details,
+                        state=module_data.rpc_data.state,
+                        start=module_data.rpc_data.start,
+                    )
 
             except Exception as e:
                 module_data.logger.info(
@@ -149,6 +155,7 @@ class RPCUpdater:
         """
         details: str = f"{module_data.client_data.availability}"
         hide_emojis: bool = module_data.cli_args.hide_emojis  # type:ignore
+        clear_instead_of_update = False
 
         if not hide_emojis:
             status_emojis: str = (
@@ -169,7 +176,14 @@ class RPCUpdater:
             start=module_data.client_data.application_start_time,
         )
 
-        self.trigger_rpc_update(module_data)
+        if module_data.cli_args and module_data.cli_args.hide_in_client:
+            # If the user wants to hide the in-client RPC, we will clear it instead of updating it.
+            clear_instead_of_update = True
+
+        self.trigger_rpc_update(
+            module_data,
+            clear_instead_of_update,
+        )
 
     def in_lobby_rpc(
         self,

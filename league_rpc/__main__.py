@@ -121,12 +121,21 @@ if __name__ == "__main__":
         default=default_league_path,
         help=f"Path to the League of Legends client executable. Default path is: {default_league_path}",
     )
+    parser.add_argument(
+        "--hide-in-client",
+        action="store_true",
+        help="Temporarily hides the League of Legends Rich Presence while you're idle in the client only. The presence will automatically reactivate when you enter a lobby, queue, champ select, or game.",
+    )
 
     args: argparse.Namespace = parser.parse_args()
 
     # Prints the League RPC logo
     print(Color().logo)
 
+    if args.hide_in_client:
+        print(
+            f"{Color.green}Argument {Color.blue}--hide-in-client{Color.green} detected.. Will hide the in-client Rich presence.{Color.reset}"
+        )
     if args.no_stats:
         print(
             f"{Color.green}Argument {Color.blue}--no-stats{Color.green} detected.. Will {Color.red}not {Color.green}show InGame stats{Color.reset}"
