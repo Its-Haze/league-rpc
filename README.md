@@ -129,6 +129,7 @@ Other Options:
 Hide in-game stats (KDA and creep score) from Discord Rich Presence.
 
 - **Default**: Stats are shown.
+- **With this flag**: Stats such as your kills, assists, deaths and creep score (cs) is hidden from discord.
 
 ```sh
 # This will hide your KDA stats
@@ -138,9 +139,10 @@ leagueRPC.exe --no-stats
 ---
 
 ### `--no-rank`
-Hide your League rank on Discord (SoloQ/Flex/TFT/Arena) By default, this will be enabled.
+Hide your League rank on Discord (SoloQ/Flex/TFT/Arena).
 
-- **Default**: Rank and LP are displayed.
+- **Default**: Rank, Emblem and LP is displayed.
+- **With this flag**: Your emblem, LP and rank is hidden completely.
 
 ```sh
 # This will hide your Rank and LP from Discord.
@@ -153,6 +155,7 @@ leagueRPC.exe --no-rank
 Do you want to hide your Online/Away emoji?. Then add this argument. By default, this will be shown.
 
 - **Default**: Emojis are displayed (🟢 Online, 🔴 Away)
+- **With this flag** No Green/Red circle emojis near the Online/Away status.
 
 ```sh
 # This will hide the green emoji when you are online, and the red circle emoji when you are away.
@@ -160,6 +163,18 @@ leagueRPC.exe --hide-emojis
 ```
 
 ![Online](images/in_client_online_status.png) ![Away](images/in_client_away_status.png)
+
+---
+ 
+### `--hide-in-client`
+Temporarily hides the League of Legends Rich Presence while you're idle in the client only. The presence will automatically reactivate when you enter a lobby, queue, champ select, or game.
+
+- **Default Behavior**: Rich Presence is visible at all times, including while idle in the client.
+- **With This Flag**: Presence is hidden until meaningful activity is detected (lobby/queue/game).
+
+```sh
+leagueRPC.exe --hide-in-client
+```
 
 ---
 
@@ -205,7 +220,7 @@ leagueRPC.exe --wait-for-discord 30
 Each of these arguments can be combined to tailor the Discord RPC to your preferences.
 
 ```sh
-leagueRPC.exe --client-id 1194034071588851783 --launch-league --no-stats --no-rank --add-process CustomDiscord --wait-for-league -1 --wait-for-discord 30 --hide-emojis
+leagueRPC.exe --client-id 1194034071588851783 --launch-league --no-stats --no-rank --add-process CustomDiscord --wait-for-league -1 --wait-for-discord 30 --hide-emojis --hide-in-client
 ```
 
 🛑 All arguments are optional. No extra argument is needed for the script to function properly. But in case you want to change something, you can.
