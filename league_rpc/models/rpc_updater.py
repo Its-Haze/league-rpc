@@ -158,9 +158,7 @@ class RPCUpdater:
         clear_instead_of_update = False
 
         if not hide_emojis:
-            status_emojis: str = (
-                f"{'🟢' if module_data.client_data.availability == LolChatUser.ONLINE.capitalize() else '  🔴'}"
-            )
+            status_emojis: str = f"{'🟢' if module_data.client_data.availability == LolChatUser.ONLINE.capitalize() else '  🔴'}"
             # details = status_emojis + details
             details = status_emojis + "  " + details
 
@@ -214,6 +212,8 @@ class RPCUpdater:
         if module_data.client_data.gamemode == "TFT":
             large_image = module_data.client_data.tft_companion_icon
             large_text = module_data.client_data.tft_companion_name
+        if module_data.client_data.gamemode == "BRAWL":
+            small_image = LEAGUE_OF_LEGENDS_LOGO
 
         module_data.rpc_data = RPCData(
             large_image=large_image,
@@ -260,9 +260,7 @@ class RPCUpdater:
         large_image: str = PROFILE_ICON_BASE_URL.format_map(
             {"icon_id": module_data.client_data.summoner_icon}
         )
-        large_text: str = (
-            f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
-        )
+        large_text: str = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
         small_image: str = BASE_MAP_ICON_URL.format(
             map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id)
         )
@@ -284,6 +282,9 @@ class RPCUpdater:
         ):
             state = "In Queue (Clash)"
 
+        if module_data.client_data.gamemode == "BRAWL":
+            small_image = LEAGUE_OF_LEGENDS_LOGO
+
         module_data.rpc_data = RPCData(
             large_image=large_image,
             large_text=large_text,
@@ -300,9 +301,7 @@ class RPCUpdater:
         large_image: str = PROFILE_ICON_BASE_URL.format_map(
             {"icon_id": module_data.client_data.summoner_icon}
         )
-        large_text: str = (
-            f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
-        )
+        large_text: str = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
         small_image: str = BASE_MAP_ICON_URL.format(
             map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id)
         )
@@ -316,6 +315,9 @@ class RPCUpdater:
                     _small_image,
                     _small_text,
                 )
+
+        if module_data.client_data.gamemode == "BRAWL":
+            small_image = LEAGUE_OF_LEGENDS_LOGO
 
         module_data.rpc_data = RPCData(
             large_image=large_image,
