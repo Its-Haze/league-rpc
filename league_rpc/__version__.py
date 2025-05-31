@@ -1,6 +1,6 @@
 """Set version number of package."""
 
-__version__ = "v3.2.0"
+__version__ = "v3.2.1"
 import requests
 
 RELEASES_PAGE = "https://github.com/Its-Haze/league-rpc/releases"
