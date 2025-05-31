@@ -144,6 +144,7 @@ def handle_in_game(
         "Summoner's Rift (URF)",
         "Howling Abyss (ARAM)",
         "Swiftplay",
+        "Brawl",
     ):
         handle_normal_game(silent, module_data)
     elif game_mode == "TFT":

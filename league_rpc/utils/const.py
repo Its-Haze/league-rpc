@@ -44,6 +44,7 @@ MAP_ICON_CONVERT_MAP: dict[int, str] = {
     22: "tft",
     30: "cherry",
     33: "strawberry",
+    35: "brawl",
 }
 
 
@@ -56,6 +57,7 @@ GAME_MODE_CONVERT_MAP: dict[str, str] = {
     "NEXUSBLITZ": "Nexux Blitz",
     "CHERRY": "Arena",
     "STRAWBERRY": "Swarm",
+    "BRAWL": "Brawl",
     "TUTORIAL_MODULE_3": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_2": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_1": "Summoner's Rift (Tutorial)",
