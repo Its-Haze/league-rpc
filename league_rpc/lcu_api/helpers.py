@@ -145,6 +145,8 @@ def handle_in_game(
         "Howling Abyss (ARAM)",
         "Swiftplay",
         "Brawl",
+        "Doom Bots",
+        "Doom Bots - Veigar's Evil!",
     ):
         handle_normal_game(silent, module_data)
     elif game_mode == "TFT":
