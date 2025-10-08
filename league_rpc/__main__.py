@@ -132,6 +132,13 @@ if __name__ == "__main__":
     # Prints the League RPC logo
     print(Color().logo)
 
+    # Discord server information for support and other projects
+    print(f"{Color.blue}{'─' * 60}{Color.reset}")
+    print(f"{Color.green}• Need help? Join the Discord: {Color.cyan}https://discord.haze.sh{Color.reset}")
+    print(f"{Color.green}• Like LeagueRPC? You'll love {Color.orange}DJ Braum{Color.green} - Music bot for you & your friends: {Color.cyan}https://braum.haze.sh{Color.reset}")
+    print(f"{Color.green}• Portfolio & more projects: {Color.cyan}https://haze.sh{Color.reset} {Color.green}Be careful of the 🦆. It might get angry!{Color.reset}")
+    print(f"{Color.blue}{'─' * 60}{Color.reset}\n")
+
     if args.hide_in_client:
         print(
             f"{Color.green}Argument {Color.blue}--hide-in-client{Color.green} detected.. Will hide the in-client Rich presence.{Color.reset}"

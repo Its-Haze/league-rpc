@@ -69,13 +69,13 @@ async def connect(connection: Connection) -> None:
 
     logger.info("LeagueRPC is ready!", color="cyan")
 
-    if game_path := find_game_path():
-        native_presence = check_plugin_status(file_path=game_path, logger=logger)
-        if native_presence:
-            logger.warning(
-                "The Native League Presence is still active. Please start this application before launching League of legends to fully disable it.",
-                color="yellow",
-            )
+    # if game_path := find_game_path():
+    #     native_presence = check_plugin_status(file_path=game_path, logger=logger)
+    #     if native_presence:
+    #         logger.warning(
+    #             "The Native League Presence is still active. Please start this application before launching League of legends to fully disable it.",
+    #             color="yellow",
+    #         )
 
 
 @module_data.connector.close  # type:ignore
@@ -93,21 +93,20 @@ async def disconnect(_: Connection) -> None:
     )
     time.sleep(5)
     if not processes_exists(league_processes):
-
         # When we close leagueRPC, re-enable the native presence plugin.
         # This prevents users needing to repair the client, the next time they open league.
-        if game_path := find_game_path():
-            native_presence = check_plugin_status(file_path=game_path, logger=logger)
-            if not native_presence and native_presence is not None:
-                # If the discord plugin is not present in the manifest.json file, add it.
-                if add_plugin(file_path=game_path, plugin_blob=DISCORD_PLUGIN_BLOB):
-                    logger.info(
-                        "Native League Presence has been re-enabled.", color="yellow"
-                    )
-                else:
-                    logger.error(
-                        "Failed to re-enable the Native League Presence.", color="red"
-                    )
+        # if game_path := find_game_path():
+        #     native_presence = check_plugin_status(file_path=game_path, logger=logger)
+        #     if not native_presence and native_presence is not None:
+        #         # If the discord plugin is not present in the manifest.json file, add it.
+        #         if add_plugin(file_path=game_path, plugin_blob=DISCORD_PLUGIN_BLOB):
+        #             logger.info(
+        #                 "Native League Presence has been re-enabled.", color="yellow"
+        #             )
+        #         else:
+        #             logger.error(
+        #                 "Failed to re-enable the Native League Presence.", color="red"
+        #             )
 
         # Give people time to read the last messages.
         time.sleep(3)

@@ -1,30 +1,16 @@
+"""Module that contains functions to check for running processes."""
+
 import sys
-import threading
 import time
 from argparse import Namespace
+from datetime import datetime
 
 import psutil
 import pypresence  # type:ignore
 
-from league_rpc.disable_native_rpc.disable import remove_plugin, find_game_path
 from league_rpc.logger.richlogger import RichLogger
 from league_rpc.utils.color import Color
 from league_rpc.utils.launch_league import launch_league_client
-
-
-def disable_native_presence() -> None:
-    """Disable the native presence of League of Legends."""
-
-    start_time = time.time()
-    duration = 60  # 1 minute
-
-    while True:
-        if game_path := find_game_path():
-            remove_plugin(file_path=game_path)
-
-        if time.time() - start_time >= duration:
-            # After 1 minute, stop the process.
-            break
 
 
 def processes_exists(process_names: list[str]) -> bool:
@@ -61,16 +47,30 @@ def check_league_client_process(cli_args: Namespace, logger: RichLogger) -> None
     if cli_args.launch_league:
         # launch league if it's not already running.
         if not processes_exists(league_processes):
-            disable_native_thread = threading.Thread(
-                target=disable_native_presence,
-                daemon=True,
-            )
-            disable_native_thread.start()
             launch_league_client(cli_args)
 
-            time.sleep(0.5)
-            logger.info("League Client has been launched!")
-            logger.info("Disabling the Native league presence", color="yellow")
+        time.sleep(0.5)
+        logger.info("League Client has been launched!")
+        print()
+        current_date = datetime.now().date()
+        start_date = datetime(2025, 10, 4).date()
+        end_date = datetime(2025, 12, 30).date()
+
+        # Sets the beginning of the message to [NEW] if the date is between 2025-10-04 and 2025-12-30
+        prefix = "[NEW] " if start_date <= current_date <= end_date else ""
+
+        logger.warning(
+            f"{prefix}Riot recently introduced changes that prevent the disabling of League's default Discord presence.\n"
+            f"If you experience the default presence taking priority on Discord, please close League and restart this application.\n"
+            f"If issues persist, please reach out via the Discord server at https://discord.haze.sh for assistance.\n",
+            color="yellow",
+            highlight=[
+                {
+                    "Riot": "red",
+                    "https://discord.haze.sh": "cyan",
+                }
+            ],
+        )
 
     if not processes_exists(process_names=league_processes):
         # If league process is still not running, even after launching the client.

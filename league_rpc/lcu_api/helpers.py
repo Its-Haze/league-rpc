@@ -147,6 +147,7 @@ def handle_in_game(
         "Brawl",
         "Doom Bots",
         "Doom Bots - Veigar's Evil!",
+        "Doom Bots - Veigar's Doom!",
     ):
         handle_normal_game(silent, module_data)
     elif game_mode == "TFT":

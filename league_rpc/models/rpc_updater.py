@@ -403,7 +403,8 @@ class RPCUpdater:
             case GameFlowPhase.FAILED_TO_LAUNCH:
                 module_data.logger.warning(
                     "Oops! League failed to launch. This issue comes from the game itself, not LeagueRPC. "
-                    "If your game runs smoothly, feel free to ignore this. Otherwise, try restarting the client or checking for updates."
+                    "If your game runs smoothly, feel free to ignore this. Otherwise, try restarting the client or checking for updates. "
+                    "For persistent issues, reach out at https://discord.haze.sh for assistance."
                 )
             case GameFlowPhase.RECONNECT:
                 module_data.logger.info(
@@ -412,7 +413,8 @@ class RPCUpdater:
             case GameFlowPhase.TERMINATED_IN_ERROR:
                 module_data.logger.warning(
                     "The game has unexpectedly closed due to an error. This seems to be a League of Legends issue, not caused by LeagueRPC. "
-                    "If everything else is running fine, you can safely ignore this message. Otherwise, consider restarting the client."
+                    "If everything else is running fine, you can safely ignore this message. Otherwise, consider restarting the client. "
+                    "For persistent issues, reach out at https://discord.haze.sh for assistance."
                 )
             case _:
                 # other unhandled gameflow phases

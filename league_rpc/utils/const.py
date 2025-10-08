@@ -64,7 +64,8 @@ GAME_MODE_CONVERT_MAP: dict[str, str] = {
     "ULTBOOK": "Ultimate Spellbook",
     "SWIFTPLAY": "Swiftplay",
     "RUBY": "Doom Bots",
-    "RUBY_TRIAL_2": "Doom Bots - Veigar's Evil!",
+    "RUBY_TRIAL_1": "Doom Bots - Veigar's Evil!",
+    "RUBY_TRIAL_3": "Doom Bots - Veigar's Doom!",
 }
 
 CHAMPION_NAME_CONVERT_MAP = {
