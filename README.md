@@ -29,21 +29,17 @@ Got questions already? Don't hesitate to join the [Discord Community Server](htt
 ## Installation
 
 ### ✅ Prerequisites
-- It's recommended to have [Windows Terminal](https://aka.ms/terminal) installed, and set as your [Default Terminal](https://devblogs.microsoft.com/commandline/windows-terminal-as-your-default-command-line-experience/). This will make the application look more user friendly, with colorful messages, which you won't get if you are using the standard `cmd` terminal
+I recommend using [Windows Terminal](https://aka.ms/terminal) and setting it as your [default terminal](https://devblogs.microsoft.com/commandline/windows-terminal-as-your-default-command-line-experience/). It makes everything look way better with colors and proper formatting instead of the boring old `cmd` window.
 
-### 📥 Download the latest version. 
-1.  Go to the [Releases Page](https://github.com/Its-Haze/league-rpc/releases)
-2.  Find the latest version and download `leagueRPC.exe` located under the assets section.
+### 📥 Getting Started
+1. Head over to the [Releases Page](https://github.com/Its-Haze/league-rpc/releases)
+2. Download `leagueRPC.exe` from the latest release (it's under Assets)
+3. Run the exe file (probably sitting in your Downloads folder)
+4. Accept the Windows security popup if it shows up
+5. That's it! ✨
 
-### ▶️ Run the application.
-1. Locate the downloaded `leagueRPC.exe` file. Probably in your `Downloads` folder.
-2. Double-click the file to start leagueRPC.
-  You will need to accept the windows popup, if one may appear.
-3. Done ✨
-
-### 🔄 How do i update LeagueRPC?
-- **How**: You will have to manually install the latest version from the [Releases Page](https://github.com/Its-Haze/league-rpc/releases)
-- **When**: Since automatic updates don't yet exist, You will be informed in the terminal when you start LeagueRPC if a newer version is released. Please make sure to always run the latest version for the best experience.
+### 🔄 Updating
+No automatic updates yet, so you'll need to manually download new versions from the [Releases Page](https://github.com/Its-Haze/league-rpc/releases). Don't worry though - LeagueRPC will let you know in the terminal when there's a newer version available. I recommend staying up to date for the best experience.
 
 ---
 
@@ -51,16 +47,16 @@ Got questions already? Don't hesitate to join the [Discord Community Server](htt
 
 ### Summoner Icons
 
-Who let the Kitten and the Penguin out? I did 😎. Now you too, can show off your favorite summoner icon, righ there on Discord!
+Who let the Kitten and the Penguin out? I did 😎. Now you too, can show off your favorite summoner icon, right there on Discord!
 
 ![summoner-icon-1](images/in_client_icon_1.png) ![summoner-icon-2](images/in_client_icon_2.png)
 
 ### Ranked Games
 
 You can show off your rank emblem right in your Discord Presence.
-- SoloQ/Flex:  Shows off your Rank emblem + LP
+- SoloQ/Flex: Shows off your Rank emblem + LP
 - TFT: Shows off your TFT rank emblem + LP
-- Arena: Shows off your Arena meddalion + Your rating
+- Arena: Shows off your Arena medallion + Your rating
 
 If you want to hide your rank, then add the ``--no-rank`` argument, to **disable** this feature. As it's enabled by default.
 
@@ -78,7 +74,37 @@ If you want to hide your rank, then add the ``--no-rank`` argument, to **disable
 
 
 #### Skins
-![Ezreal-Animated](images/animated_ezreal_showcase.gif) ![Lux-Animated](images/animated_lux_showcase.gif)  ![Aphelios-skin](images/in_game_aphelios_skin_kda.png)
+![Aphelios-skin](images/in_game_aphelios_skin_kda.png)
+
+
+Example on Discord:
+![Ezreal-Animated](images/animated_ezreal_showcase.gif) ![Lux-Animated](images/animated_lux_showcase.gif)
+
+##### All Animated Skins
+
+<div align="left">
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Ahri_86.gif" width="150" alt="Ahri"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Ezreal_5.gif" width="150" alt="Ezreal"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Jinx_60.gif" width="150" alt="Jinx"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Kaisa_71.gif" width="150" alt="Kaisa"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Lux_7.gif" width="150" alt="Lux"/>
+</div>
+
+<div align="left">
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/MissFortune_16.gif" width="150" alt="Miss Fortune"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Mordekaiser_54.gif" width="150" alt="Mordekaiser"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Morgana_80.gif" width="150" alt="Morgana"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Samira_30.gif" width="150" alt="Samira"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Seraphine_1.gif" width="150" alt="Seraphine"/>
+</div>
+
+<div align="left">
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Seraphine_2.gif" width="150" alt="Seraphine"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Seraphine_3.gif" width="150" alt="Seraphine"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Sett_66.gif" width="150" alt="Sett"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Sona_6.gif" width="150" alt="Sona"/>
+  <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Udyr_3.gif" width="150" alt="Udyr"/>
+</div>
 
 ### TFT (Teamfight tactics)
 Showcase your favorite TFT Companion!
@@ -89,229 +115,147 @@ Showcase your favorite TFT Companion!
 
 ## Command Line Arguments
 
-LeagueRPC supports various command-line arguments to enhance flexibility and user customization.
+All arguments are optional - LeagueRPC works perfectly fine without any of them. Use these if you want to customize behavior.
 
-✨ Means that it's enabled by default, so you won't have to add it manually.
+**✨ = Enabled by default**
 
 ### `--launch-league <location>` ✨
-Specify the location of your `RiotClientServices.exe` to automatically launch League of Legends
+LeagueRPC automatically finds and launches League for you. This is important because it takes priority over League's native Discord presence during startup.
 
-- **Default** Behavior: LeagueRPC searches for `RiotClientServices.exe` in common drives such as (C, D, E, F and more). If found, it launches League for you.
-- **Why**: LeagueRPC disables League's native Discord presence during a brief window when the client starts. So it's best to allow LeagueRPC to start League for you.
-- **When to Use**: If league is installed in a non-default location, provide the path manually.
-
+Only specify a path if League is installed somewhere unusual:
 ```sh
-# This will attemt to automatically launch league from the specified location.
 leagueRPC.exe --launch-league "G:\Riot Games\Riot Client\RiotClientServices.exe"
 ```
 
----
-
 ### `--client-id <discord-app-id>` ✨
-Change the displayed game on Discord by specifying a custom `--client-id`.
-
-- **Default**: Displays "League of Legends"
-- **Create your app**:
-  - Create an app in the [Discord Developer Portal](https://discord.com/developers/applications).
-  - Copy the `APPLICATION ID` and use it with `--client-id`.
+Want to show a different game name on Discord? Create an app at the [Discord Developer Portal](https://discord.com/developers/applications) and use its Application ID.
 
 ```sh
-# This will show that you are playing League of Kittens on Discord.
 leagueRPC.exe --client-id 1230607224296968303
 ```
-Other Options:
+Fun options:
 - **League of Kittens**: `1230607224296968303`
 - **League of Linux**: `1185274747836174377`
 
----
-
 ### `--no-stats`
-Hide in-game stats (KDA and creep score) from Discord Rich Presence.
-
-- **Default**: Stats are shown.
-- **With this flag**: Stats such as your kills, assists, deaths and creep score (cs) is hidden from discord.
-
+Hides your KDA and CS from Discord.
 ```sh
-# This will hide your KDA stats
 leagueRPC.exe --no-stats
 ```
 
----
-
 ### `--no-rank`
-Hide your League rank on Discord (SoloQ/Flex/TFT/Arena).
-
-- **Default**: Rank, Emblem and LP is displayed.
-- **With this flag**: Your emblem, LP and rank is hidden completely.
-
+Hides your rank, LP, and emblem from Discord.
 ```sh
-# This will hide your Rank and LP from Discord.
 leagueRPC.exe --no-rank
 ```
 
----
-
 ### `--hide-emojis`
-Do you want to hide your Online/Away emoji?. Then add this argument. By default, this will be shown.
-
-- **Default**: Emojis are displayed (🟢 Online, 🔴 Away)
-- **With this flag** No Green/Red circle emojis near the Online/Away status.
-
+Removes the 🟢/🔴 emojis next to your Online/Away status.
 ```sh
-# This will hide the green emoji when you are online, and the red circle emoji when you are away.
 leagueRPC.exe --hide-emojis
 ```
 
 ![Online](images/in_client_online_status.png) ![Away](images/in_client_away_status.png)
 
----
- 
 ### `--hide-in-client`
-Temporarily hides the League of Legends Rich Presence while you're idle in the client only. The presence will automatically reactivate when you enter a lobby, queue, champ select, or game.
-
-- **Default Behavior**: Rich Presence is visible at all times, including while idle in the client.
-- **With This Flag**: Presence is hidden until meaningful activity is detected (lobby/queue/game).
-
+Hides your Rich Presence when you're just sitting in the client. It'll show up again when you queue, enter champ select, or start a game.
 ```sh
 leagueRPC.exe --hide-in-client
 ```
 
----
-
 ### `--add-process <process-name>`
-Add custom process names for Discord to the search list. Useful if your Discord client uses a different process name.
-
+Using a Discord alternative or modified client? Add its process name here. Find it in Task Manager.
 ```sh
-# This adds more names of Discord alternatives, which will be used to try to connect to.
 leagueRPC.exe --add-process CustomDiscord AnotherProcess
 ```
-*Find process names via Task Manager.*
-
----
 
 ### `--wait-for-league <seconds>` ✨
-Specify how long LeagueRPC should wait for League to launch before giving up.
-
-- **Default**: `-1` (waits indefinitely).
-- **Recommended**: Leave it as default
-
+How long to wait for League to start before giving up. Default is `-1` (waits forever).
 ```sh
-# This will wait 30 seconds for league to start. If it doesn't, it will terminate itself.
 leagueRPC.exe --wait-for-league 30
 ```
-*Use case: Legacy Linux setups (e.g., Lutris). No changes needed for Windows users.*
-
----
+*Mostly useful for legacy Linux setups with Lutris*
 
 ### `--wait-for-discord <seconds>` ✨
-Set how long LeagueRPC should wait for Discord to start before continuing.
-
-- **Default**: `-1` (waits indefinitely).
-- **Recommended**: Leave it as default.
-
+How long to wait for Discord to start. Default is `-1` (waits forever).
 ```sh
-# This will wait 30 seconds for Discord to start and connect. If it doesn't, it will terminate itself.
 leagueRPC.exe --wait-for-discord 30
 ```
 
----
-
-### Combine arguments
-Each of these arguments can be combined to tailor the Discord RPC to your preferences.
-
+### Combining Arguments
+Mix and match whatever you need:
 ```sh
-leagueRPC.exe --client-id 1194034071588851783 --launch-league --no-stats --no-rank --add-process CustomDiscord --wait-for-league -1 --wait-for-discord 30 --hide-emojis --hide-in-client
+leagueRPC.exe --client-id 1230607224296968303 --no-stats --hide-emojis
 ```
 
-🛑 All arguments are optional. No extra argument is needed for the script to function properly. But in case you want to change something, you can.
-
 ---
 
-## 💡 Tips for Running
+## 💡 Tips
 
-### 🛡️ Virus/Malware detected by Windows Defender!
-You will need to **whitelist** LeagueRPC in your antivirus program if it complains that it's malware (it's not).
-Windows Defender, and other antivirus software usually flag software that is not **Code Signed**. Code signing costs $100 per year, and it's not something I will spend my money on since this is a free program.
+### 🛡️ Windows Defender flagging it as a virus?
+Just whitelist it. This happens because the exe isn't code-signed (not paying $100/year for that). The source code is public if you want to verify it's safe, or just build it yourself.
 
-For those that are paranoid. Build the program from the source code, it's there and public for anyone to look at.
-
-### 🖱️ How to add arguments, without using a terminal
-
-If you prefer double clicking, instead of running it from a terminal, then you can still add arguments to the execution.
-  - Right click on leagueRPC.exe -> Select `Create shortcut`
-  - Right click on the Shortcut -> Select `Properties`
-  - In the `Target` field, you can add all your arguments after `leagueRPC.exe`
-  - Then just double click the shortcut to launch the program.
+### 🖱️ Adding arguments without using a terminal
+Don't like terminals? No problem:
+1. Right-click `leagueRPC.exe` → Create shortcut
+2. Right-click the shortcut → Properties
+3. In the `Target` field, add your arguments after `leagueRPC.exe`
+4. Double-click the shortcut to run
 
 ---
 
 ## ❓FAQ
 
 ### 🚫 Will this get my account banned?
-- No, it uses Riot's local API at `127.0.0.1:2999`, so it will not cause any bans. And Vanguard will not ban you for using it.
+Nope! It only uses Riot's local API (`127.0.0.1:2999`), which is completely safe. Vanguard won't care about it either since it doesn't modify any game files nor gives you an advantage in game.
 
+### 🛡️ Is this a virus?
+No. Some antivirus software might flag it because it's not code-signed (costs $100/year, not worth it for a free project). The entire source code is public on GitHub - feel free to review it or build it yourself. If you trust it, just whitelist it in Windows Defender.
 
-### 🛡️ Is this a virus/malware?
-- No, it’s not. This application connects to the League of Legends API to fetch data, only nessesary to fulfill this applications main goal. (To serve a better Discord Rich Presence). It then sends that data to Discord to update the Rich Presence. While this behavior is entirely legitimate and necessary for the application to function, it might resemble the behavior of unwanted software to some antivirus programs.
-- Because of this, certain antivirus apps like Windows Defender may incorrectly flag this app as a virus or malware. This is a false positive. The application is completely open source, and its code is available here on GitHub for you to review or build yourself, so you can verify exactly what it does.
-- If you trust this application, you may need to whitelist it in your antivirus software to prevent it from being flagged or removed. This is simply a precaution due to how antivirus software identifies potential threats, not because the application is malicious in any way.
+### 🛠️ League's native RPC is still showing instead of LeagueRPC
+Make sure LeagueRPC launches League for you. There's a tiny window during client startup where the native Discord presence can be disabled, and LeagueRPC needs to catch it.
 
+If it's still not working:
+1. Log out of League
+2. Close League completely
+3. Start LeagueRPC and let it launch League for you
+4. Log back in
 
-
-### 🛠️ League's native RPC is still running. how do i turn it off?
-- In order for league's native rich presence to be disabled, you would have to make sure that LeagueRPC starts league for you. This is because there is a small window where the discord integration can be disabled. Its between the time the Riot client starts up, until you are logged in to the league client. In between this time, LeagueRPC will attemt to disable the native rpc so that this app can take that role on Discord.
-- If you still experience issues that league's native rpc is running, then maybe your Client starts up too fast. 
-- Do the following if the native rpc is still not disabled:
-  - Log out of the league client
-  - Close the league client completely
-  - Start LeagueRPC.exe, and let it start league for you (after about a second or so, the native league presence should be disabled)
-  - You can now log back into the league client.
-  - If it still does not work, report a ticket on Github, or ask for direct help on the [Discord Community Server](https://discord.haze.sh)
+Still broken? Hit me up on [Discord](https://discord.haze.sh) or open a GitHub issue.
 
 ### ✔️ Does Riot approve this?
-- This is an independent project, not affiliated with Riot Games. This project is Open Source (as you can tell), mainly to protect your Privacy and Security. Running executables from strangers on the internet is never safe, so this is why the source code is open for you to read.
+This is an independent open-source project, not affiliated with Riot Games.
 
+### 🎮 Does it support TFT, Arena, ARAM, etc?
+Yep! Works with all game modes including TFT, Arena, ARAM, Swarms, and whatever new modes Riot releases.
 
-### 🎮 Does it support other gamemodes, like TFT & Arena?
-- Yes! TFT, ARAM, Arena, Swarms and other gamemodes that come out as well.
-
-### 📉 Why doesn't the minnions (cs) update live?
-- Trust me it's annoying for me as well. This is thanks to Riot Games not updating their API for every minnion killed, but rather updates every (10th) minnion killed. So this is sadly out of my control.
+### 📉 Why doesn't my CS update live?
+Blame Riot's API - it only updates every 10 minions killed instead of every single one. Nothing I can do about that unfortunately.
 
 ---
 
-## 🏗️ Build from source
-This is what the cool kids do!
+## 🏗️ Build from Source
+For the cool kids who want to build it themselves:
 
-If you prefer using the command line, follow these steps:
+```powershell
+# Clone and navigate
+git clone https://github.com/Its-Haze/league-rpc.git
+cd league-rpc
 
-- Use the following command to clone the repository to your local machine:
-   ```powershell
-   git clone https://github.com/Its-Haze/league-rpc.git
-   cd league-rpc
-   ```
-- A virtual environment helps to keep dependencies required by different projects separate, creating isolated python environments for them. This is highly recommended to avoid conflicts between project dependencies.
-   ```powershell
-   python -m venv venv
-   .\venv\Scripts\activate
-   ```
-- With the virtual environment activated, install the required dependencies using:
-   ```
-   pip install -r requirements.txt
-   ```
-- You will need pyinstaller for this to work
-  ```powershell
-  pip install pyinstaller
-  ```
-- Build
-  ```powershell
-  # Assuming your current directory is "league-rpc"
-  pyinstaller --onefile --name leagueRPC.exe league_rpc/__main__.py --clean --distpath .
-  ```
-- Run
-  ```powershell
-  .\leagueRPC.exe
-  ```
+# Set up virtual environment
+python -m venv venv
+.\venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+pip install pyinstaller
+
+# Build
+pyinstaller --onefile --name leagueRPC.exe league_rpc/__main__.py --clean --distpath .
+
+# Run
+.\leagueRPC.exe
+```
 
 ---
 
