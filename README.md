@@ -78,6 +78,7 @@ If you want to hide your rank, then add the ``--no-rank`` argument, to **disable
 
 
 Example on Discord:
+
 ![Ezreal-Animated](images/animated_ezreal_showcase.gif) ![Lux-Animated](images/animated_lux_showcase.gif)
 
 ##### All Animated Skins
