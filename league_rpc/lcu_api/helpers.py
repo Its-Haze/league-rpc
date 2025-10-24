@@ -143,6 +143,7 @@ def handle_in_game(
         "Summoner's Rift (Tutorial)",
         "Summoner's Rift (URF)",
         "Howling Abyss (ARAM)",
+        "ARAM: Mayhem",
         "Swiftplay",
         "Brawl",
         "Doom Bots",
