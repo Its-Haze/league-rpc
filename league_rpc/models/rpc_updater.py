@@ -85,7 +85,7 @@ class RPCUpdater:
                     )
 
             except Exception as e:
-                module_data.logger.info(
+                module_data.logger.debug(
                     f"Exception occured while updating discord: {e}"
                 )
         else:
@@ -241,8 +241,8 @@ class RPCUpdater:
         )
         small_text = SMALL_TEXT
 
-        details: str = f"In Lobby: {module_data.client_data.queue_name}"
-        state = "Custom Lobby"
+        details: str = f"{module_data.client_data.queue_name}"
+        state = "In Lobby"
 
         module_data.rpc_data = RPCData(
             large_image=large_image,

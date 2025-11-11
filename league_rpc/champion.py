@@ -30,17 +30,29 @@ def get_specific_champion_data(name: str, locale: str) -> dict[str, Any]:
     """
     version: str = get_latest_version()
 
-    response: requests.Response = requests.get(
-        url=DDRAGON_CHAMPION_DATA.format_map(
-            {
-                "version": version,
-                "name": name,
-                "locale": locale,
-            }
-        ),
-        timeout=15,
+    url = DDRAGON_CHAMPION_DATA.format_map(
+        {
+            "version": version,
+            "name": name,
+            "locale": locale,
+        }
     )
-    return response.json()
+
+    try:
+        response: requests.Response = requests.get(
+            url=url,
+            timeout=15,
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        raise RuntimeError(
+            f"Failed to fetch champion data for {name} (locale: {locale}, version: {version}). URL: {url}. Error: {e}"
+        ) from e
+    except ValueError as e:
+        raise RuntimeError(
+            f"Failed to parse JSON response for champion {name}. URL: {url}. Error: {e}"
+        ) from e
 
 
 def get_specific_chroma_data(name: str, locale: str) -> dict[str, Any]:
@@ -52,11 +64,22 @@ def get_specific_chroma_data(name: str, locale: str) -> dict[str, Any]:
             "locale": locale.replace("_", "-"),
         }
     )
-    response: requests.Response = requests.get(
-        url=url,
-        timeout=15,
-    )
-    return response.json()[name]
+    try:
+        response: requests.Response = requests.get(
+            url=url,
+            timeout=15,
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data[name]
+    except requests.RequestException as e:
+        raise RuntimeError(
+            f"Failed to fetch chroma data for {name} (locale: {locale}). URL: {url}. Error: {e}"
+        ) from e
+    except (ValueError, KeyError) as e:
+        raise RuntimeError(
+            f"Failed to parse chroma data for {name}. URL: {url}. Error: {e}"
+        ) from e
 
 
 def gather_game_mode() -> str:
@@ -163,18 +186,12 @@ def fetch_current_player_data(
     )
 
 
-def get_champion_name_from_raw_skin_name(
-    raw_skin_name: str,
-) -> str:
+def get_champion_name_from_raw_champion_name(raw_champion_name: str) -> str:
     """
-    Extract the Champion name from the raw skin name.
-
-    This is done because it's the most consisten way of getting the champion name.
+    Extract champion ID from rawChampionName field.
+    Format: 'game_character_displayname_ChampionId' -> 'ChampionId'
     """
-
-    raw_champ_name_data = raw_skin_name.split("_")
-    raw_champion_name = raw_champ_name_data[-2]
-    return raw_champion_name
+    return raw_champion_name.split("_")[-1]
 
 
 def gather_league_data(
@@ -198,8 +215,8 @@ def gather_league_data(
         summoner_name=summoners_name,
     )
 
-    raw_champion_name = get_champion_name_from_raw_skin_name(
-        raw_skin_name=current_summoner_data["rawSkinName"]
+    raw_champion_name = get_champion_name_from_raw_champion_name(
+        raw_champion_name=current_summoner_data["rawChampionName"]
     )
 
     ddragon_champion_data = get_specific_champion_data(
@@ -208,16 +225,16 @@ def gather_league_data(
     )
 
     champion_name = ddragon_champion_data["data"][raw_champion_name]["id"]
-    skin_name = current_summoner_data.get("skinName", None)
-    skin_id = current_summoner_data.get("skinID", None)
+    skin_id = current_summoner_data.get("skinID", 0)
 
-    if skin_name:
-        base_skin_id = get_base_skin_id(
-            skin_name, raw_champion_name, ddragon_champion_data
-        )
+    base_skin_id = get_base_skin_id_from_skin_id(
+        skin_id, raw_champion_name, ddragon_champion_data
+    )
+    skin_name = get_skin_name_from_id(
+        base_skin_id, raw_champion_name, ddragon_champion_data
+    )
 
     if skin_is_chroma(skin_id, base_skin_id):
-        # Chroma detected: Get the name of the chroma:
         chroma_data = get_specific_chroma_data(
             name=raw_champion_name,
             locale="en-US",
@@ -246,17 +263,42 @@ def skin_is_chroma(skin_id: int, base_skin_id: int) -> bool:
     return skin_id != base_skin_id
 
 
-def get_base_skin_id(
-    skin_name: str, raw_champion_name: str, ddragon_champion_data: dict[str, Any]
+def get_base_skin_id_from_skin_id(
+    skin_id: int, raw_champion_name: str, ddragon_champion_data: dict[str, Any]
 ) -> int:
-    """Get the base skin id for the skin"""
-    base_skin_id: int = [
-        x["num"]
-        for x in ddragon_champion_data["data"][raw_champion_name]["skins"]
-        if x["name"] == skin_name
-    ][0]
+    """
+    Determine the base skin ID from the API's skinID.
 
-    return base_skin_id
+    If skinID matches a skin's 'num' in DDragon, it's a base skin.
+    If not, it's likely a chroma - use heuristic to find the parent skin.
+    """
+    skins = ddragon_champion_data["data"][raw_champion_name]["skins"]
+
+    # Check if skinID is a base skin
+    for skin in skins:
+        if skin["num"] == skin_id:
+            return skin_id
+
+    # Likely a chroma - find the base skin by finding highest num <= skinID
+    # This heuristic works because chroma IDs are typically assigned after their base skin
+    for skin in sorted(skins, key=lambda x: x["num"], reverse=True):
+        if skin["num"] <= skin_id:
+            return skin["num"]
+
+    return 0  # Fallback to default skin
+
+
+def get_skin_name_from_id(
+    skin_id: int, raw_champion_name: str, ddragon_champion_data: dict[str, Any]
+) -> Optional[str]:
+    """Get the skin name from DDragon. Returns None for default skin or if not found."""
+    skins = ddragon_champion_data["data"][raw_champion_name]["skins"]
+
+    for skin in skins:
+        if skin["num"] == skin_id:
+            return None if skin["name"] == "default" else skin["name"]
+
+    return None
 
 
 def get_skin_asset(

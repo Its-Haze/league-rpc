@@ -23,6 +23,11 @@ from league_rpc.models.module_data import ModuleData
 from league_rpc.models.rpc_data import RPCData
 from league_rpc.models.rpc_updater import RPCUpdater
 from league_rpc.processes.process import processes_exists
+from league_rpc.utils.const import (
+    ARAM_CUSTOM_GAME_QUEUE_IDS,
+    CUSTOM_GAME_QUEUE_IDS,
+    QUEUE_ID_PRACTICE_TOOL,
+)
 
 module_data = ModuleData(
     client_data=ClientData(),
@@ -57,11 +62,11 @@ async def connect(connection: Connection) -> None:
     time.sleep(2)
     await gather_base_data(connection=connection, module_data=module_data)
     logger.info("Successfully gathered base data.")
-    logger.update_progress_bar(advance=30)
+    logger.update_progress_bar(advance=20)
 
     rpc_updater.delay_update(module_data=module_data, connection=connection)
     logger.info("Discord RPC successfully updated")
-    logger.update_progress_bar(advance=40)
+    logger.update_progress_bar(advance=20)
 
     logger.stop_progress_bar()
 
@@ -225,13 +230,19 @@ async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> Non
     else:
         module_data.client_data.is_practice = False
 
-    if module_data.client_data.queue_id == -1:
-        # custom game / practice tool / tutorial lobby
+    if module_data.client_data.queue_id in (*CUSTOM_GAME_QUEUE_IDS, QUEUE_ID_PRACTICE_TOOL) or module_data.client_data.is_custom or module_data.client_data.is_practice:
         module_data.client_data.queue_detailed_description = ""
-        if module_data.client_data.is_practice:
+
+        if module_data.client_data.queue_id == QUEUE_ID_PRACTICE_TOOL or module_data.client_data.is_practice:
             module_data.client_data.queue_name = "Practice Tool"
+            module_data.client_data.is_practice = True
+        elif module_data.client_data.queue_id in ARAM_CUSTOM_GAME_QUEUE_IDS:
+            module_data.client_data.queue_name = "Custom ARAM"
+            module_data.client_data.is_custom = True
         else:
             module_data.client_data.queue_name = "Custom Game"
+            module_data.client_data.is_custom = True
+
         module_data.rpc_updater.delay_update(module_data, connection=connection)
         return
 
