@@ -16,7 +16,12 @@ from league_rpc.models.lcu.gameflow_phase import (
     LolGameflowLobbyStatus,
     LolGameflowPlayerStatus,
 )
-from league_rpc.utils.const import TFT_COMPANIONS_URL
+from league_rpc.utils.const import (
+    ARAM_CUSTOM_GAME_QUEUE_IDS,
+    CUSTOM_GAME_QUEUE_IDS,
+    QUEUE_ID_PRACTICE_TOOL,
+    TFT_COMPANIONS_URL,
+)
 
 
 # Base Data
@@ -41,16 +46,34 @@ async def gather_base_data(connection: Connection, module_data: "ModuleData") ->
 
     await gather_lobby_data(connection=connection, data=data)
 
+    # If queue_id is still -1, no lobby data was available (e.g., already in-game).
+    # Skip queue data fetching to avoid API errors.
     if data.queue_id == -1:
-        # custom game / practice tool / tutorial lobby
-        data.gamemode = "PRACTICETOOL"
+        return
+
+    if (
+        data.queue_id in (*CUSTOM_GAME_QUEUE_IDS, QUEUE_ID_PRACTICE_TOOL)
+        or data.is_custom
+        or data.is_practice
+    ):
         data.queue_detailed_description = ""
-        data.map_id = 11
-        if data.is_practice:
+
+        if data.queue_id == QUEUE_ID_PRACTICE_TOOL or data.is_practice:
             data.queue_name = "Practice Tool"
+            data.gamemode = "PRACTICETOOL"
+            data.is_practice = True
             data.max_players = 1
+            data.map_id = 11
+        elif data.queue_id in ARAM_CUSTOM_GAME_QUEUE_IDS:
+            data.queue_name = "Custom ARAM"
+            data.gamemode = "ARAM"
+            data.is_custom = True
+            data.map_id = 12
         else:
             data.queue_name = "Custom Game"
+            data.gamemode = "PRACTICETOOL"
+            data.is_custom = True
+            data.map_id = 11
 
         return
 
@@ -179,10 +202,8 @@ async def gather_summoner_data(connection: Connection, data: ClientData) -> None
 
 
 async def gather_telemetry_data(connection: Connection, data: ClientData) -> None:
-    application_start_time_raw: ClientResponse = (
-        await connection.request(  # type:ignore
-            method="GET", endpoint="/telemetry/v1/application-start-time"
-        )
+    application_start_time_raw: ClientResponse = await connection.request(  # type:ignore
+        method="GET", endpoint="/telemetry/v1/application-start-time"
     )
     application_start_time: int = await application_start_time_raw.json()
     data.application_start_time = application_start_time
