@@ -247,15 +247,30 @@ def gather_league_data(
 def get_chroma_name(
     skin_id: int, base_skin_id: int, chroma_data: dict[str, Any]
 ) -> str:
-    """Get the chroma name for the skin"""
-    _skin_data: dict[str, Any] = [
+    """
+    Get the chroma name for the skin
+    
+    Some chromas do not exist in the MerakiAnalytics api, so return an empty string in that case.
+    """
+    # Find the skin data matching the base_skin_id
+    matching_skins = [
         x for x in chroma_data["skins"] if str(x["id"]).endswith(str(base_skin_id))
-    ][0]
-    chroma_name: str = [
-        x["name"] for x in _skin_data["chromas"] if str(x["id"]).endswith(str(skin_id))
-    ][0]
+    ]
 
-    return chroma_name
+    if not matching_skins:
+        return ""
+
+    _skin_data: dict[str, Any] = matching_skins[0]
+
+    # Find the chroma name matching the skin_id
+    matching_chromas = [
+        x["name"] for x in _skin_data.get("chromas", []) if str(x["id"]).endswith(str(skin_id))
+    ]
+
+    if not matching_chromas:
+        return ""
+
+    return matching_chromas[0]
 
 
 def skin_is_chroma(skin_id: int, base_skin_id: int) -> bool:
