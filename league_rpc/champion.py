@@ -227,50 +227,66 @@ def gather_league_data(
     champion_name = ddragon_champion_data["data"][raw_champion_name]["id"]
     skin_id = current_summoner_data.get("skinID", 0)
 
-    base_skin_id = get_base_skin_id_from_skin_id(
-        skin_id, raw_champion_name, ddragon_champion_data
+    # First, try to get chroma data to check if this skin_id is actually a chroma
+    chroma_data = get_specific_chroma_data(
+        name=raw_champion_name,
+        locale="en-US",
     )
+
+    # Try to find the base skin and chroma name using Meraki data
+    base_skin_id, chroma_name = find_base_skin_and_chroma(
+        skin_id, raw_champion_name, ddragon_champion_data, chroma_data
+    )
+
     skin_name = get_skin_name_from_id(
         base_skin_id, raw_champion_name, ddragon_champion_data
     )
 
-    if skin_is_chroma(skin_id, base_skin_id):
-        chroma_data = get_specific_chroma_data(
-            name=raw_champion_name,
-            locale="en-US",
-        )
-        chroma_name = get_chroma_name(skin_id, base_skin_id, chroma_data)
-
     return champion_name, base_skin_id, skin_name, chroma_name
 
 
-def get_chroma_name(
-    skin_id: int, base_skin_id: int, chroma_data: dict[str, Any]
-) -> str:
+def find_base_skin_and_chroma(
+    skin_id: int,
+    raw_champion_name: str,
+    ddragon_champion_data: dict[str, Any],
+    chroma_data: dict[str, Any]
+) -> tuple[int, Optional[str]]:
     """
-    Get the chroma name for the skin
-    
-    Some chromas do not exist in the MerakiAnalytics api, so return an empty string in that case.
+    Find the base skin ID and chroma name for a given skin_id.
+
+    This function searches both DDragon and Meraki data to correctly identify
+    whether skin_id is a base skin or a chroma, and returns the appropriate data.
+
+    Returns:
+        tuple[int, Optional[str]]: (base_skin_id, chroma_name or None)
     """
-    # Find the skin data matching the base_skin_id
-    matching_skins = [
-        x for x in chroma_data["skins"] if str(x["id"]).endswith(str(base_skin_id))
-    ]
+    ddragon_skins = ddragon_champion_data["data"][raw_champion_name]["skins"]
 
-    if not matching_skins:
-        return ""
+    # First check if skin_id is a base skin in DDragon
+    for skin in ddragon_skins:
+        if skin["num"] == skin_id:
+            # It's a base skin, not a chroma
+            return skin_id, None
 
-    _skin_data: dict[str, Any] = matching_skins[0]
+    # Not a base skin - search Meraki data for this chroma
+    # The chroma ID in Meraki is: champion_id * 1000 + skin_id
+    # We need to search all skins for a chroma ending with our skin_id
+    for meraki_skin in chroma_data["skins"]:
+        for chroma in meraki_skin.get("chromas", []):
+            # Check if the chroma ID ends with our skin_id
+            if str(chroma["id"]).endswith(str(skin_id)):
+                # Found the chroma! Extract the base skin num from Meraki skin ID
+                meraki_skin_id = meraki_skin["id"]
+                # Meraki IDs are like 238013, we need just the last part (13)
+                base_skin_num = meraki_skin_id % 1000
+                return base_skin_num, chroma["name"]
 
-    # Find the chroma name matching the skin_id
-    matching_chromas = [
-        x["name"] for x in _skin_data.get("chromas", []) if str(x["id"]).endswith(str(skin_id))
-    ]
+    # Fallback: use the old heuristic if not found in Meraki
+    for skin in sorted(ddragon_skins, key=lambda x: x["num"], reverse=True):
+        if skin["num"] <= skin_id:
+            return skin["num"], None
 
-    if not matching_chromas:
-        return ""
-
-    return matching_chromas[0]
+    return 0, None
 
 
 def skin_is_chroma(skin_id: int, base_skin_id: int) -> bool:
