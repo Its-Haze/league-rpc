@@ -24,10 +24,15 @@ from league_rpc.utils.polling import wait_until_exists
 urllib3.disable_warnings()
 
 
-def get_specific_champion_data(name: str, locale: str) -> dict[str, Any]:
+def get_specific_champion_data(name: str, locale: str) -> Optional[dict[str, Any]]:
     """
     Get the specific champion data for the champion name.
+    Returns None if the data cannot be fetched (invalid champion name, API error, etc.)
     """
+    # Validate champion name - during loading screen, API may return placeholder like "Name"
+    if not name or name in ("Name", "Unknown", ""):
+        return None
+
     version: str = get_latest_version()
 
     url = DDRAGON_CHAMPION_DATA.format_map(
@@ -45,19 +50,15 @@ def get_specific_champion_data(name: str, locale: str) -> dict[str, Any]:
         )
         response.raise_for_status()
         return response.json()
-    except requests.RequestException as e:
-        raise RuntimeError(
-            f"Failed to fetch champion data for {name} (locale: {locale}, version: {version}). URL: {url}. Error: {e}"
-        ) from e
-    except ValueError as e:
-        raise RuntimeError(
-            f"Failed to parse JSON response for champion {name}. URL: {url}. Error: {e}"
-        ) from e
+    except (requests.RequestException, ValueError):
+        # Champion data fetch failed - may be invalid name or network error
+        return None
 
 
-def get_specific_chroma_data(name: str, locale: str) -> dict[str, Any]:
+def get_specific_chroma_data(name: str, locale: str) -> Optional[dict[str, Any]]:
     """
     Get the specific chroma champion data for the champion name.
+    Returns None if the data cannot be fetched (API down, network error, etc.)
     """
     url = MERAKIANALYTICS_CHAMPION_DATA.format_map(
         {
@@ -72,23 +73,23 @@ def get_specific_chroma_data(name: str, locale: str) -> dict[str, Any]:
         response.raise_for_status()
         data = response.json()
         return data[name]
-    except requests.RequestException as e:
-        raise RuntimeError(
-            f"Failed to fetch chroma data for {name} (locale: {locale}). URL: {url}. Error: {e}"
-        ) from e
-    except (ValueError, KeyError) as e:
-        raise RuntimeError(
-            f"Failed to parse chroma data for {name}. URL: {url}. Error: {e}"
-        ) from e
+    except (requests.RequestException, ValueError, KeyError):
+        # If chroma data fetch fails, return None - chroma detection will be skipped
+        return None
 
 
-def gather_game_mode() -> str:
+def gather_game_mode(startup: bool = True) -> str:
     """
     Get the current game mode.
+
+    Args:
+        startup: If True, retry on connection errors (use for first call when game starts).
+                 If False, fail fast on connection errors (use for subsequent polling calls).
     """
     if response := wait_until_exists(
         url=ALL_GAME_DATA_URL,
         custom_message="Did not find game data.. Will try again in 5 seconds",
+        startup=startup,
     ):
         parsed_data = response.json()
         game_mode = GAME_MODE_CONVERT_MAP.get(
@@ -117,9 +118,11 @@ def gather_ingame_information(
     level: int | None = None
     gold: int | None = None
 
+    # Use startup=not silent: retry on first call, fail fast on subsequent polling calls
     if response := wait_until_exists(
         url=ALL_GAME_DATA_URL,
         custom_message="Did not find game data.. Will try again in 5 seconds",
+        startup=not silent,
     ):
         parsed_data = response.json()
         game_mode = GAME_MODE_CONVERT_MAP.get(
@@ -200,6 +203,7 @@ def gather_league_data(
 ) -> tuple[Optional[str], int, Optional[str], Optional[str]]:
     """
     If the gamemode is LEAGUE, gather the relevant information and return it to RPC.
+    Returns (None, 0, None, None) if champion data is not yet available (e.g., loading screen).
     """
     champion_name: Optional[str] = None
     skin_id: int = 0
@@ -224,7 +228,16 @@ def gather_league_data(
         locale=locale,
     )
 
-    champion_name = ddragon_champion_data["data"][raw_champion_name]["id"]
+    # If champion data is not available (loading screen, invalid name), return defaults
+    if ddragon_champion_data is None:
+        return None, 0, None, None
+
+    try:
+        champion_name = ddragon_champion_data["data"][raw_champion_name]["id"]
+    except KeyError:
+        # Champion data structure unexpected
+        return None, 0, None, None
+
     skin_id = current_summoner_data.get("skinID", 0)
 
     # First, try to get chroma data to check if this skin_id is actually a chroma
@@ -249,7 +262,7 @@ def find_base_skin_and_chroma(
     skin_id: int,
     raw_champion_name: str,
     ddragon_champion_data: dict[str, Any],
-    chroma_data: dict[str, Any]
+    chroma_data: Optional[dict[str, Any]]
 ) -> tuple[int, Optional[str]]:
     """
     Find the base skin ID and chroma name for a given skin_id.
@@ -268,20 +281,21 @@ def find_base_skin_and_chroma(
             # It's a base skin, not a chroma
             return skin_id, None
 
-    # Not a base skin - search Meraki data for this chroma
+    # Not a base skin - search Meraki data for this chroma (if available)
     # The chroma ID in Meraki is: champion_id * 1000 + skin_id
     # We need to search all skins for a chroma ending with our skin_id
-    for meraki_skin in chroma_data["skins"]:
-        for chroma in meraki_skin.get("chromas", []):
-            # Check if the chroma ID ends with our skin_id
-            if str(chroma["id"]).endswith(str(skin_id)):
-                # Found the chroma! Extract the base skin num from Meraki skin ID
-                meraki_skin_id = meraki_skin["id"]
-                # Meraki IDs are like 238013, we need just the last part (13)
-                base_skin_num = meraki_skin_id % 1000
-                return base_skin_num, chroma["name"]
+    if chroma_data is not None:
+        for meraki_skin in chroma_data.get("skins", []):
+            for chroma in meraki_skin.get("chromas", []):
+                # Check if the chroma ID ends with our skin_id
+                if str(chroma["id"]).endswith(str(skin_id)):
+                    # Found the chroma! Extract the base skin num from Meraki skin ID
+                    meraki_skin_id = meraki_skin["id"]
+                    # Meraki IDs are like 238013, we need just the last part (13)
+                    base_skin_num = meraki_skin_id % 1000
+                    return base_skin_num, chroma["name"]
 
-    # Fallback: use the old heuristic if not found in Meraki
+    # Fallback: use the old heuristic if not found in Meraki (or Meraki unavailable)
     for skin in sorted(ddragon_skins, key=lambda x: x["num"], reverse=True):
         if skin["num"] <= skin_id:
             return skin["num"], None

@@ -2,7 +2,7 @@
 
 import requests
 
-__version__ = "v3.3.3"
+__version__ = "v3.3.4"
 
 RELEASES_PAGE = "https://github.com/Its-Haze/league-rpc/releases"
 
@@ -12,17 +12,21 @@ def get_version_from_github() -> str | None:
     Get the latest version of the software from the GitHub repository.
 
     Returns:
-        str: The latest version of the software.
+        str: The latest version of the software, or None if unavailable.
     """
-    response: requests.Response = requests.get(
-        url="https://api.github.com/repos/its-haze/league-rpc/releases/latest",
-        timeout=15,
-    )
-    if response.status_code != 200:
-        # Probably due to rate limit.. should be handled better.
-        return None
+    try:
+        response: requests.Response = requests.get(
+            url="https://api.github.com/repos/its-haze/league-rpc/releases/latest",
+            timeout=15,
+        )
+        if response.status_code != 200:
+            # Probably due to rate limit.. should be handled better.
+            return None
 
-    return response.json()["tag_name"]
+        return response.json()["tag_name"]
+    except (requests.RequestException, ValueError, KeyError):
+        # Network error, timeout, or invalid response - continue without version check
+        return None
 
 
 def check_latest_version(latest_version: str) -> bool | None:

@@ -58,8 +58,11 @@ def main(cli_args: argparse.Namespace) -> None:
             time.sleep(1)
     except KeyboardInterrupt as e:
         logger.info(f"{e.__class__.__name__} detected. Shutting down the program..")
+    finally:
+        # Always close the RPC connection when exiting (whether by KeyboardInterrupt or League closing)
+        rpc.clear()
         rpc.close()
-        sys.exit(0)
+        logger.info("Discord RPC connection closed.")
 
     ############################################################
 

@@ -126,6 +126,14 @@ COMMON_DRIVES = ["C:", "D:", "E:", "F:", "G:", "H:", "I:", "J:", "K:", "L:", "Z:
 DEFAULT_LEAGUE_CLIENT_EXE_PATH = "\\Riot Games\\Riot Client\\RiotClientServices.exe"
 DEFAULT_LEAGUE_CLIENT_EXECUTABLE = "RiotClientServices.exe"
 
+# Ranked queue IDs (language-independent)
+QUEUE_ID_RANKED_SOLO = 420
+QUEUE_ID_RANKED_FLEX = 440
+QUEUE_ID_TFT_RANKED = 1100
+QUEUE_ID_TFT_DOUBLE_UP = 1160
+QUEUE_ID_TFT_HYPER_ROLL = 1130
+QUEUE_ID_ARENA = 1700
+
 # Custom/Practice game queue IDs
 QUEUE_ID_CUSTOM_GAME = 3100
 QUEUE_ID_CUSTOM_GAME_DRAFT = 3110

@@ -23,6 +23,10 @@ from league_rpc.models.rpc_data import RPCData
 from league_rpc.utils.const import (
     CHAMPION_NAME_CONVERT_MAP,
     LEAGUE_OF_LEGENDS_LOGO,
+    QUEUE_ID_ARENA,
+    QUEUE_ID_RANKED_FLEX,
+    QUEUE_ID_RANKED_SOLO,
+    QUEUE_ID_TFT_RANKED,
     SMALL_TEXT,
 )
 
@@ -78,49 +82,51 @@ async def get_ingame_data(connection: Connection) -> dict[str, Any]:
 def show_ranked_data(
     module_data: "ModuleData",
 ) -> tuple[str, ...]:
-    """Helper method to fetch formatted ranked data for display in Rich Presence."""
+    """Helper method to fetch formatted ranked data for display in Rich Presence.
+
+    Uses queue_id instead of queue_name for matching, as queue_id is
+    language-independent and works across all client locales.
+    """
     large_text = small_text = small_image = ""
 
-    current_queue_name = module_data.client_data.get_queue_name
+    # Use queue_id for matching (language-independent)
+    current_queue_id = module_data.client_data.queue_id
 
-    match current_queue_name:
-        case "Ranked Solo/Duo":
-            summoner_rank: RankedStats = module_data.client_data.summoner_rank  # type: ignore
-            if summoner_rank.tier:
-                (
-                    small_text,
-                    small_image,
-                ) = summoner_rank.rpc_info
-                large_text = SMALL_TEXT
+    if current_queue_id == QUEUE_ID_RANKED_SOLO:
+        summoner_rank: RankedStats = module_data.client_data.summoner_rank  # type: ignore
+        if summoner_rank.tier:
+            (
+                small_text,
+                small_image,
+            ) = summoner_rank.rpc_info
+            large_text = SMALL_TEXT
 
-        case "Ranked Flex":
-            summoner_rank = module_data.client_data.summoner_rank_flex  # type: ignore
-            if summoner_rank.tier:
-                (
-                    small_text,
-                    small_image,
-                ) = summoner_rank.rpc_info
-                large_text = SMALL_TEXT
+    elif current_queue_id == QUEUE_ID_RANKED_FLEX:
+        summoner_rank = module_data.client_data.summoner_rank_flex  # type: ignore
+        if summoner_rank.tier:
+            (
+                small_text,
+                small_image,
+            ) = summoner_rank.rpc_info
+            large_text = SMALL_TEXT
 
-        case "Teamfight Tactics (Ranked)":
-            summoner_rank: TFTStats = module_data.client_data.tft_rank  # type: ignore
-            if summoner_rank.tier:
-                (
-                    small_text,
-                    small_image,
-                ) = summoner_rank.rpc_info
-                large_text = SMALL_TEXT
-        case "Arena":
-            summoner_rank: ArenaStats = module_data.client_data.arena_rank  # type: ignore
-            if summoner_rank.tier:
-                (
-                    small_text,
-                    small_image,
-                ) = summoner_rank.rpc_info
-                large_text = SMALL_TEXT
+    elif current_queue_id == QUEUE_ID_TFT_RANKED:
+        summoner_rank: TFTStats = module_data.client_data.tft_rank  # type: ignore
+        if summoner_rank.tier:
+            (
+                small_text,
+                small_image,
+            ) = summoner_rank.rpc_info
+            large_text = SMALL_TEXT
 
-        case _:
-            ...
+    elif current_queue_id == QUEUE_ID_ARENA:
+        summoner_rank: ArenaStats = module_data.client_data.arena_rank  # type: ignore
+        if summoner_rank.tier:
+            (
+                small_text,
+                small_image,
+            ) = summoner_rank.rpc_info
+            large_text = SMALL_TEXT
     return large_text, small_image, small_text
 
 
@@ -135,7 +141,8 @@ def handle_in_game(
     silent, is meant to not display console output if the inGame has already been ran
 
     """
-    game_mode = gather_game_mode()
+    # Use startup=not silent: retry on first call, fail fast on subsequent polling calls
+    game_mode = gather_game_mode(startup=not silent)
 
     if game_mode in (
         "Summoner's Rift (Custom)",
