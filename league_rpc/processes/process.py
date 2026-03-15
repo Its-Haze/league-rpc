@@ -214,6 +214,20 @@ def check_discord_process(
             # The pipe was closed. Catch this exception and re-connect your instance
             time.sleep(1)
             continue
+        except PermissionError:
+            logger.error(
+                "Permission denied when connecting to Discord RPC (Windows Error 5)."
+            )
+            logger.info(
+                "This is usually caused by a privilege mismatch: Discord and league-rpc must run at the same privilege level."
+            )
+            logger.info(
+                "Fix: Make sure NEITHER Discord nor league-rpc is running as Administrator, or run BOTH as Administrator."
+            )
+            logger.info(
+                "Right-click the Discord shortcut → Properties → Compatibility → uncheck 'Run as administrator', then restart Discord."
+            )
+            sys.exit()
         except ConnectionRefusedError:
             logger.error(
                 "Connection refused. Make sure Discord is running and accepting connections."
