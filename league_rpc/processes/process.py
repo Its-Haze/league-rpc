@@ -202,14 +202,13 @@ def check_discord_process(
             time.sleep(1)
             continue
         except pypresence.exceptions.DiscordNotFound:
-            # Sometimes when starting discord, an error can occur saying that you logged out.
-            # Weird but can be ignored since it usually works a second or so after.
-
-            logger.error(
-                "Discord not found. Make sure Discord is installed and running on your system."
+            # Discord process is running but the IPC pipe isn't ready yet (common on startup).
+            # Retry instead of hard-exiting.
+            logger.info(
+                "Discord IPC pipe not ready yet, retrying...",
             )
-
-            sys.exit()
+            time.sleep(3)
+            continue
         except pypresence.exceptions.PipeClosed:
             # The pipe was closed. Catch this exception and re-connect your instance
             time.sleep(1)
@@ -238,7 +237,18 @@ def check_discord_process(
             sys.exit()
     else:
         logger.error("Discord process was found but RPC could not be connected.")
-
+        logger.info(
+            "Common fixes:"
+        )
+        logger.info(
+            "1. Enable Rich Presence in Discord: User Settings → Activity Privacy → turn on 'Display current activity as a status message'."
+        )
+        logger.info(
+            "2. Fully restart Discord (right-click tray icon → Quit, then relaunch)."
+        )
+        logger.info(
+            "3. Make sure Discord is not running as Administrator (or run league-rpc as Administrator to match)."
+        )
         sys.exit()
     return rpc
 
