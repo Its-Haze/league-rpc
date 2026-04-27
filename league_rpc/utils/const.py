@@ -6,7 +6,7 @@ DISCORD_PROCESS_NAMES: list[str] = [
     "Discord",
     "DiscordPTB",
     "DiscordCanary",
-    "electron",
+    "DiscordDevelopment",
 ]
 LEAGUE_OF_LEGENDS_LOGO = "https://github.com/Its-Haze/league-rpc/blob/master/assets/leagueoflegends.png?raw=true"
 SMALL_TEXT = f"its-haze/league-rpc @Github.com ({__version__})"
