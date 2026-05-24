@@ -28,6 +28,7 @@ class GameFlowPhase:
     GAME_START = "GameStart"
     FAILED_TO_LAUNCH = "FailedToLaunch"
     IN_PROGRESS = "InProgress"
+    WATCHING = "Watching"
     RECONNECT = "Reconnect"
     WAITING_FOR_STATS = "WaitingForStats"
     PRE_END_OF_GAME = "PreEndOfGame"

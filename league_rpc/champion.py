@@ -146,19 +146,19 @@ def gather_ingame_information(
                 print("-" * 50)
                 if champion_name:
                     print(
-                        f"{Color.yellow}Champion name found {Color.green}({CHAMPION_NAME_CONVERT_MAP.get(champion_name, champion_name)}),{Color.yellow} continuing..{Color.reset}"
+                        f"{Color.yellow}Champion: {Color.green}{CHAMPION_NAME_CONVERT_MAP.get(champion_name, champion_name)}{Color.reset}"
                     )
                 if skin_name:
                     print(
-                        f"{Color.yellow}Skin detected: {Color.green}{skin_name},{Color.yellow} continuing..{Color.reset}"
+                        f"{Color.yellow}Skin: {Color.green}{skin_name}{Color.reset}"
                     )
                 if chroma_name:
                     print(
-                        f"{Color.yellow}Chroma detected: {Color.green}{chroma_name},{Color.yellow} continuing..{Color.reset}"
+                        f"{Color.yellow}Chroma: {Color.green}{chroma_name}{Color.reset}"
                     )
                 if game_mode:
                     print(
-                        f"{Color.yellow}Game mode detected: {Color.green}{game_mode},{Color.yellow} continuing..{Color.reset}"
+                        f"{Color.yellow}Game mode: {Color.green}{game_mode}{Color.reset}"
                     )
                 print("-" * 50)
 
@@ -197,6 +197,18 @@ def get_champion_name_from_raw_champion_name(raw_champion_name: str) -> str:
     return raw_champion_name.split("_")[-1]
 
 
+def get_champion_name_from_raw_skin_name(raw_skin_name: str) -> str:
+    """
+    Extract champion ID from rawSkinName field.
+    Format: 'game_character_skin_displayname_ChampionId_SkinNum' -> 'ChampionId'
+
+    Used as a fallback when rawChampionName has variant suffixes (e.g. Seraphine's
+    K/DA ALL OUT skins return 'game_character_displayname_Seraphine_KDA', making
+    split("_")[-1] return 'KDA' instead of 'Seraphine').
+    """
+    return raw_skin_name.split("_")[-2]
+
+
 def gather_league_data(
     parsed_data: dict[str, Any],
     summoners_name: str,
@@ -228,7 +240,40 @@ def gather_league_data(
         locale=locale,
     )
 
-    # If champion data is not available (loading screen, invalid name), return defaults
+    # Riot's in-game API has inconsistent field formats depending on skin state:
+    #
+    # Non-default skin:  rawChampionName = "game_character_displayname_{ChampName}"
+    #                    rawSkinName     = "game_character_skin_displayname_{ChampName}_{SkinNum}"
+    #   → rawChampionName.split("_")[-1] gives the champion name ✓  (primary path)
+    #
+    # Default skin (skinID=0):  rawChampionName = "Character_{ChampName}_Name"
+    #                           rawSkinName     = "game_character_displayname_{ChampName}"
+    #   → rawChampionName.split("_")[-1] gives "Name" ✗ (caught by validation, returns None)
+    #   → rawSkinName.split("_")[-1] gives the champion name ✓  (fallback 1)
+    #
+    # K/DA variant skins: rawChampionName = "game_character_displayname_{ChampName}_{Variant}"
+    #   → rawChampionName.split("_")[-1] gives the variant suffix ✗
+    #   → rawSkinName.split("_")[-2] gives the champion name ✓  (fallback 2)
+
+    if ddragon_champion_data is None:
+        # Fallback 1: for default skin, rawSkinName holds the displayname format
+        raw_champion_name = current_summoner_data["rawSkinName"].split("_")[-1]
+        ddragon_champion_data = get_specific_champion_data(
+            name=raw_champion_name,
+            locale=locale,
+        )
+
+    if ddragon_champion_data is None:
+        # Fallback 2: rawSkinName second-to-last element (K/DA variant skins)
+        raw_champion_name = get_champion_name_from_raw_skin_name(
+            raw_skin_name=current_summoner_data["rawSkinName"]
+        )
+        ddragon_champion_data = get_specific_champion_data(
+            name=raw_champion_name,
+            locale=locale,
+        )
+
+    # If champion data is still not available (loading screen, invalid name), return defaults
     if ddragon_champion_data is None:
         return None, 0, None, None
 
@@ -275,30 +320,36 @@ def find_base_skin_and_chroma(
     """
     ddragon_skins = ddragon_champion_data["data"][raw_champion_name]["skins"]
 
-    # First check if skin_id is a base skin in DDragon
-    for skin in ddragon_skins:
-        if skin["num"] == skin_id:
-            # It's a base skin, not a chroma
-            return skin_id, None
-
-    # Not a base skin - search Meraki data for this chroma (if available)
-    # The chroma ID in Meraki is: champion_id * 1000 + skin_id
-    # We need to search all skins for a chroma ending with our skin_id
+    # Check Meraki FIRST — DDragon now includes chromas as skin entries with their
+    # own sequential num values (e.g. DrMundo num=17 is "Corporate Mundo (Rose Quartz)").
+    # Checking DDragon first would mistake a chroma num for a base skin and return early,
+    # skipping Meraki entirely. Meraki explicitly separates base skins from their chromas.
     if chroma_data is not None:
         for meraki_skin in chroma_data.get("skins", []):
             for chroma in meraki_skin.get("chromas", []):
-                # Check if the chroma ID ends with our skin_id
-                if str(chroma["id"]).endswith(str(skin_id)):
-                    # Found the chroma! Extract the base skin num from Meraki skin ID
+                # Meraki chroma IDs match the game's skinID value
+                if chroma["id"] % 1000 == skin_id:
                     meraki_skin_id = meraki_skin["id"]
-                    # Meraki IDs are like 238013, we need just the last part (13)
+                    # Meraki IDs are like 36003; last 3 digits are the base skin num
                     base_skin_num = meraki_skin_id % 1000
                     return base_skin_num, chroma["name"]
 
-    # Fallback: use the old heuristic if not found in Meraki (or Meraki unavailable)
+    # Not found in Meraki chromas — check DDragon for a true base skin.
+    # Skip entries that look like chromas: DDragon names them "Skin Name (Color)",
+    # while base skins never have a parenthetical suffix.
+    for skin in ddragon_skins:
+        if skin["num"] == skin_id:
+            skin_name = skin.get("name", "")
+            if skin_name == "default" or "(" not in skin_name:
+                return skin_id, None
+
+    # Fallback heuristic: find the highest base-skin num <= skin_id.
+    # Skip chroma entries so we don't land on the wrong base skin.
     for skin in sorted(ddragon_skins, key=lambda x: x["num"], reverse=True):
         if skin["num"] <= skin_id:
-            return skin["num"], None
+            skin_name = skin.get("name", "")
+            if skin_name == "default" or "(" not in skin_name:
+                return skin["num"], None
 
     return 0, None
 

@@ -15,14 +15,20 @@ from league_rpc.champion import (
     gather_ingame_information,
     get_skin_asset,
 )
+from league_rpc.utils.color import Color
+from league_rpc.utils.polling import wait_until_exists
 from league_rpc.gametime import get_current_ingame_time
 from league_rpc.kda import get_creepscore, get_kda, get_level
 from league_rpc.lcu_api.base_data import set_tft_companion_data
 from league_rpc.models.client_data import ArenaStats, RankedStats, TFTStats
 from league_rpc.models.rpc_data import RPCData
 from league_rpc.utils.const import (
+    ALL_GAME_DATA_URL,
+    BASE_MAP_ICON_URL,
     CHAMPION_NAME_CONVERT_MAP,
+    GAME_MODE_CONVERT_MAP,
     LEAGUE_OF_LEGENDS_LOGO,
+    MAP_ICON_CONVERT_MAP,
     QUEUE_ID_ARENA,
     QUEUE_ID_RANKED_FLEX,
     QUEUE_ID_RANKED_SOLO,
@@ -130,6 +136,66 @@ def show_ranked_data(
     return large_text, small_image, small_text
 
 
+def is_spectating_game() -> bool:
+    """Returns True if the user is spectating (active player endpoint returns non-200)."""
+    try:
+        r = requests.get(
+            "https://127.0.0.1:2999/liveclientdata/activeplayer",
+            verify=False,
+            timeout=5,
+        )
+        return r.status_code != 200
+    except Exception:
+        return False
+
+
+def handle_spectating(silent: bool, module_data: ModuleData) -> None:
+    """RPC handler for when the user is spectating a game."""
+    if response := wait_until_exists(
+        url=ALL_GAME_DATA_URL,
+        custom_message="Did not find spectator game data. Will try again in 5 seconds",
+        startup=not silent,
+    ):
+        parsed_data = response.json()
+        game_mode = GAME_MODE_CONVERT_MAP.get(
+            parsed_data["gameData"]["gameMode"],
+            parsed_data["gameData"]["gameMode"],
+        )
+        game_time = int(parsed_data["gameData"]["gameTime"])
+
+        # Use the first player's champion skin tile when available (non-TFT modes),
+        # otherwise fall back to the mode's map icon (TFT, and any other no-champion mode).
+        large_image = LEAGUE_OF_LEGENDS_LOGO
+        all_players = parsed_data.get("allPlayers", [])
+        if all_players:
+            first_player = all_players[0]
+            raw_champ = first_player.get("rawChampionName", "").split("_")[-1]
+            skin_id = first_player.get("skinID", 0)
+            if raw_champ and raw_champ not in ("Name", "Unknown", ""):
+                large_image = get_skin_asset(champion_name=raw_champ, skin_id=skin_id)
+            else:
+                map_number = parsed_data["gameData"].get("mapNumber", 0)
+                map_name = MAP_ICON_CONVERT_MAP.get(map_number)
+                if map_name:
+                    large_image = BASE_MAP_ICON_URL.format(map_name=map_name)
+
+        if not silent:
+            print("-" * 50)
+            print(f"{Color.yellow}Spectating: {Color.green}{game_mode}{Color.reset}")
+            print("-" * 50)
+
+        module_data.rpc_data = RPCData(
+            large_image=large_image,
+            large_text="Spectating",
+            details=game_mode,
+            state="Spectating",
+            small_image=LEAGUE_OF_LEGENDS_LOGO,
+            small_text=SMALL_TEXT,
+            start=int(time.time()) - game_time,
+        )
+        module_data.rpc_updater.trigger_rpc_update(module_data)
+
+
 def handle_in_game(
     connection: Connection,
     silent: bool,
@@ -143,6 +209,11 @@ def handle_in_game(
     """
     # Use startup=not silent: retry on first call, fail fast on subsequent polling calls
     game_mode = gather_game_mode(startup=not silent)
+
+    # Guard: if the active player endpoint is unavailable we are spectating, not playing
+    if is_spectating_game():
+        handle_spectating(silent=silent, module_data=module_data)
+        return
 
     if game_mode in (
         "Summoner's Rift (Custom)",

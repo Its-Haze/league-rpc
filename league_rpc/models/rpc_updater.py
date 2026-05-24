@@ -22,6 +22,7 @@ from lcu_driver.connection import Connection  # type:ignore
 from league_rpc.lcu_api.helpers import (
     get_lcu_data_sync,
     handle_in_game,
+    handle_spectating,
     show_ranked_data,
 )
 from league_rpc.models.client_data import ClientData
@@ -365,6 +366,18 @@ class RPCUpdater:
                     )
                     time.sleep(10)
                 # After the game is over, we will drop back to the main client.
+                self.in_client_rpc(module_data=module_data)
+            case GameFlowPhase.WATCHING:
+                handle_spectating(silent=False, module_data=module_data)
+                while (
+                    get_lcu_data_sync(
+                        connection=connection,
+                        endpoint="/lol-gameflow/v1/gameflow-phase",
+                    )
+                    == GameFlowPhase.WATCHING
+                ):
+                    handle_spectating(silent=True, module_data=module_data)
+                    time.sleep(10)
                 self.in_client_rpc(module_data=module_data)
             case GameFlowPhase.READY_CHECK:
                 # When the READY check comes. We want to just ignore (IN_QUEUE rpc will still show.)

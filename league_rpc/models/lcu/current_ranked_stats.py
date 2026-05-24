@@ -100,7 +100,8 @@ class RankedStats:
         )
 
     def __str__(self) -> str:
-        return f"{self.tier} {self.division}: {self.league_points} LP".strip()
+        division_part = f" {self.division}" if self.division and self.division != "NA" else ""
+        return f"{self.tier}{division_part}: {self.league_points} LP".strip()
 
     @property
     def rpc_info(self) -> tuple[str, str]:
@@ -189,7 +190,8 @@ class TFTStats:
         )
 
     def __str__(self) -> str:
-        return f"{self.tier} {self.division}: {self.league_points} LP".strip()
+        division_part = f" {self.division}" if self.division and self.division != "NA" else ""
+        return f"{self.tier}{division_part}: {self.league_points} LP".strip()
 
     @property
     def rpc_info(self) -> tuple[str, str]:
