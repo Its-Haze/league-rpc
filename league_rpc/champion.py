@@ -92,11 +92,8 @@ def gather_game_mode(startup: bool = True) -> str:
         startup=startup,
     ):
         parsed_data = response.json()
-        game_mode = GAME_MODE_CONVERT_MAP.get(
-            parsed_data["gameData"]["gameMode"],
-            parsed_data["gameData"]["gameMode"],
-        )
-        return game_mode
+        raw_mode: str = parsed_data["gameData"]["gameMode"]
+        return GAME_MODE_CONVERT_MAP.get(raw_mode, raw_mode)
     return ""
 
 
@@ -325,8 +322,10 @@ def find_base_skin_and_chroma(
     # Checking DDragon first would mistake a chroma num for a base skin and return early,
     # skipping Meraki entirely. Meraki explicitly separates base skins from their chromas.
     if chroma_data is not None:
-        for meraki_skin in chroma_data.get("skins", []):
-            for chroma in meraki_skin.get("chromas", []):
+        for meraki_skin in chroma_data.get("skins") or []:
+            for chroma in meraki_skin.get("chromas") or []:
+                if chroma is None:
+                    continue
                 # Meraki chroma IDs match the game's skinID value
                 if chroma["id"] % 1000 == skin_id:
                     meraki_skin_id = meraki_skin["id"]
