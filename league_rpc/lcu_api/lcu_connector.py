@@ -192,6 +192,8 @@ async def gather_tft_companion_data_updater(
 async def gameflow_phase_updated(
     connection: Connection, event: WebsocketEventResponse
 ) -> None:
+    module_data.logger.debug(f"gameflow_phase_updated event received: {event.data}")
+
     if module_data.client_data.gameflow_phase == event.data:  # type:ignore
         return None
 
@@ -207,24 +209,52 @@ async def gameflow_phase_updated(
     uri="/lol-lobby/v2/lobby", event_types=("UPDATE", "CREATE", "DELETE")
 )
 async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> None:
+    module_data.logger.debug(f"in_lobby event received: type={event.type}")
+
     event_data: Optional[dict[str, Any]] = getattr(event, "data", None)
 
     if event_data is None:
+        module_data.logger.debug("in_lobby: event.data was None, ignoring.")
         return
 
     game_config: Optional[dict[str, Any]] = event_data.get("gameConfig")
     if game_config is None:
+        module_data.logger.debug(
+            f"in_lobby: no 'gameConfig' in event data, ignoring. Raw event_data: {event_data}"
+        )
         return
 
     # Get queue_id
-    module_data.client_data.queue_id = int(game_config["queueId"])
-    module_data.client_data.lobby_id = event_data["partyId"]
-    module_data.client_data.players = len(event_data["members"])
-    module_data.client_data.max_players = int(game_config["maxLobbySize"])
-    module_data.client_data.map_id = game_config["mapId"]
-    module_data.client_data.gamemode = game_config["gameMode"]
-    module_data.client_data.is_custom = game_config["isCustom"]
-    if game_config["gameMode"] == "PRACTICETOOL":
+    data = module_data.client_data
+    try:
+        module_data.client_data.queue_id = int(game_config["queueId"])
+        module_data.client_data.lobby_id = event_data["partyId"]
+        module_data.client_data.players = len(event_data["members"])
+        module_data.client_data.max_players = int(game_config["maxLobbySize"])
+        module_data.client_data.map_id = game_config["mapId"]
+        module_data.client_data.gamemode = game_config["gameMode"]
+        module_data.client_data.is_custom = game_config["isCustom"]
+    except (KeyError, TypeError, ValueError) as e:
+        # A brand-new game mode's lobby event may not include every field we expect.
+        # Log the raw payload so the actual shape can be diagnosed, and fall back to
+        # best-effort defaults rather than aborting before the lobby is ever detected.
+        module_data.logger.warning(
+            f"Unexpected lobby gameConfig/event payload: {e}. "
+            f"Raw gameConfig: {game_config}. Raw event_data: {event_data}"
+        )
+        module_data.client_data.queue_id = int(game_config.get("queueId", data.queue_id))
+        module_data.client_data.lobby_id = event_data.get("partyId", data.lobby_id)
+        module_data.client_data.players = len(
+            event_data.get("members", []) or []
+        ) or data.players
+        module_data.client_data.max_players = int(
+            game_config.get("maxLobbySize", data.max_players) or data.max_players
+        )
+        module_data.client_data.map_id = game_config.get("mapId", data.map_id)
+        module_data.client_data.gamemode = game_config.get("gameMode", data.gamemode)
+        module_data.client_data.is_custom = game_config.get("isCustom", data.is_custom)
+
+    if module_data.client_data.gamemode == "PRACTICETOOL":
         module_data.client_data.is_practice = True
         module_data.client_data.max_players = 1
     else:
@@ -246,21 +276,49 @@ async def in_lobby(connection: Connection, event: WebsocketEventResponse) -> Non
         module_data.rpc_updater.delay_update(module_data, connection=connection)
         return
 
-    lobby_queue_info_raw: ClientResponse = await connection.request(
-        method="GET",
-        endpoint="/lol-game-queues/v1/queues/{id}".format_map(
-            {"id": module_data.client_data.queue_id}
-        ),
-    )
-    lobby_queue_info: dict[str, Any] = await lobby_queue_info_raw.json()
+    lobby_queue_info: dict[str, Any] = {}
+    try:
+        lobby_queue_info_raw: ClientResponse = await connection.request(
+            method="GET",
+            endpoint="/lol-game-queues/v1/queues/{id}".format_map(
+                {"id": module_data.client_data.queue_id}
+            ),
+        )
+        lobby_queue_info = await lobby_queue_info_raw.json()
 
-    module_data.client_data.queue_name = lobby_queue_info["name"]
-    module_data.client_data.queue_type = lobby_queue_info["type"]
-    module_data.client_data.queue_is_ranked = lobby_queue_info["isRanked"]
-    module_data.client_data.queue_detailed_description = lobby_queue_info[
-        "detailedDescription"
-    ]
-    module_data.client_data.queue_description = lobby_queue_info["description"]
+        module_data.client_data.queue_name = lobby_queue_info["name"]
+        module_data.client_data.queue_type = lobby_queue_info["type"]
+        module_data.client_data.queue_is_ranked = lobby_queue_info["isRanked"]
+        module_data.client_data.queue_detailed_description = lobby_queue_info[
+            "detailedDescription"
+        ]
+        module_data.client_data.queue_description = lobby_queue_info["description"]
+    except Exception as e:
+        # A new/unrecognized queue (e.g. a brand-new game mode) may fail the request
+        # outright, or return a response shaped differently than we expect. Without
+        # this guard, the exception would silently abort this event handler before
+        # delay_update() runs below, meaning the lobby is never detected/shown at all.
+        # Log the raw payload so the new queue's actual shape can be diagnosed, and
+        # fall back to best-effort values.
+        data = module_data.client_data
+        module_data.logger.warning(
+            f"Unexpected /lol-game-queues/v1/queues/{data.queue_id} response "
+            f"(queue_id={data.queue_id}): {e}. Raw response: {lobby_queue_info}"
+        )
+        if not isinstance(lobby_queue_info, dict):
+            lobby_queue_info = {}
+        module_data.client_data.queue_name = lobby_queue_info.get("name", data.queue_name)
+        module_data.client_data.queue_type = lobby_queue_info.get("type", data.queue_type)
+        module_data.client_data.queue_is_ranked = lobby_queue_info.get(
+            "isRanked", data.queue_is_ranked
+        )
+        module_data.client_data.queue_detailed_description = lobby_queue_info.get(
+            "detailedDescription", data.queue_detailed_description
+        )
+        module_data.client_data.queue_description = lobby_queue_info.get(
+            "description", data.queue_description
+        )
+
     module_data.rpc_updater.delay_update(module_data=module_data, connection=connection)
 
 
@@ -316,4 +374,24 @@ def start_connector(
     module_data.rpc = rpc_from_main
     module_data.cli_args = cli_args
     module_data.logger = logger
-    module_data.connector.start()
+
+    league_processes: list[str] = ["LeagueClient.exe", "LeagueClientUx.exe"]
+
+    while True:
+        try:
+            module_data.connector.start()
+        except Exception as e:
+            # lcu_driver can raise unhandled exceptions from within its websocket
+            # loop (e.g. a malformed frame triggers a bug in its own logging call).
+            # Left uncaught, this kills the whole LCU thread and, since __main__
+            # only watches thread.is_alive(), takes the entire program down with
+            # it. Treat it the same as a clean disconnect: wait, then retry if
+            # League is still running.
+            logger.warning(
+                f"LCU connector crashed unexpectedly ({e.__class__.__name__}: {e}). "
+                "Attempting to reconnect in 5 seconds, if the client is still running."
+            )
+            time.sleep(5)
+            if processes_exists(league_processes):
+                continue
+        break

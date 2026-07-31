@@ -9,6 +9,7 @@ DISCORD_PROCESS_NAMES: list[str] = [
     "electron",
 ]
 LEAGUE_OF_LEGENDS_LOGO = "https://github.com/Its-Haze/league-rpc/blob/master/assets/leagueoflegends.png?raw=true"
+LEAGUE_CLASSIC_ICON = "https://github.com/Its-Haze/league-rpc/blob/master/assets/league-classic-borderless.jpg?raw=true"
 SMALL_TEXT = f"its-haze/league-rpc @Github.com ({__version__})"
 
 ALL_GAME_DATA_URL = "https://127.0.0.1:2999/liveclientdata/allgamedata"
@@ -21,7 +22,15 @@ PLAYER_KDA_SCORES_URL = (
 
 BASE_SKIN_URL = "https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/"
 
-BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/{map_name}/img/game-select-icon-active.png"
+BASE_MAP_ICON_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/{map_name}/img/{filename}"
+
+# Newer game modes' asset folders were shipped with a different filename scheme (no
+# "-active" variant exists for them at all). Override per map_id where needed; anything
+# not listed here uses DEFAULT_MAP_ICON_FILENAME.
+DEFAULT_MAP_ICON_FILENAME = "game-select-icon-active.png"
+MAP_ICON_FILENAME_OVERRIDES: dict[int, str] = {
+    453: "game-select-mode-icon-selected.png",  # Classic Rift (League Classic) - matches what the client itself uses as the "active" icon for this mode
+}
 
 
 TFT_COMPANIONS_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets"
@@ -45,6 +54,7 @@ MAP_ICON_CONVERT_MAP: dict[int, str] = {
     30: "cherry",
     33: "strawberry",
     35: "brawl",
+    453: "jade",  # Classic Rift, used by League Classic (gameMode "JADE")
 }
 
 
@@ -59,6 +69,8 @@ GAME_MODE_CONVERT_MAP: dict[str, str] = {
     "STRAWBERRY": "Swarm",
     "BRAWL": "Brawl",
     "KIWI": "ARAM: Mayhem",
+    "KIWI_JADE": "ARAM: Mayhem Classic-ish",
+    "JADE": "League Classic",
     "TUTORIAL_MODULE_3": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_2": "Summoner's Rift (Tutorial)",
     "TUTORIAL_MODULE_1": "Summoner's Rift (Tutorial)",
@@ -67,6 +79,26 @@ GAME_MODE_CONVERT_MAP: dict[str, str] = {
     "RUBY": "Doom Bots",
     "RUBY_TRIAL_1": "Doom Bots - Veigar's Evil!",
     "RUBY_TRIAL_3": "Doom Bots - Veigar's Doom!",
+}
+
+# Game modes (display names, from GAME_MODE_CONVERT_MAP) that are known to work with
+# the generic "normal game" RPC handler (champion/skin/KDA/CS based). Anything not in
+# this set still gets routed to handle_normal_game as a safe fallback, but logs a
+# warning so new/unknown modes are visible instead of silently failing.
+KNOWN_NORMAL_GAME_MODES = {
+    "Summoner's Rift (Custom)",
+    "Summoner's Rift",
+    "Summoner's Rift (Tutorial)",
+    "Summoner's Rift (URF)",
+    "Howling Abyss (ARAM)",
+    "ARAM: Mayhem",
+    "ARAM: Mayhem Classic-ish",
+    "League Classic",
+    "Swiftplay",
+    "Brawl",
+    "Doom Bots",
+    "Doom Bots - Veigar's Evil!",
+    "Doom Bots - Veigar's Doom!",
 }
 
 CHAMPION_NAME_CONVERT_MAP = {

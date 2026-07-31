@@ -32,9 +32,12 @@ from league_rpc.models.module_data import ModuleData
 from league_rpc.models.rpc_data import RPCData
 from league_rpc.utils.const import (
     BASE_MAP_ICON_URL,
+    DEFAULT_MAP_ICON_FILENAME,
     GAME_MODE_CONVERT_MAP,
+    LEAGUE_CLASSIC_ICON,
     LEAGUE_OF_LEGENDS_LOGO,
     MAP_ICON_CONVERT_MAP,
+    MAP_ICON_FILENAME_OVERRIDES,
     PROFILE_ICON_BASE_URL,
     SMALL_TEXT,
 )
@@ -195,7 +198,10 @@ class RPCUpdater:
 
         large_text = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
         small_image: str = BASE_MAP_ICON_URL.format(
-            map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id)
+            map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id, "classic_sru"),
+            filename=MAP_ICON_FILENAME_OVERRIDES.get(
+                module_data.client_data.map_id, DEFAULT_MAP_ICON_FILENAME
+            ),
         )
         small_text = SMALL_TEXT
 
@@ -215,6 +221,8 @@ class RPCUpdater:
             large_text = module_data.client_data.tft_companion_name
         if module_data.client_data.gamemode == "BRAWL":
             small_image = LEAGUE_OF_LEGENDS_LOGO
+        if module_data.client_data.gamemode in ("JADE", "KIWI_JADE"):
+            small_image = LEAGUE_CLASSIC_ICON
 
         module_data.rpc_data = RPCData(
             large_image=large_image,
@@ -238,7 +246,10 @@ class RPCUpdater:
 
         large_text = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
         small_image: str = BASE_MAP_ICON_URL.format(
-            map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id)
+            map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id, "classic_sru"),
+            filename=MAP_ICON_FILENAME_OVERRIDES.get(
+                module_data.client_data.map_id, DEFAULT_MAP_ICON_FILENAME
+            ),
         )
         small_text = SMALL_TEXT
 
@@ -263,7 +274,10 @@ class RPCUpdater:
         )
         large_text: str = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
         small_image: str = BASE_MAP_ICON_URL.format(
-            map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id)
+            map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id, "classic_sru"),
+            filename=MAP_ICON_FILENAME_OVERRIDES.get(
+                module_data.client_data.map_id, DEFAULT_MAP_ICON_FILENAME
+            ),
         )
         small_text = SMALL_TEXT
 
@@ -285,6 +299,8 @@ class RPCUpdater:
 
         if module_data.client_data.gamemode == "BRAWL":
             small_image = LEAGUE_OF_LEGENDS_LOGO
+        if module_data.client_data.gamemode in ("JADE", "KIWI_JADE"):
+            small_image = LEAGUE_CLASSIC_ICON
 
         module_data.rpc_data = RPCData(
             large_image=large_image,
@@ -304,7 +320,10 @@ class RPCUpdater:
         )
         large_text: str = f"{GAME_MODE_CONVERT_MAP.get(module_data.client_data.gamemode, module_data.client_data.gamemode)}"
         small_image: str = BASE_MAP_ICON_URL.format(
-            map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id)
+            map_name=MAP_ICON_CONVERT_MAP.get(module_data.client_data.map_id, "classic_sru"),
+            filename=MAP_ICON_FILENAME_OVERRIDES.get(
+                module_data.client_data.map_id, DEFAULT_MAP_ICON_FILENAME
+            ),
         )
         small_text = SMALL_TEXT
 
@@ -319,6 +338,8 @@ class RPCUpdater:
 
         if module_data.client_data.gamemode == "BRAWL":
             small_image = LEAGUE_OF_LEGENDS_LOGO
+        if module_data.client_data.gamemode in ("JADE", "KIWI_JADE"):
+            small_image = LEAGUE_CLASSIC_ICON
 
         module_data.rpc_data = RPCData(
             large_image=large_image,

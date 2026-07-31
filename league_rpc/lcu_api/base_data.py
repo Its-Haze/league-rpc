@@ -77,24 +77,63 @@ async def gather_base_data(connection: Connection, module_data: "ModuleData") ->
 
         return
 
-    await gather_queue_data(connection=connection, data=data)
+    await gather_queue_data(
+        connection=connection, data=data, logger=module_data.logger
+    )
 
 
-async def gather_queue_data(connection: Connection, data: ClientData) -> None:
-    lobby_queue_info_raw: ClientResponse = await connection.request(  # type:ignore
-        method="GET", endpoint="/lol-game-queues/v1/queues/" + str(data.queue_id)
-    )
-    lobby_queue_info: Any = await lobby_queue_info_raw.json()
-    data.queue_name = lobby_queue_info[LolGameQueuesQueue.NAME]
-    data.queue_type = lobby_queue_info[LolGameQueuesQueue.TYPE]
-    data.queue_detailed_description = lobby_queue_info["detailedDescription"]
-    data.queue_description = lobby_queue_info["description"]
-    data.queue_is_ranked = lobby_queue_info[LolGameQueuesQueue.IS_RANKED]
-    data.max_players = int(
-        lobby_queue_info[LolGameQueuesQueue.MAXIMUM_PARTICIPANT_LIST_SIZE]
-    )
-    data.map_id = lobby_queue_info[LolGameQueuesQueue.MAP_ID]
-    data.gamemode = lobby_queue_info[LolGameQueuesQueue.GAME_MODE]
+async def gather_queue_data(
+    connection: Connection, data: ClientData, logger: Any = None
+) -> None:
+    lobby_queue_info: Any = {}
+    try:
+        lobby_queue_info_raw: ClientResponse = await connection.request(  # type:ignore
+            method="GET", endpoint="/lol-game-queues/v1/queues/" + str(data.queue_id)
+        )
+        lobby_queue_info = await lobby_queue_info_raw.json()
+
+        data.queue_name = lobby_queue_info[LolGameQueuesQueue.NAME]
+        data.queue_type = lobby_queue_info[LolGameQueuesQueue.TYPE]
+        data.queue_detailed_description = lobby_queue_info["detailedDescription"]
+        data.queue_description = lobby_queue_info["description"]
+        data.queue_is_ranked = lobby_queue_info[LolGameQueuesQueue.IS_RANKED]
+        data.max_players = int(
+            lobby_queue_info[LolGameQueuesQueue.MAXIMUM_PARTICIPANT_LIST_SIZE]
+        )
+        data.map_id = lobby_queue_info[LolGameQueuesQueue.MAP_ID]
+        data.gamemode = lobby_queue_info[LolGameQueuesQueue.GAME_MODE]
+    except Exception as e:
+        # A new/unrecognized queue may fail the request outright, or return a response
+        # shaped differently than we expect. Log the raw payload so the exact new
+        # queue's shape can be diagnosed, and fall back to best-effort defaults instead
+        # of leaving client_data stale (which previously meant the lobby was never
+        # detected at all).
+        if logger is not None:
+            logger.warning(
+                f"Unexpected /lol-game-queues/v1/queues/{data.queue_id} response "
+                f"(queue_id={data.queue_id}): {e}. Raw response: {lobby_queue_info}"
+            )
+        if not isinstance(lobby_queue_info, dict):
+            lobby_queue_info = {}
+        data.queue_name = lobby_queue_info.get(LolGameQueuesQueue.NAME, data.queue_name)
+        data.queue_type = lobby_queue_info.get(LolGameQueuesQueue.TYPE, data.queue_type)
+        data.queue_detailed_description = lobby_queue_info.get(
+            "detailedDescription", data.queue_detailed_description
+        )
+        data.queue_description = lobby_queue_info.get(
+            "description", data.queue_description
+        )
+        data.queue_is_ranked = lobby_queue_info.get(
+            LolGameQueuesQueue.IS_RANKED, data.queue_is_ranked
+        )
+        data.max_players = int(
+            lobby_queue_info.get(
+                LolGameQueuesQueue.MAXIMUM_PARTICIPANT_LIST_SIZE, data.max_players
+            )
+            or data.max_players
+        )
+        data.map_id = lobby_queue_info.get(LolGameQueuesQueue.MAP_ID, data.map_id)
+        data.gamemode = lobby_queue_info.get(LolGameQueuesQueue.GAME_MODE, data.gamemode)
 
 
 async def gather_lobby_data(connection: Connection, data: ClientData) -> None:

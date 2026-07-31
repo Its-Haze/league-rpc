@@ -4,6 +4,7 @@ import threading
 import time
 
 import nest_asyncio  # type:ignore
+import pypresence  # type:ignore
 
 from league_rpc.lcu_api.lcu_connector import start_connector
 from league_rpc.logger.richlogger import RichLogger
@@ -59,9 +60,19 @@ def main(cli_args: argparse.Namespace) -> None:
     except KeyboardInterrupt as e:
         logger.info(f"{e.__class__.__name__} detected. Shutting down the program..")
     finally:
-        # Always close the RPC connection when exiting (whether by KeyboardInterrupt or League closing)
-        rpc.clear()
-        rpc.close()
+        # Always close the RPC connection when exiting (whether by KeyboardInterrupt or League closing).
+        # Discord may have already closed the IPC pipe on its end (e.g. Discord was
+        # closed, or the pipe timed out) by the time we get here, which pypresence
+        # surfaces as PyPresenceException (PipeClosed, ResponseTimeout, ...). This is
+        # best-effort cleanup on the way out, so a broken pipe shouldn't crash the app.
+        try:
+            rpc.clear()
+        except pypresence.exceptions.PyPresenceException:
+            pass
+        try:
+            rpc.close()
+        except pypresence.exceptions.PyPresenceException:
+            pass
         logger.info("Discord RPC connection closed.")
 
     ############################################################

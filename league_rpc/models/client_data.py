@@ -53,9 +53,18 @@ class ClientData:
 
     @property
     def get_queue_name(self) -> str:
-        """Return the detailed descriptive name of the queue if available, otherwise return the queue name."""
+        """Return the detailed descriptive name of the queue if available, otherwise return the queue name.
+
+        Discord's Rich Presence API rejects updates where "details" is an empty string.
+        Some queues (e.g. brand-new ones) can have their name/detailedDescription still
+        unset on Riot's side, so fall back to the game mode's display name to guarantee
+        a non-empty value.
+        """
+        from league_rpc.utils.const import GAME_MODE_CONVERT_MAP
+
         return (
             self.queue_detailed_description
-            if self.queue_detailed_description
-            else self.queue_name
+            or self.queue_name
+            or GAME_MODE_CONVERT_MAP.get(self.gamemode, self.gamemode)
+            or "League of Legends"
         )

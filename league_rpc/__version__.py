@@ -2,7 +2,7 @@
 
 import requests
 
-__version__ = "v3.3.6"
+__version__ = "v3.3.7"
 
 RELEASES_PAGE = "https://github.com/Its-Haze/league-rpc/releases"
 

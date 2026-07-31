@@ -26,9 +26,13 @@ from league_rpc.utils.const import (
     ALL_GAME_DATA_URL,
     BASE_MAP_ICON_URL,
     CHAMPION_NAME_CONVERT_MAP,
+    DEFAULT_MAP_ICON_FILENAME,
     GAME_MODE_CONVERT_MAP,
+    KNOWN_NORMAL_GAME_MODES,
+    LEAGUE_CLASSIC_ICON,
     LEAGUE_OF_LEGENDS_LOGO,
     MAP_ICON_CONVERT_MAP,
+    MAP_ICON_FILENAME_OVERRIDES,
     QUEUE_ID_ARENA,
     QUEUE_ID_RANKED_FLEX,
     QUEUE_ID_RANKED_SOLO,
@@ -177,7 +181,12 @@ def handle_spectating(silent: bool, module_data: ModuleData) -> None:
                 map_number = parsed_data["gameData"].get("mapNumber", 0)
                 map_name = MAP_ICON_CONVERT_MAP.get(map_number)
                 if map_name:
-                    large_image = BASE_MAP_ICON_URL.format(map_name=map_name)
+                    large_image = BASE_MAP_ICON_URL.format(
+                        map_name=map_name,
+                        filename=MAP_ICON_FILENAME_OVERRIDES.get(
+                            map_number, DEFAULT_MAP_ICON_FILENAME
+                        ),
+                    )
 
         if not silent:
             print("-" * 50)
@@ -215,21 +224,7 @@ def handle_in_game(
         handle_spectating(silent=silent, module_data=module_data)
         return
 
-    if game_mode in (
-        "Summoner's Rift (Custom)",
-        "Summoner's Rift",
-        "Summoner's Rift (Tutorial)",
-        "Summoner's Rift (URF)",
-        "Howling Abyss (ARAM)",
-        "ARAM: Mayhem",
-        "Swiftplay",
-        "Brawl",
-        "Doom Bots",
-        "Doom Bots - Veigar's Evil!",
-        "Doom Bots - Veigar's Doom!",
-    ):
-        handle_normal_game(silent, module_data)
-    elif game_mode == "TFT":
+    if game_mode == "TFT":
         handle_tft_game(connection, silent, module_data)
     elif game_mode == "Arena":
         handle_arena_game(silent, module_data)
@@ -238,8 +233,15 @@ def handle_in_game(
     elif game_mode == "Ultimate Spellbook":
         handle_ultimate_spellbook_game(silent, module_data)
     else:
-        module_data.logger.error(f"Unknown game mode: {game_mode}")
-        return None
+        # Anything else (Summoner's Rift, ARAM, URF, Brawl, Doom Bots, future/unknown
+        # modes like new champion-select-based game modes, etc.) is treated as a
+        # normal champion game. This keeps league-rpc working when Riot ships a new
+        # gameMode we've never heard of, instead of silently doing nothing.
+        if game_mode not in KNOWN_NORMAL_GAME_MODES:
+            module_data.logger.warning(
+                f"Unrecognized game mode '{game_mode}', falling back to normal game handling."
+            )
+        handle_normal_game(silent, module_data)
 
 
 def handle_ultimate_spellbook_game(
@@ -433,6 +435,9 @@ def handle_normal_game(
                 _small_image,
                 _small_text,
             )
+
+    if module_data.client_data.gamemode in ("JADE", "KIWI_JADE"):
+        small_image = LEAGUE_CLASSIC_ICON
 
     module_data.rpc_data = RPCData(
         large_image=skin_asset,
