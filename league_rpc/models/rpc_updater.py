@@ -14,7 +14,7 @@ import copy
 import inspect
 import time
 from dataclasses import dataclass, field
-from threading import Timer
+from threading import Thread, Timer
 
 import pypresence
 from lcu_driver.connection import Connection  # type:ignore
@@ -35,12 +35,23 @@ from league_rpc.utils.const import (
     DEFAULT_MAP_ICON_FILENAME,
     GAME_MODE_CONVERT_MAP,
     LEAGUE_CLASSIC_ICON,
-    LEAGUE_OF_LEGENDS_LOGO,
     MAP_ICON_CONVERT_MAP,
     MAP_ICON_FILENAME_OVERRIDES,
     PROFILE_ICON_BASE_URL,
     SMALL_TEXT,
 )
+
+
+# Discord has no publicly documented rate limit for activity updates. This value is a
+# conservative, empirically-tuned guess, not a known threshold - adjust if testing shows
+# presence updates stalling or clearing at this cadence.
+HEARTBEAT_INTERVAL_SECONDS = 5
+
+# League's own presence tends to react to the same state change we do, shortly after
+# ours lands. A burst of resends right after a real update reclaims the display
+# without waiting for the next periodic heartbeat.
+RECLAIM_BURST_COUNT = 4
+RECLAIM_BURST_INTERVAL_SECONDS = 1.5
 
 
 # As some events are called multiple times, we should limit the amount of updates to the RPC.
@@ -53,6 +64,9 @@ class RPCUpdater:
 
     previous_client_data: ClientData | None = field(default=None, init=False)
     previous_rpc_data: RPCData | None = field(default=None, init=False)
+    last_sent_was_clear: bool = field(default=False, init=False)
+    last_sent_at: float = field(default=0.0, init=False)
+    last_sent_details: str = field(default="", init=False)
 
     def trigger_rpc_update(
         self,
@@ -74,19 +88,27 @@ class RPCUpdater:
             try:
                 module_data.logger.debug("Updating Discord Rich Presence")
 
-                if clear_instead_of_update:
-                    module_data.logger.debug("Clearing Discord Rich Presence")
-                    module_data.rpc.clear()  # type:ignore
-                else:
-                    module_data.rpc.update(  # type: ignore
-                        large_image=module_data.rpc_data.large_image,
-                        large_text=module_data.rpc_data.large_text,
-                        small_image=module_data.rpc_data.small_image,
-                        small_text=module_data.rpc_data.small_text,
-                        details=module_data.rpc_data.details,
-                        state=module_data.rpc_data.state,
-                        start=module_data.rpc_data.start,
-                    )
+                with module_data.rpc_lock:
+                    if clear_instead_of_update:
+                        module_data.logger.debug("Clearing Discord Rich Presence")
+                        module_data.rpc.clear()  # type:ignore
+                    else:
+                        module_data.rpc.update(  # type: ignore
+                            large_image=module_data.rpc_data.large_image,
+                            large_text=module_data.rpc_data.large_text,
+                            small_image=module_data.rpc_data.small_image,
+                            small_text=module_data.rpc_data.small_text,
+                            details=module_data.rpc_data.details,
+                            state=module_data.rpc_data.state,
+                            start=module_data.rpc_data.start,
+                        )
+
+                self.last_sent_was_clear = clear_instead_of_update
+                self.last_sent_at = time.monotonic()
+                self.last_sent_details = module_data.rpc_data.details
+
+                if not clear_instead_of_update:
+                    self._start_reclaim_burst(module_data)
 
             except Exception as e:
                 module_data.logger.debug(
@@ -94,6 +116,68 @@ class RPCUpdater:
                 )
         else:
             module_data.logger.debug("RPC data has not changed. Skipping update.")
+
+    def start_heartbeat(self, module_data: ModuleData) -> None:
+        """Starts a background loop that resends our last activity every
+        HEARTBEAT_INTERVAL_SECONDS, so League's own Rich Presence can't outlast us.
+        """
+        Thread(target=self._heartbeat_loop, args=(module_data,), daemon=True).start()
+
+    def _heartbeat_loop(self, module_data: ModuleData) -> None:
+        # Sleep relative to the last actual send (real or heartbeat) rather than a
+        # fixed schedule, so a real update mid-cycle doesn't cost a whole extra
+        # HEARTBEAT_INTERVAL_SECONDS before the next heartbeat is allowed to fire.
+        while True:
+            time_since_last_send = time.monotonic() - self.last_sent_at
+            time.sleep(max(HEARTBEAT_INTERVAL_SECONDS - time_since_last_send, 1))
+            self._resend_last_activity(module_data)
+
+    def _start_reclaim_burst(self, module_data: ModuleData) -> None:
+        """Fires a few quick resends right after a real update, so we reclaim the
+        display before League's own presence reacts to the same state change.
+        """
+        Thread(target=self._reclaim_burst, args=(module_data,), daemon=True).start()
+
+    def _reclaim_burst(self, module_data: ModuleData) -> None:
+        for _ in range(RECLAIM_BURST_COUNT):
+            time.sleep(RECLAIM_BURST_INTERVAL_SECONDS)
+            self._resend_last_activity(module_data, force=True)
+
+    def _resend_last_activity(self, module_data: ModuleData, force: bool = False) -> None:
+        """Re-sends the last activity we set, skipping if we have nothing to
+        show, deliberately cleared our presence, or would exceed Discord's rate limit.
+        """
+        if self.previous_rpc_data is None or self.last_sent_was_clear:
+            return
+        if not force and time.monotonic() - self.last_sent_at < HEARTBEAT_INTERVAL_SECONDS:
+            return
+
+        # Discord appears to ignore a SET_ACTIVITY call if the activity payload is
+        # byte-identical to what's already active, so a plain resend never displaces
+        # League's own presence. Append a zero-width space, invisible but distinct,
+        # whenever this would otherwise exactly repeat what we last transmitted.
+        details = self.previous_rpc_data.details
+        if details == self.last_sent_details:
+            details += "​"
+
+        try:
+            with module_data.rpc_lock:
+                module_data.rpc.update(  # type: ignore
+                    large_image=self.previous_rpc_data.large_image,
+                    large_text=self.previous_rpc_data.large_text,
+                    small_image=self.previous_rpc_data.small_image,
+                    small_text=self.previous_rpc_data.small_text,
+                    details=details,
+                    state=self.previous_rpc_data.state,
+                    start=self.previous_rpc_data.start,
+                )
+            self.last_sent_at = time.monotonic()
+            self.last_sent_details = details
+            module_data.logger.debug(
+                f"Heartbeat: resent activity at {time.strftime('%H:%M:%S')}"
+            )
+        except Exception as e:
+            module_data.logger.debug(f"Heartbeat resend failed: {e}")
 
     def has_client_data_changed(self, current_client_data: ClientData) -> bool:
         """
@@ -171,7 +255,7 @@ class RPCUpdater:
                 {"icon_id": module_data.client_data.summoner_icon}
             ),
             large_text="In Client",
-            small_image=LEAGUE_OF_LEGENDS_LOGO,
+            small_image=LEAGUE_CLASSIC_ICON,
             small_text=SMALL_TEXT,
             details=details,
             state="In Client",
@@ -220,7 +304,7 @@ class RPCUpdater:
             large_image = module_data.client_data.tft_companion_icon
             large_text = module_data.client_data.tft_companion_name
         if module_data.client_data.gamemode == "BRAWL":
-            small_image = LEAGUE_OF_LEGENDS_LOGO
+            small_image = LEAGUE_CLASSIC_ICON
         if module_data.client_data.gamemode in ("JADE", "KIWI_JADE"):
             small_image = LEAGUE_CLASSIC_ICON
 
@@ -298,7 +382,7 @@ class RPCUpdater:
             state = "In Queue (Clash)"
 
         if module_data.client_data.gamemode == "BRAWL":
-            small_image = LEAGUE_OF_LEGENDS_LOGO
+            small_image = LEAGUE_CLASSIC_ICON
         if module_data.client_data.gamemode in ("JADE", "KIWI_JADE"):
             small_image = LEAGUE_CLASSIC_ICON
 
@@ -337,7 +421,7 @@ class RPCUpdater:
                 )
 
         if module_data.client_data.gamemode == "BRAWL":
-            small_image = LEAGUE_OF_LEGENDS_LOGO
+            small_image = LEAGUE_CLASSIC_ICON
         if module_data.client_data.gamemode in ("JADE", "KIWI_JADE"):
             small_image = LEAGUE_CLASSIC_ICON
 

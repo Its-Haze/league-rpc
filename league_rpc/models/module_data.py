@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from league_rpc.models.client_data import ClientData
     from league_rpc.models.rpc_updater import RPCUpdater
 
+import threading
 import time
 from argparse import Namespace
 from dataclasses import dataclass, field
@@ -53,3 +54,8 @@ class ModuleData:
 
     # Discord Rich Presence instance from pypresence
     rpc: Optional[Presence] = None
+
+    # pypresence isn't thread-safe: the LCU event thread, the heartbeat thread, and the
+    # reclaim burst thread can all call rpc.update()/rpc.clear() concurrently. Every
+    # caller must hold this lock while touching rpc.
+    rpc_lock: threading.Lock = field(default_factory=threading.Lock, init=False)

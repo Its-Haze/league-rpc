@@ -1,4 +1,5 @@
 import argparse
+import random
 import sys
 import threading
 import time
@@ -6,15 +7,27 @@ import time
 import nest_asyncio  # type:ignore
 import pypresence  # type:ignore
 
-from league_rpc.lcu_api.lcu_connector import start_connector
+from league_rpc.lcu_api.lcu_connector import module_data, start_connector
 from league_rpc.logger.richlogger import RichLogger
 from league_rpc.processes.process import (
     check_discord_process,
     check_league_client_process,
 )
 from league_rpc.utils.color import Color
-from league_rpc.utils.const import DEFAULT_CLIENT_ID, DISCORD_PROCESS_NAMES
+from league_rpc.utils.const import (
+    ANIMATED_SKIN_URL,
+    ANIMATED_SKINS,
+    DEFAULT_CLIENT_ID,
+    DISCORD_PROCESS_NAMES,
+    LEAGUE_CLASSIC_ICON,
+    PLACEHOLDER_ICON_ROTATE_INTERVAL_SECONDS,
+    SMALL_TEXT,
+)
 from league_rpc.utils.launch_league import find_default_path
+
+
+def _random_animated_skin() -> str:
+    return ANIMATED_SKIN_URL.format(filename=random.choice(ANIMATED_SKINS))
 
 
 def main(cli_args: argparse.Namespace) -> None:
@@ -23,13 +36,12 @@ def main(cli_args: argparse.Namespace) -> None:
     """
 
     logger = RichLogger(show_debugs=cli_args.debug)
-    logger.start_progress_bar(name="Checking League")
+
     ############################################################
     ## Check Discord, RiotClient & LeagueClient processes     ##
-    check_league_client_process(cli_args, logger)
 
-    logger.stop_progress_bar()
-
+    # Connect to Discord before checking/launching League, so we claim the Rich
+    # Presence slot before League's own client gets a chance to connect.
     logger.start_progress_bar(name="Checking Discord")
     rpc = check_discord_process(
         process_names=DISCORD_PROCESS_NAMES + cli_args.add_process,
@@ -38,6 +50,40 @@ def main(cli_args: argparse.Namespace) -> None:
         logger=logger,
     )
     logger.stop_progress_bar()
+
+    placeholder_start = int(time.time())
+
+    def send_placeholder() -> None:
+        with module_data.rpc_lock:
+            try:
+                rpc.update(
+                    large_image=_random_animated_skin(),
+                    large_text="LeagueRPC",
+                    small_image=LEAGUE_CLASSIC_ICON,
+                    small_text=SMALL_TEXT,
+                    details="Launching League...",
+                    state="LeagueRPC",
+                    start=placeholder_start,
+                )
+            except pypresence.exceptions.PyPresenceException:
+                pass
+
+    def rotate_placeholder_icon(stop_event: threading.Event) -> None:
+        while not stop_event.wait(PLACEHOLDER_ICON_ROTATE_INTERVAL_SECONDS):
+            send_placeholder()
+
+    send_placeholder()
+
+    stop_rotation = threading.Event()
+    threading.Thread(
+        target=rotate_placeholder_icon, args=(stop_rotation,), daemon=True
+    ).start()
+
+    logger.start_progress_bar(name="Checking League")
+    check_league_client_process(cli_args, logger)
+    logger.stop_progress_bar()
+
+    stop_rotation.set()
 
     # Start LCU_Thread
     # This process will connect to the LCU API and updates the rpc based on data subscribed from the LCU API.
@@ -63,16 +109,19 @@ def main(cli_args: argparse.Namespace) -> None:
         # Always close the RPC connection when exiting (whether by KeyboardInterrupt or League closing).
         # Discord may have already closed the IPC pipe on its end (e.g. Discord was
         # closed, or the pipe timed out) by the time we get here, which pypresence
-        # surfaces as PyPresenceException (PipeClosed, ResponseTimeout, ...). This is
-        # best-effort cleanup on the way out, so a broken pipe shouldn't crash the app.
-        try:
-            rpc.clear()
-        except pypresence.exceptions.PyPresenceException:
-            pass
-        try:
-            rpc.close()
-        except pypresence.exceptions.PyPresenceException:
-            pass
+        # surfaces as PyPresenceException (PipeClosed, ResponseTimeout, ...), or as a
+        # RuntimeError if the heartbeat/reclaim threads were mid-call on the same
+        # connection. This is best-effort cleanup on the way out, so nothing here
+        # should crash the app - hence the broad except.
+        with module_data.rpc_lock:
+            try:
+                rpc.clear()
+            except Exception:
+                pass
+            try:
+                rpc.close()
+            except Exception:
+                pass
         logger.info("Discord RPC connection closed.")
 
     ############################################################
@@ -148,9 +197,15 @@ if __name__ == "__main__":
 
     # Discord server information for support and other projects
     print(f"{Color.blue}{'─' * 60}{Color.reset}")
-    print(f"{Color.green}• Need help? Join the Discord: {Color.cyan}https://discord.haze.sh{Color.reset}")
-    print(f"{Color.green}• Like LeagueRPC? You'll love {Color.orange}DJ Braum{Color.green} - Music bot for you & your friends: {Color.cyan}https://braum.haze.sh{Color.reset}")
-    print(f"{Color.green}• Portfolio & more projects: {Color.cyan}https://haze.sh{Color.reset} {Color.green}Be careful of the 🦆. It might get angry!{Color.reset}")
+    print(
+        f"{Color.green}• Need help? Join the Discord: {Color.cyan}https://discord.haze.sh{Color.reset}"
+    )
+    print(
+        f"{Color.green}• Like LeagueRPC? You'll love {Color.orange}DJ Braum{Color.green} - Music bot for you & your friends: {Color.cyan}https://braum.haze.sh{Color.reset}"
+    )
+    print(
+        f"{Color.green}• Portfolio & more projects: {Color.cyan}https://haze.sh{Color.reset} {Color.green}Be careful of the 🦆. It might get angry!{Color.reset}"
+    )
     print(f"{Color.blue}{'─' * 60}{Color.reset}\n")
 
     if args.hide_in_client:

@@ -12,6 +12,8 @@ LEAGUE_OF_LEGENDS_LOGO = "https://github.com/Its-Haze/league-rpc/blob/master/ass
 LEAGUE_CLASSIC_ICON = "https://github.com/Its-Haze/league-rpc/blob/master/assets/league-classic-borderless.jpg?raw=true"
 SMALL_TEXT = f"its-haze/league-rpc @Github.com ({__version__})"
 
+PLACEHOLDER_ICON_ROTATE_INTERVAL_SECONDS = 5
+
 ALL_GAME_DATA_URL = "https://127.0.0.1:2999/liveclientdata/allgamedata"
 
 ACTIVE_PLAYER_URL = "https://127.0.0.1:2999/liveclientdata/activeplayer"

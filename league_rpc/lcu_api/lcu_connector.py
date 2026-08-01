@@ -375,6 +375,8 @@ def start_connector(
     module_data.cli_args = cli_args
     module_data.logger = logger
 
+    module_data.rpc_updater.start_heartbeat(module_data)
+
     league_processes: list[str] = ["LeagueClient.exe", "LeagueClientUx.exe"]
 
     while True:
