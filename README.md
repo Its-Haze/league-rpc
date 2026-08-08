@@ -272,13 +272,7 @@ For issues related to the code, or project as a whole, please open an [issue on 
 
 This project was previously called `league-rpc-linux`, but since RIOT introduced Vanguard, and broke League on linux. I wanted to rename this project to `league-rpc`, and continue maintaining it for Windows users.
 
+
 ## Star History
 
-<a href="https://star-history.com/#its-haze/league-rpc&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=its-haze/league-rpc&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=its-haze/league-rpc&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=its-haze/league-rpc&type=Date" />
- </picture>
-</a>
-
+[![Star History Chart](https://api.star-history.com/chart?repos=its-haze/league-rpc&type=date&legend=top-left&sealed_token=jX1umXqT_Wef_svhC1MBZwqxm4fvi5isbcVp8vuU6XwwTzkuOstHNeCcLVa2-Y1WR9D9WFw0sKzbr__JIW9qdgnUFYSP2k1p7uQNjGE9CVR5ufnSta51kTKiQgSyhvCVuxfZtoTePTznzCp7MaCtxFMTX11wZwBZFCVTYLam-EG9A54o9ACc6Tk7Gon9)](https://www.star-history.com/?type=date&repos=its-haze%2Fleague-rpc)
