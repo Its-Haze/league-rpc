@@ -1,0 +1,90 @@
+/* Design tokens for the League RPC GUI, set with a frontend-design pass. */
+
+/* Light keeps every surface off pure white: a full-luminance ground under a
+   whole window is the main source of eye strain here. */
+:root {
+  --color-bg: #e6e9f1;
+  --color-surface: #f2f4f9;
+  --color-surface-raised: #f8f9fc;
+  --color-border: #a9b0c2;
+  --color-border-subtle: #ccd2de;
+  --color-text: #1e2330;
+  --color-text-muted: #5b6070;
+  --color-text-disabled: #868c9c;
+  --color-accent: #2f5aa8;
+  --color-accent-text: #ffffff;
+  --color-accent-bg: #e3e9f7;
+  --color-accent-bg-strong: #d5ddef;
+  --color-accent-border: #6a8ad0;
+  --color-ok: #1b7a45;
+  --color-warn: #a2620e;
+  --color-danger: #b52f3d;
+  --color-danger-text: #ffffff;
+  /* Gold for the GitHub star, dark enough here to hold against a pale surface. */
+  --color-star: #b3760a;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --font-sans: "Inter Variable", "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Cascadia Mono", ui-monospace, "SFMono-Regular", monospace;
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+}
+
+/* Dark accent and danger sit lighter than their light-theme counterparts: they
+   carry near-black button text, which needs a bright ground to stay crisp. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #12141c;
+    --color-surface: #181b24;
+    --color-surface-raised: #20242f;
+    --color-border: #2b2f3c;
+    --color-border-subtle: #22252f;
+    --color-text: #e8eaf0;
+    --color-text-muted: #9198a8;
+    --color-text-disabled: #80838a;
+    --color-accent: #7aa4ff;
+    --color-accent-text: #06101f;
+    --color-accent-bg: #1d222f;
+    --color-accent-bg-strong: #272f45;
+    --color-accent-border: #3f527c;
+    --color-ok: #3fb873;
+    --color-warn: #e0983f;
+    --color-danger: #ef8189;
+    --color-danger-text: #1a0507;
+    --color-star: #f7c948;
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #12141c;
+  --color-surface: #181b24;
+  --color-surface-raised: #20242f;
+  --color-border: #2b2f3c;
+  --color-border-subtle: #22252f;
+  --color-text: #e8eaf0;
+  --color-text-muted: #9198a8;
+  --color-text-disabled: #80838a;
+  --color-accent: #7aa4ff;
+  --color-accent-text: #06101f;
+  --color-accent-bg: #1d222f;
+  --color-accent-bg-strong: #272f45;
+  --color-accent-border: #3f527c;
+  --color-ok: #3fb873;
+  --color-warn: #e0983f;
+  --color-danger: #ef8189;
+  --color-danger-text: #1a0507;
+  --color-star: #f7c948;
+}

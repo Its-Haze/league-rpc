@@ -1,0 +1,288 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter/wght.css";
+@import "./tokens.css";
+
+/* Map the design tokens into Tailwind v4's theme so utilities like
+   bg-surface / text-muted / rounded-md resolve to the CSS variables. */
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-border: var(--color-border);
+  --color-border-subtle: var(--color-border-subtle);
+  --color-text: var(--color-text);
+  --color-muted: var(--color-text-muted);
+  --color-disabled: var(--color-text-disabled);
+  --color-accent: var(--color-accent);
+  --color-accent-text: var(--color-accent-text);
+  --color-accent-bg: var(--color-accent-bg);
+  --color-accent-bg-strong: var(--color-accent-bg-strong);
+  --color-accent-border: var(--color-accent-border);
+  --color-ok: var(--color-ok);
+  --color-warn: var(--color-warn);
+  --color-danger: var(--color-danger);
+  --color-danger-text: var(--color-danger-text);
+  --color-star: var(--color-star);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+}
+
+/* One ring for every interactive element, in place of the browser default,
+   which is dark-on-light and near invisible against a light theme. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Tailwind v4's reset leaves buttons on the browser default cursor, which is
+   an arrow. Put the hand back on everything that responds to a click. */
+button,
+summary,
+a[href],
+[role="button"],
+[role="option"],
+[role="radio"],
+[role="tab"] {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"],
+[data-disabled] {
+  cursor: default;
+}
+
+/* Thin, theme-matched scrollbars everywhere, in place of the OS default. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-muted);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Styles the markdown lib/markdown.ts renders (release notes, changelog). */
+.changelog {
+  line-height: 1.6;
+}
+
+.changelog p {
+  margin-top: 0.5rem;
+}
+
+.changelog p:first-child {
+  margin-top: 0;
+}
+
+.changelog h1,
+.changelog h2,
+.changelog h3,
+.changelog h4 {
+  margin-top: 0.75rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.changelog h1:first-child,
+.changelog h2:first-child,
+.changelog h3:first-child,
+.changelog h4:first-child {
+  margin-top: 0;
+}
+
+.changelog ul {
+  margin-top: 0.5rem;
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+.changelog li + li {
+  margin-top: 0.25rem;
+}
+
+.changelog a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* The app's one arrival gesture, shared by onboarding steps and section
+   changes: replays whenever React remounts the keyed container. */
+@keyframes pane-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pane-enter {
+  animation: pane-in 220ms ease-out;
+}
+
+/* A ring out every 2s while presence is actually reaching Discord, so a
+   healthy sidebar reads as running rather than as a frozen screenshot. */
+@keyframes connection-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(2.9);
+    opacity: 0;
+  }
+}
+
+.connection-ping::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--color-ok);
+  border-radius: 9999px;
+  animation: connection-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Mousedown feedback for everything clickable. Carries the colour transitions
+   too, since a second `transition` shorthand would cancel `transition-colors`. */
+.press {
+  transition:
+    transform 90ms ease-out,
+    color 150ms,
+    background-color 150ms,
+    border-color 150ms,
+    opacity 150ms;
+}
+
+.press:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: scale(0.97);
+}
+
+/* Plays once when the sidebar's update dot first appears (re-triggered by
+   remounting via a changed `key`, not by looping the animation itself). */
+@keyframes update-dot-pop {
+  0% {
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.update-dot-pop {
+  animation: update-dot-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Two stacked copies of the same star: the outline holds its shape while the
+   gold solid is revealed bottom-up on hover. */
+.star-rise {
+  position: relative;
+  display: inline-block;
+  flex: none;
+}
+
+.star-rise svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* A hard clip edge only has 16 positions to sit on across a 16px icon, which
+   reads as stepping. The soft gradient band hides where the line actually is. */
+@property --star-fill {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: -25%;
+}
+
+.star-rise .star-solid {
+  color: var(--color-star);
+  --star-fill: -25%;
+  mask-image: linear-gradient(
+    to top,
+    #000 calc(var(--star-fill) - 20%),
+    transparent calc(var(--star-fill) + 20%)
+  );
+  transition: --star-fill 900ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+a:hover .star-rise .star-solid,
+a:focus-visible .star-rise .star-solid {
+  --star-fill: 125%;
+}
+
+/* Everything above is decoration, so drop all of it rather than shortening it.
+   The ping is the one worth naming: a looping animation is the worst offender. */
+@media (prefers-reduced-motion: reduce) {
+  .star-rise .star-solid,
+  .press {
+    transition: none;
+  }
+
+  .pane-enter,
+  .connection-ping::after,
+  .update-dot-pop {
+    animation: none;
+  }
+
+  .connection-ping::after {
+    content: none;
+  }
+
+  .press:active:not(:disabled):not([aria-disabled="true"]) {
+    transform: none;
+  }
+}
