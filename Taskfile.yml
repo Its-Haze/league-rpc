@@ -1,0 +1,41 @@
+version: '3'
+
+vars:
+  APP_NAME: "league-rpc"
+  # The Go package that produces the GUI binary. The daemon-only build in
+  # cmd/league-rpc is not a shipped artifact and is built directly with `go`.
+  MAIN_PACKAGE: "./cmd/league-rpc-gui"
+  BIN_DIR: "bin"
+  PACKAGE_MANAGER: '{{.PACKAGE_MANAGER | default "npm"}}'
+  VITE_PORT: '{{.WAILS_VITE_PORT | default 9245}}'
+  GOOS: '{{.GOOS | default OS}}'
+
+includes:
+  common: ./build/Taskfile.yml
+  windows: ./build/windows/Taskfile.yml
+
+tasks:
+  build:
+    summary: Builds the application
+    cmds:
+      - task: "{{.GOOS}}:build"
+
+  package:
+    summary: Packages a production build of the application
+    cmds:
+      - task: "{{.GOOS}}:package"
+
+  run:
+    summary: Runs the application
+    cmds:
+      - task: "{{.GOOS}}:run"
+
+  assets:update:
+    summary: Regenerates the Windows build assets from build/config.yml
+    cmds:
+      - task: common:update:build-assets
+
+  dev:
+    summary: Runs the application in development mode
+    cmds:
+      - wails3 dev -config ./build/config.yml -port {{.VITE_PORT}}
