@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>__TITLE__</title>
+    <link rel="stylesheet" href="./preview.css" />
+  </head>
+  <body class="preview-shell">
+    <header class="shell-head">
+      <h1>__TITLE__</h1>
+      <span class="spacer"></span>
+      <div class="view-toggle">
+        <button type="button" data-view="both" aria-pressed="true">Both</button>
+        <button type="button" data-view="dark" aria-pressed="false">Dark</button>
+        <button type="button" data-view="light" aria-pressed="false">Light</button>
+      </div>
+    </header>
+    <main class="shell-body">__OPTIONS__</main>
+    <footer class="shell-foot">
+      <textarea placeholder="Notes: mixes, tweaks, anything a click can't say. e.g. 'B's shape but A's border weight'"></textarea>
+      <button type="button" class="send">Send to Claude</button>
+      <span class="status"></span>
+    </footer>
+    <script type="module" src="./shell.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+    "fixed":  {
+                  "file_version":  "0.0.1",
+                  "product_version":  "0.0.1"
+              },
+    "info":  {
+                 "0409":  {
+                              "ProductVersion":  "0.0.1",
+                              "CompanyName":  "Haze",
+                              "FileDescription":  "League of Legends Discord Rich Presence",
+                              "LegalCopyright":  "(c) 2026, Haze",
+                              "ProductName":  "League RPC",
+                              "Comments":  "https://github.com/Its-Haze/league-rpc-gui"
+                          }
+             }
+}

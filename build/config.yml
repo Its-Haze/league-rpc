@@ -1,0 +1,45 @@
+# Source of truth for the generated Windows build assets. After editing `info`,
+# regenerate with `task assets:update` so info.json and wails_tools.nsh follow.
+version: '3'
+
+info:
+  companyName: "Haze"
+  productName: "League RPC"
+  productIdentifier: "com.its-haze.league-rpc"
+  description: "League of Legends Discord Rich Presence"
+  copyright: "(c) 2026, Haze"
+  comments: "https://github.com/Its-Haze/league-rpc-gui"
+  # Fallback for untagged local packaging; releases inject the git tag instead.
+  version: "0.0.1"
+
+# Dev mode configuration
+dev_mode:
+  root_path: .
+  log_level: warn
+  debounce: 1000
+  ignore:
+    dir:
+      - .git
+      - node_modules
+      - frontend
+      - bin
+    file:
+      - .DS_Store
+      - .gitignore
+      - .gitkeep
+      - "*_test.go"
+    watched_extension:
+      - "*.go"
+      - "*.js" # Watch for changes to JS/TS files included using the //wails:include directive.
+      - "*.ts" # The frontend directory will be excluded entirely by the setting above.
+    git_ignore: true
+  executes:
+    - cmd: wails3 build DEV=true
+      type: blocking
+    - cmd: wails3 task common:dev:frontend
+      type: background
+    - cmd: wails3 task run
+      type: primary
+
+# This app opens no files, so it registers no associations.
+fileAssociations:

@@ -1,0 +1,147 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  GO_VERSION: "1.25.0"
+  # Pinned to the version this project builds against (go.mod).
+  WAILS_VERSION: "v3.0.0-beta.15"
+  TASK_VERSION: "v3.53.1"
+  # internal/updates.ReleaseAsset; a regression test keeps the two in step.
+  RELEASE_ASSET: "league-rpc-windows-amd64.bin"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Task
+        run: go install github.com/go-task/task/v3/cmd/task@${{ env.TASK_VERSION }}
+
+      - name: Install wails3 CLI
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@${{ env.WAILS_VERSION }}
+
+      - name: Install NSIS
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v makensis >/dev/null 2>&1 || choco install nsis -y --no-progress
+          # Choco updates the machine PATH registry value, which a fresh choco
+          echo "C:\Program Files (x86)\NSIS" >> "$GITHUB_PATH"
+
+      # Builds the binary and the per-user NSIS installer from it.
+      - name: Package
+        shell: bash
+        run: task package VERSION="$GITHUB_REF_NAME"
+
+      - name: Stage release artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          installer="bin/league-rpc-${version%%-*}-setup.exe"
+          test -f "$installer" || { echo "no installer at $installer"; ls bin; exit 1; }
+          mkdir -p dist
+          # The updater's asset matcher only picks names carrying platform and arch.
+          mv bin/league-rpc.exe "dist/$RELEASE_ASSET"
+          mv "$installer" dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-files
+          path: dist/
+          if-no-files-found: error
+
+  # Isolated in its own job behind a protected environment so only this job's
+  # steps can ever see UPDATE_SIGNING_KEY; build and release never touch it.
+  sign:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release-signing
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: dist
+
+      - name: Sign the release
+        env:
+          UPDATE_SIGNING_KEY: ${{ secrets.UPDATE_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          installer=$(ls dist/*-setup.exe)
+          go build -o bin/sign-release ./cmd/sign-release
+          ./bin/sign-release \
+            -artifact "dist/$RELEASE_ASSET" \
+            -artifact "$installer" \
+            -sums-out SHA256SUMS -sig-out SHA256SUMS.sig
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: checksums
+          path: |
+            SHA256SUMS
+            SHA256SUMS.sig
+          if-no-files-found: error
+
+  release:
+    needs: [build, sign]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: checksums
+          path: .
+
+      # The curated "what changed" content lives in a file per tag, not typed
+      - name: Assemble release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/assemble-release-notes.sh
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          prerelease_flag=""
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            prerelease_flag="--prerelease"
+          fi
+          gh release create "$GITHUB_REF_NAME" \
+            dist/* SHA256SUMS SHA256SUMS.sig \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file assembled-notes.md \
+            $prerelease_flag
