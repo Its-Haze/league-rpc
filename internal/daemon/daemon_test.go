@@ -513,3 +513,43 @@ func TestDaemon_NoPlaceholderWhenLeagueProcessNotDetected(t *testing.T) {
 		t.Fatalf("expected no presence sends while LCU disconnected and no League process detected, got %d", sender.sendCount())
 	}
 }
+
+// A stuck credential discovery leaves League running with no LCU connection.
+// The daemon must eventually say so instead of showing "Connecting" forever.
+func TestDaemon_ReportsStalledLCUAfterThreshold(t *testing.T) {
+	discordRunner := &fakeRunner{}
+	discordRunner.connected.Store(true)
+	lcuRunner := &fakeLCURunner{}
+	updater, stateMgr, sender := newTestDaemonDeps()
+	d := New(discordRunner, lcuRunner, updater, stateMgr, &fakeLiveGamePoller{}, zerolog.Nop(), testPollInterval, testPollInterval)
+
+	var clock atomic.Int64
+	clock.Store(time.Now().UnixNano())
+	d.clock = func() time.Time { return time.Unix(0, clock.Load()) }
+
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	go d.Run(ctx)
+
+	// The placeholder send is the signal that the daemon has noticed League
+	// and started the stall timer, so the fake clock cannot race ahead of it.
+	lcuRunner.leagueDetected.Store(true)
+	waitFor(t, testTimeout, func() bool { return sender.sendCount() > 0 })
+	if d.LCUStalled() {
+		t.Fatal("reported stalled the moment League appeared")
+	}
+
+	// Short of the threshold, League may simply still be starting up.
+	clock.Add((lcuStallThreshold - time.Second).Nanoseconds())
+	time.Sleep(10 * testPollInterval)
+	if d.LCUStalled() {
+		t.Fatal("reported stalled before the threshold elapsed")
+	}
+
+	clock.Add((2 * time.Second).Nanoseconds())
+	waitFor(t, testTimeout, func() bool { return d.LCUStalled() })
+
+	// A late connection clears it.
+	lcuRunner.connected.Store(true)
+	waitFor(t, testTimeout, func() bool { return !d.LCUStalled() })
+}

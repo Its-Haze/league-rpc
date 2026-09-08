@@ -7,6 +7,7 @@ import (
 
 	lcu "github.com/its-haze/lcu-gopher"
 	"github.com/its-haze/league-rpc/internal/config"
+	"github.com/its-haze/league-rpc/internal/logging"
 	"github.com/its-haze/league-rpc/internal/state"
 	"github.com/rs/zerolog"
 )
@@ -48,6 +49,18 @@ func (c *Client) Connect() error {
 	lcuConfig := lcu.DefaultConfig()
 	lcuConfig.AwaitConnection = true // Wait for LCU to start
 	lcuConfig.Debug = cfg.Advanced.DebugMode
+
+	// Debug mode makes lcu-gopher write log files. Point it at our own log
+	// directory; left unset it writes into the working directory, which for
+	// an installed build is Program Files and fails the whole connect.
+	if lcuConfig.Debug {
+		if dir, err := logging.LogDir(); err == nil {
+			lcuConfig.LogDir = dir
+		} else {
+			c.logger.Warn().Err(err).Msg("Could not resolve the log directory; disabling LCU debug logging")
+			lcuConfig.Debug = false
+		}
+	}
 
 	// Create LCU client
 	var err error

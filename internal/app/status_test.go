@@ -14,12 +14,13 @@ import (
 )
 
 type fakeConns struct {
-	discord, lcu, league atomic.Bool
+	discord, lcu, league, stalled atomic.Bool
 }
 
 func (f *fakeConns) DiscordConnected() bool      { return f.discord.Load() }
 func (f *fakeConns) LCUConnected() bool          { return f.lcu.Load() }
 func (f *fakeConns) LeagueProcessDetected() bool { return f.league.Load() }
+func (f *fakeConns) LCUStalled() bool            { return f.stalled.Load() }
 
 type fakeProbe struct {
 	mu sync.Mutex

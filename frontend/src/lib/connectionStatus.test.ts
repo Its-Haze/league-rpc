@@ -6,6 +6,7 @@ function snapshot(over: Partial<StatusSnapshot> = {}): StatusSnapshot {
   return {
     league_process: true,
     lcu_connected: true,
+    lcu_stalled: false,
     discord_connected: true,
     paused: false,
     gameflow_phase: "None",
@@ -39,5 +40,14 @@ describe("summarizeConnection", () => {
   it("distinguishes a pending LCU from a missing Discord", () => {
     expect(summarizeConnection(snapshot({ lcu_connected: false })).label).toBe("Connecting");
     expect(summarizeConnection(snapshot({ discord_connected: false })).label).toBe("No Discord");
+  });
+
+  it("stops saying Connecting once the daemon reports a stall", () => {
+    const s = snapshot({ lcu_connected: false, lcu_stalled: true });
+    expect(summarizeConnection(s)).toEqual({ label: "Can't reach League", tone: "warn" });
+  });
+
+  it("ignores a stale stall flag once the LCU connects", () => {
+    expect(summarizeConnection(snapshot({ lcu_stalled: true })).label).toBe("Connected");
   });
 });

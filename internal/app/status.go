@@ -18,6 +18,7 @@ type Connections interface {
 	DiscordConnected() bool
 	LCUConnected() bool
 	LeagueProcessDetected() bool
+	LCUStalled() bool
 }
 
 // PresenceProbe exposes the presence the Updater last transmitted, so the
@@ -32,6 +33,7 @@ type StatusSnapshot struct {
 	LeagueProcess    bool             `json:"league_process"`
 	LCUConnected     bool             `json:"lcu_connected"`
 	DiscordConnected bool             `json:"discord_connected"`
+	LCUStalled       bool             `json:"lcu_stalled"`
 	Paused           bool             `json:"paused"`
 	GameFlowPhase    string           `json:"gameflow_phase"`
 	Presence         *discord.RPCData `json:"presence"`
@@ -42,6 +44,7 @@ type StatusSnapshot struct {
 func (s StatusSnapshot) equal(o StatusSnapshot) bool {
 	if s.LeagueProcess != o.LeagueProcess ||
 		s.LCUConnected != o.LCUConnected ||
+		s.LCUStalled != o.LCUStalled ||
 		s.DiscordConnected != o.DiscordConnected ||
 		s.Paused != o.Paused ||
 		s.GameFlowPhase != o.GameFlowPhase ||
@@ -101,6 +104,7 @@ func (b *statusBridge) snapshot() StatusSnapshot {
 	return StatusSnapshot{
 		LeagueProcess:    b.conns.LeagueProcessDetected(),
 		LCUConnected:     b.conns.LCUConnected(),
+		LCUStalled:       b.conns.LCUStalled(),
 		DiscordConnected: b.conns.DiscordConnected(),
 		Paused:           b.pauser.IsPaused(),
 		GameFlowPhase:    phase,

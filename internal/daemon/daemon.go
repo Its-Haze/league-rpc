@@ -66,7 +66,30 @@ type Daemon struct {
 	// on every Daemon and clears presence for as long as it is set.
 	paused      atomic.Bool
 	pauseSignal chan struct{}
+
+	// lcuStalled is set once League has been running for lcuStallThreshold
+	// without the LCU answering. Read by the GUI status view.
+	lcuStalled atomic.Bool
+
+	// clock is overridden in tests to drive the stall threshold.
+	clock func() time.Time
 }
+
+// lcuStallThreshold is how long League can run without the LCU answering
+// before it is treated as stalled rather than still starting up.
+const lcuStallThreshold = 45 * time.Second
+
+// now reads the clock, defaulting to time.Now when unset.
+func (d *Daemon) now() time.Time {
+	if d.clock != nil {
+		return d.clock()
+	}
+	return time.Now()
+}
+
+// LCUStalled reports whether League has been running past
+// lcuStallThreshold without the League Client API answering.
+func (d *Daemon) LCUStalled() bool { return d.lcuStalled.Load() }
 
 // New builds a Daemon that drives presence from stateMgr through updater.
 func New(
@@ -157,6 +180,10 @@ func (d *Daemon) presenceLoop(ctx context.Context) {
 	mode := modeUnknown
 	discordConnected := false
 	waitingForDiscordLogged := false
+
+	// stalledSince marks when League came up without an LCU connection.
+	var stalledSince time.Time
+	stallLogged := false
 
 	var placeholderTicker *time.Ticker
 	var placeholderC <-chan time.Time
@@ -261,6 +288,8 @@ func (d *Daemon) presenceLoop(ctx context.Context) {
 
 		switch {
 		case d.lcu.Connected():
+			d.lcuStalled.Store(false)
+			stallLogged = false
 			st := d.state.Get()
 			if mode != modeConnected {
 				stopPlaceholder()
@@ -284,9 +313,24 @@ func (d *Daemon) presenceLoop(ctx context.Context) {
 			if mode != modePlaceholder {
 				mode = modePlaceholder
 				placeholderStart = time.Now().Unix()
+				stalledSince = d.now()
+				stallLogged = false
+				d.lcuStalled.Store(false)
 				sendPlaceholder()
 				placeholderTicker = time.NewTicker(d.placeholderInterval)
 				placeholderC = placeholderTicker.C
+			}
+
+			// League has been up this long without the LCU answering, which
+			// in practice means credential discovery is failing.
+			if d.now().Sub(stalledSince) >= lcuStallThreshold {
+				d.lcuStalled.Store(true)
+				if !stallLogged {
+					d.logger.Warn().
+						Dur("waited", d.now().Sub(stalledSince)).
+						Msg("League is running but the League Client API is not answering; check that League RPC can read the client's port")
+					stallLogged = true
+				}
 			}
 
 		default:
