@@ -1,0 +1,266 @@
+/* Preview chrome. Deliberately neutral and outside the token system so it never
+   competes with the options being judged. */
+:root {
+  --chrome-bg: #0d0f14;
+  --chrome-panel: #161922;
+  --chrome-line: #262b38;
+  --chrome-text: #e6e8ee;
+  --chrome-dim: #9aa1b1;
+  --chrome-pick: #4ba3ff;
+}
+
+html,
+body {
+  height: auto;
+}
+
+body.preview-shell {
+  margin: 0;
+  padding: 0 0 6rem;
+  background: var(--chrome-bg);
+  color: var(--chrome-text);
+  font-family: ui-sans-serif, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.shell-head {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem 1.25rem;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--chrome-line);
+  background: rgba(13, 15, 20, 0.94);
+  backdrop-filter: blur(8px);
+}
+
+.shell-head h1 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.shell-head .spacer {
+  flex: 1;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--chrome-line);
+  border-radius: 8px;
+}
+
+.view-toggle button {
+  padding: 0.3rem 0.7rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--chrome-dim);
+  font: inherit;
+  cursor: pointer;
+}
+
+.view-toggle button[aria-pressed="true"] {
+  background: var(--chrome-line);
+  color: var(--chrome-text);
+}
+
+.shell-body {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+}
+
+.preview-intro {
+  max-width: 70ch;
+  margin: 0 0 2rem;
+  color: var(--chrome-dim);
+  line-height: 1.6;
+}
+
+.decision {
+  margin: 0 0 3rem;
+}
+
+.decision > h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.3rem;
+}
+
+.decision > .ask {
+  max-width: 70ch;
+  margin: 0 0 1.25rem;
+  color: var(--chrome-dim);
+  line-height: 1.6;
+}
+
+.options {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.option {
+  border: 1px solid var(--chrome-line);
+  border-radius: 12px;
+  background: var(--chrome-panel);
+  overflow: hidden;
+}
+
+.option[data-picked="true"] {
+  border-color: var(--chrome-pick);
+  box-shadow: 0 0 0 1px var(--chrome-pick);
+}
+
+.option > header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--chrome-line);
+}
+
+.option > header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.tag {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 1px solid var(--chrome-line);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badge {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--chrome-pick);
+  border-radius: 999px;
+  color: var(--chrome-pick);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.option .rationale {
+  margin: 0;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--chrome-line);
+  color: var(--chrome-dim);
+  line-height: 1.55;
+}
+
+.renders {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.renders[data-view="dark"] {
+  grid-template-columns: 1fr;
+}
+
+.renders[data-view="light"] {
+  grid-template-columns: 1fr;
+}
+
+.renders[data-view="dark"] .panel.theme-light,
+.renders[data-view="light"] .panel.theme-dark {
+  display: none;
+}
+
+.panel {
+  position: relative;
+  padding: 2.25rem 1.5rem 1.5rem;
+  min-height: 7rem;
+}
+
+.panel + .panel {
+  border-left: 1px solid var(--chrome-line);
+}
+
+.panel-label {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.9rem;
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.option > footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.1rem;
+  border-top: 1px solid var(--chrome-line);
+}
+
+button.pick {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--chrome-pick);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--chrome-pick);
+  font: inherit;
+  cursor: pointer;
+}
+
+.option[data-picked="true"] button.pick {
+  background: var(--chrome-pick);
+  color: #06121f;
+}
+
+.shell-foot {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 0.9rem 2rem;
+  border-top: 1px solid var(--chrome-line);
+  background: rgba(13, 15, 20, 0.96);
+  backdrop-filter: blur(8px);
+}
+
+.shell-foot textarea {
+  flex: 1;
+  min-height: 2.6rem;
+  max-height: 8rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--chrome-line);
+  border-radius: 8px;
+  background: var(--chrome-panel);
+  color: var(--chrome-text);
+  font: inherit;
+  resize: vertical;
+}
+
+.shell-foot button.send {
+  padding: 0.6rem 1.4rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--chrome-pick);
+  color: #06121f;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.shell-foot .status {
+  align-self: center;
+  color: var(--chrome-dim);
+  white-space: nowrap;
+}

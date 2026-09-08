@@ -1,6 +1,0 @@
-black
-isort
-mypy
-pylint
-ruff
-pyinstaller

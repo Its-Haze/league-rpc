@@ -1,26 +1,56 @@
-<img src="https://github.com/its-haze/league-rpc/blob/master/assets/league-rpc.png?raw=true" width=30% height=auto />
+<!--
+  Two Table of Contents links start with an invisible U+FE0F. The emoji in the
+  "Settings" and "Build from Source" headings carry a variation selector that
+  GitHub keeps when it generates the anchor. Removing it breaks those links.
+-->
 
-<div align="left">
+<div align="center">
 
-<a href="https://github.com/its-haze/league-rpc/releases/latest">![GitHub All Releases](https://img.shields.io/github/downloads/its-haze/league-rpc/total.svg?style=for-the-badge&color=purple)</a> <a href="https://github.com/its-haze/league-rpc/stargazers">![Stargazers](https://img.shields.io/github/stars/its-haze/league-rpc.svg?style=for-the-badge)</a> <a href="https://github.com/its-haze/league-rpc/issues">![Issues](https://img.shields.io/github/issues/its-haze/league-rpc.svg?style=for-the-badge)</a> <a href="https://github.com/Its-Haze/league-rpc/blob/master/LICENSE.txt">![MIT License](https://img.shields.io/github/license/its-haze/league-rpc.svg?style=for-the-badge)</a>
+<img src="assets/league-rpc.png" width="55%" height="auto" alt="League RPC" />
+
+<p>A better League of Legends Rich Presence for Discord.</p>
+
+<p>
+<a href="https://github.com/its-haze/league-rpc/releases/latest"><img alt="Downloads" src="https://img.shields.io/github/downloads/its-haze/league-rpc/total.svg?style=for-the-badge&color=A6E3A1&labelColor=11111B"></a>
+<a href="https://github.com/its-haze/league-rpc/stargazers"><img alt="Stargazers" src="https://img.shields.io/github/stars/its-haze/league-rpc.svg?style=for-the-badge&color=F9E2AF&labelColor=11111B"></a>
+<a href="https://github.com/its-haze/league-rpc/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/its-haze/league-rpc?style=for-the-badge&color=CBA6F7&labelColor=11111B"></a>
+<a href="https://github.com/its-haze/league-rpc/blob/master/LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-7F849C?style=for-the-badge&labelColor=11111B"></a>
+</p>
+
+<h3><a href="https://github.com/its-haze/league-rpc/releases/latest"><strong>Download for Windows &raquo;</strong></a></h3>
+
+<p>
+<a href="#about">About</a>
+&middot;
+<a href="#installation">Installation</a>
+&middot;
+<a href="#showcase">Showcase</a>
+&middot;
+<a href="#-faq">FAQ</a>
+</p>
 
 </div>
-⭐ Don't forget to star this project! ⭐
 
-# A Better League of Legends Rich Presence For Discord!
+## About
 
-**Enhance your Discord experience while playing League of Legends!** This project brings unique Discord Rich Presence integration for League players, including features not even available natively from the game!
+Welcome to League RPC. This application gives you the ability to choose how your League presence is shown on Discord.
 
+- **Every game mode.** Summoner's Rift, ARAM, Arena, TFT, Swarm, and more.
+- **All skins supported,** chromas and animated skins included.
+- **Rank, LP, KDA and CS.** You choose what to show and what to hide.
+- **Customization.** You have full control over how the text is displayed on your profile.
+- **A modern GUI with a tray icon.** It keeps running in the background, so the window is only open when you want it there. It can start with Windows too.
 
 Got questions already? Don't hesitate to join the [Discord Community Server](https://discord.haze.sh)
+
+⭐ If you enjoy it, don't forget to star this project! ⭐
 
 ## Table of Contents
 - [Installation](#installation)
 - [Showcase](#showcase)
-- [Command Line Arguments](#command-line-arguments)
-- [Tips for Running](#-tips-for-running)
-- [FAQ](#faq)
-- [Build from source](#️-build-from-source)
+- [Settings](#️-settings)
+- [FAQ](#-faq)
+- [Build from Source](#️-build-from-source)
 - [Contact and Support](#-contact-and-support)
 - [History](#-history)
 
@@ -28,18 +58,19 @@ Got questions already? Don't hesitate to join the [Discord Community Server](htt
 
 ## Installation
 
-### ✅ Prerequisites
-I recommend using [Windows Terminal](https://aka.ms/terminal) and setting it as your [default terminal](https://devblogs.microsoft.com/commandline/windows-terminal-as-your-default-command-line-experience/). It makes everything look way better with colors and proper formatting instead of the boring old `cmd` window.
-
 ### 📥 Getting Started
-1. Head over to the [Releases Page](https://github.com/Its-Haze/league-rpc/releases)
-2. Download `leagueRPC.exe` from the latest release (it's under Assets)
-3. Run the exe file (probably sitting in your Downloads folder)
-4. Accept the Windows security popup if it shows up
+1. Head over to the [Releases Page](https://github.com/its-haze/league-rpc/releases)
+2. Download `league-rpc-<version>-setup.exe` from the latest release (it's under Assets)
+3. Run it and accept the Windows security popup if it shows up
+4. Start League and Discord, in whatever order you like
 5. That's it! ✨
 
+Closing the window keeps League RPC running in your system tray. Quit from there when you want it to stop.
+
 ### 🔄 Updating
-No automatic updates yet, so you'll need to manually download new versions from the [Releases Page](https://github.com/Its-Haze/league-rpc/releases). Don't worry though - LeagueRPC will let you know in the terminal when there's a newer version available. I recommend staying up to date for the best experience.
+You can update directly from the app. If you have **update notifications** enabled, you will see a notification that a new version is available.
+
+Otherwise go to **About** → **Check for updates** and install from there.
 
 ---
 
@@ -47,41 +78,39 @@ No automatic updates yet, so you'll need to manually download new versions from 
 
 ### Summoner Icons
 
-Who let the Kitten and the Penguin out? I did 😎. Now you too, can show off your favorite summoner icon, right there on Discord!
+Who let the Kitten and the Penguin out? Your summoner icon shows up on Discord while you're still deciding what to play.
 
 ![summoner-icon-1](images/in_client_icon_1.png) ![summoner-icon-2](images/in_client_icon_2.png)
 
+There's an online and away marker too, if you want it.
+
+![Online](images/in_client_online_status.png) ![Away](images/in_client_away_status.png)
+
 ### Ranked Games
 
-You can show off your rank emblem right in your Discord Presence.
-- SoloQ/Flex: Shows off your Rank emblem + LP
-- TFT: Shows off your TFT rank emblem + LP
-- Arena: Shows off your Arena medallion + Your rating
+Your rank emblem, right there on your presence.
+- **Solo/Duo and Flex**: your emblem and LP
+- **TFT**: your TFT emblem and LP
+- **Arena**: your medallion and rating
 
-If you want to hide your rank, then add the ``--no-rank`` argument, to **disable** this feature. As it's enabled by default.
+Whichever queue you're in is the one that gets shown, so a Flex game never advertises your Solo/Duo rank. If you'd rather keep it to yourself, turn **Show rank** off in the app.
 
 ![lobby-ranked](images/in_soloq_show_ranked_1.png) ![lobby-ranked-2](images/in_soloq_show_ranked_2.png)
 
 ### In Game
-- Show your selected skin.
-  - **Animated skins**: Ultimate skins will be animated on Discord.
-  - **Skin Names**: The name of the skin will be shown when hovering the skin on Discord. This includes **Chromas** as well.
-- **KDA**: Display your Kills, Deaths, Assists and Creep Score (cs)
-  - Can be disabled with `--no-stats`
-- **Rank**: Show what rank you have depending on the gamemode you play in (SoloQ, Flex, TFT, Arena, etc.)
-  - Can be disabled with `--no-rank`
-- **Game timer**: The ingame timer is accurately represented on Discord. Which is something even League's own Rich Presence don't do.
 
+- **Your skin** as the artwork, with the name on hover. Chromas included.
+- **KDA and CS**, so people can see how it's going.
+- **Your rank**, so you can flex if you're high elo. Or hide it if you don't want people to know.
+- **A game timer** that matches the match clock.
 
 #### Skins
-![Aphelios-skin](images/in_game_aphelios_skin_kda.png)
 
-
-Example on Discord:
-
-![Ezreal-Animated](images/animated_ezreal_showcase.gif) ![Lux-Animated](images/animated_lux_showcase.gif)
+![skin-showcase](images/animated_lux_showcase.gif)
 
 ##### All Animated Skins
+
+Ultimate skins animate on Discord.
 
 <div align="left">
   <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Ahri_86.gif" width="150" alt="Ahri"/>
@@ -107,131 +136,38 @@ Example on Discord:
   <img src="https://raw.githubusercontent.com/Its-Haze/league-assets/master/animated_skins/Udyr_3.gif" width="150" alt="Udyr"/>
 </div>
 
-### TFT (Teamfight tactics)
-Showcase your favorite TFT Companion!
+### TFT (Teamfight Tactics)
+
+Showcase your favourite TFT Companion!
 
 ![tft-companion-1](images/tft_companion_showcase_1.png) ![tft-companion-2](images/tft_companion_showcase_2.png)
 
----
+### Write Your Own
 
-## Command Line Arguments
+Every line Discord shows is a template. Rewrite it, drop in your queue, champion or score, and the preview updates as you type. Each situation has its own: client, lobby, custom game, queue, champ select, in game, TFT and spectating.
 
-All arguments are optional - LeagueRPC works perfectly fine without any of them. Use these if you want to customize behavior.
-
-**✨ = Enabled by default**
-
-### `--launch-league <location>` ✨
-LeagueRPC automatically finds and launches League for you. This is important because it takes priority over League's native Discord presence during startup.
-
-Only specify a path if League is installed somewhere unusual:
-```sh
-leagueRPC.exe --launch-league "G:\Riot Games\Riot Client\RiotClientServices.exe"
-```
-
-### `--client-id <discord-app-id>` ✨
-Want to show a different game name on Discord? Create an app at the [Discord Developer Portal](https://discord.com/developers/applications) and use its Application ID.
-
-```sh
-leagueRPC.exe --client-id 1230607224296968303
-```
-Fun options:
-- **League of Kittens**: `1230607224296968303`
-- **League of Linux**: `1185274747836174377`
-
-### `--no-stats`
-Hides your KDA and CS from Discord.
-```sh
-leagueRPC.exe --no-stats
-```
-
-### `--no-rank`
-Hides your rank, LP, and emblem from Discord.
-```sh
-leagueRPC.exe --no-rank
-```
-
-### `--hide-emojis`
-Removes the 🟢/🔴 emojis next to your Online/Away status.
-```sh
-leagueRPC.exe --hide-emojis
-```
-
-![Online](images/in_client_online_status.png) ![Away](images/in_client_away_status.png)
-
-### `--hide-in-client`
-Hides your Rich Presence when you're just sitting in the client. It'll show up again when you queue, enter champ select, or start a game.
-```sh
-leagueRPC.exe --hide-in-client
-```
-
-### `--add-process <process-name>`
-Using a Discord alternative or modified client? Add its process name here. Find it in Task Manager.
-```sh
-leagueRPC.exe --add-process CustomDiscord AnotherProcess
-```
-
-### `--wait-for-league <seconds>` ✨
-How long to wait for League to start before giving up. Default is `-1` (waits forever).
-```sh
-leagueRPC.exe --wait-for-league 30
-```
-*Mostly useful for legacy Linux setups with Lutris*
-
-### `--wait-for-discord <seconds>` ✨
-How long to wait for Discord to start. Default is `-1` (waits forever).
-```sh
-leagueRPC.exe --wait-for-discord 30
-```
-
-### Combining Arguments
-Mix and match whatever you need:
-```sh
-leagueRPC.exe --client-id 1230607224296968303 --no-stats --hide-emojis
-```
+![presence-text-editor](images/presence-text.gif)
 
 ---
 
-## 💡 Tips
+## ⚙️ Settings
 
-### 🛡️ Windows Defender flagging it as a virus?
-Just whitelist it. This happens because the exe isn't code-signed (not paying $100/year for that). The source code is public if you want to verify it's safe, or just build it yourself.
-
-### 🖱️ Adding arguments without using a terminal
-Don't like terminals? No problem:
-1. Right-click `leagueRPC.exe` → Create shortcut
-2. Right-click the shortcut → Properties
-3. In the `Target` field, add your arguments after `leagueRPC.exe`
-4. Double-click the shortcut to run
+Everything is set inside the app, and every change saves the moment you make it. There's no save button to remember and no file to edit by hand. Changed your mind about something? Every setting can go back to its default on its own, without touching the rest.
 
 ---
 
-## ❓FAQ
+## ❓ FAQ
 
 ### 🚫 Will this get my account banned?
-Nope! It only uses Riot's local API (`127.0.0.1:2999`), which is completely safe. Vanguard won't care about it either since it doesn't modify any game files nor gives you an advantage in game.
+Nope! It only reads what Riot already publishes on your own computer. It changes nothing, injects nothing and gives you no advantage in game, so Vanguard has no reason to care.
 
-### 🛡️ Is this a virus?
-No. Some antivirus software might flag it because it's not code-signed (costs $100/year, not worth it for a free project). The entire source code is public on GitHub - feel free to review it or build it yourself. If you trust it, just whitelist it in Windows Defender.
-
-### 🛠️ League's native RPC is still showing instead of LeagueRPC
-Make sure LeagueRPC launches League for you. There's a tiny window during client startup where the native Discord presence can be disabled, and LeagueRPC needs to catch it.
-
-If it's still not working:
-1. Log out of League
-2. Close League completely
-3. Start LeagueRPC and let it launch League for you
-4. Log back in
-
-Still broken? Hit me up on [Discord](https://discord.haze.sh) or open a GitHub issue.
+### 🛡️ Is this a virus? Why is Windows warning me?
+No, and because it isn't code-signed. A certificate costs $100 a year, which is hard to justify for a free project, so Windows distrusts an installer it hasn't seen before. Click **More info**, then **Run anyway**, and whitelist it if Defender gets loud. The entire source code is public on GitHub, so review it or build it yourself.
 
 ### ✔️ Does Riot approve this?
-This is an independent open-source project, not affiliated with Riot Games.
+This is an independent open-source project. It isn't affiliated with Riot Games.
 
-### 🎮 Does it support TFT, Arena, ARAM, etc?
-Yep! Works with all game modes including TFT, Arena, ARAM, Swarms, and whatever new modes Riot releases.
-
-### 📉 Why doesn't my CS update live?
-Blame Riot's API - it only updates every 10 minions killed instead of every single one. Nothing I can do about that unfortunately.
+There's a longer FAQ inside the app, under **Help**, for the questions you only run into once it's running.
 
 ---
 
@@ -240,39 +176,36 @@ For the cool kids who want to build it themselves:
 
 ```powershell
 # Clone and navigate
-git clone https://github.com/Its-Haze/league-rpc.git
+git clone https://github.com/its-haze/league-rpc.git
 cd league-rpc
 
-# Set up virtual environment
-python -m venv venv
-.\venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-pip install pyinstaller
-
 # Build
-pyinstaller --onefile --name leagueRPC.exe league_rpc/__main__.py --clean --distpath .
-
-# Run
-.\leagueRPC.exe
+task build
 ```
+
+You'll need Go, Node and [Task](https://taskfile.dev/). [CONTRIBUTING.md](CONTRIBUTING.md) has the rest: exact versions, the Wails setup, how to build the installer, and how releases are signed.
 
 ---
 
 ## 📞 Contact and Support
-Got questions? Join the [Discord Server](https://discord.haze.sh) 
+Got questions? Join the [Discord Server](https://discord.haze.sh)
 Feel free to open up Help tickets, or contact me directly on Discord (@haze.dev).
 
-For issues related to the code, or project as a whole, please open an [issue on GitHub](https://github.com/Its-Haze/league-rpc/issues).
+For issues related to the code, or project as a whole, please open an [issue on GitHub](https://github.com/its-haze/league-rpc/issues). Before you do, hit **Copy diagnostics** on the app's Help screen and paste the result in. It gathers most of what I'd otherwise have to ask you for.
 
 ---
 
 ## 📜 History
 
-This project was previously called `league-rpc-linux`, but since RIOT introduced Vanguard, and broke League on linux. I wanted to rename this project to `league-rpc`, and continue maintaining it for Windows users.
-
+- 2023 - This project was previously called `league-rpc-linux`. When Riot introduced Vanguard and broke league on linux, i renamed it to `league-rpc` and kept maintaining it for Windows users. This is why there is a `League of linux` option to select in the application.
+- 2026 - Rewrote the application from a Terminal based Python app, to a Golang application with a GUI and tray app. Needed to rewrite the entire `lcu-driver` from scratch in golang to get it working. So i built [lcu-gopher](https://github.com/Its-Haze/lcu-gopher) which this project now uses.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/chart?repos=its-haze/league-rpc&type=date&legend=top-left&sealed_token=jX1umXqT_Wef_svhC1MBZwqxm4fvi5isbcVp8vuU6XwwTzkuOstHNeCcLVa2-Y1WR9D9WFw0sKzbr__JIW9qdgnUFYSP2k1p7uQNjGE9CVR5ufnSta51kTKiQgSyhvCVuxfZtoTePTznzCp7MaCtxFMTX11wZwBZFCVTYLam-EG9A54o9ACc6Tk7Gon9)](https://www.star-history.com/?type=date&repos=its-haze%2Fleague-rpc)
+<a href="https://star-history.com/#its-haze/league-rpc&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=its-haze/league-rpc&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=its-haze/league-rpc&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=its-haze/league-rpc&type=Date" />
+ </picture>
+</a>
