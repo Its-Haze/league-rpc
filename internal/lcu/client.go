@@ -50,6 +50,10 @@ func (c *Client) Connect() error {
 	lcuConfig.AwaitConnection = true // Wait for LCU to start
 	lcuConfig.Debug = cfg.Advanced.DebugMode
 
+	// lcu-gopher explains every failed credential lookup through its Logger,
+	// and keeps a caller-supplied one, so route that into our own log.
+	lcuConfig.Logger = gopherLogger{logger: c.logger}
+
 	// Debug mode makes lcu-gopher write log files. Point it at our own log
 	// directory; left unset it writes into the working directory, which for
 	// an installed build is Program Files and fails the whole connect.
