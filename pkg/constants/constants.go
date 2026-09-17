@@ -39,7 +39,16 @@ const (
 	DefaultUpdateInterval = 1500 // milliseconds
 
 	// Process Names
-	DiscordProcessName        = "Discord.exe"
+	DiscordProcessName            = "Discord.exe"
+	DiscordPTBProcessName         = "DiscordPTB.exe"
+	DiscordCanaryProcessName      = "DiscordCanary.exe"
+	DiscordDevelopmentProcessName = "DiscordDevelopment.exe"
+
+	// Third-party Discord clients that serve the RPC pipe themselves, via arRPC.
+	VesktopProcessName = "Vesktop.exe"
+	LegcordProcessName = "Legcord.exe"
+	ArmCordProcessName = "ArmCord.exe"
+
 	LeagueClientProcessName   = "LeagueClient.exe"
 	LeagueClientUxProcessName = "LeagueClientUx.exe"
 	RiotClientProcessName     = "RiotClientServices.exe"
