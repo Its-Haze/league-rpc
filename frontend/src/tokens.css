@@ -22,6 +22,8 @@
   --color-danger-text: #ffffff;
   /* Gold for the GitHub star, dark enough here to hold against a pale surface. */
   --color-star: #b3760a;
+  /* Same treatment for the support heart: violet deep enough to read on light. */
+  --color-heart: #7c3aed;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -65,6 +67,7 @@
     --color-danger: #ef8189;
     --color-danger-text: #1a0507;
     --color-star: #f7c948;
+    --color-heart: #cba6f7;
   }
 }
 
@@ -87,4 +90,5 @@
   --color-danger: #ef8189;
   --color-danger-text: #1a0507;
   --color-star: #f7c948;
+  --color-heart: #cba6f7;
 }

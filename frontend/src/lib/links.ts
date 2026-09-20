@@ -8,6 +8,10 @@ export const DISCORD_DEVELOPER_PORTAL_URL = "https://discord.com/developers/appl
 export const GITHUB_REPO_URL = "https://github.com/its-haze/league-rpc";
 export const GITHUB_PROFILE_URL = "https://github.com/its-haze";
 export const AUTHOR_WEBSITE_URL = "https://haze.sh";
+
+// Ko-fi rather than GitHub Sponsors: sponsoring needs a GitHub account, and
+// almost nobody running this has one. Sponsors is offered on the repo instead.
+export const SUPPORT_URL = "https://ko-fi.com/itshaze";
 export const BUG_REPORT_URL = "https://github.com/its-haze/league-rpc/issues/new?template=bug_report.md";
 export const FEATURE_REQUEST_URL =
   "https://github.com/its-haze/league-rpc/issues/new?template=feature_request.md";

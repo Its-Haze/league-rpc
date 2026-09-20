@@ -2,9 +2,10 @@ import { useStatus } from "../../hooks/useStatus";
 import { FeatureComparison } from "./home/FeatureComparison";
 import { GithubCta } from "./home/GithubCta";
 import { PresencePreview } from "./home/PresencePreview";
+import { SupportCta } from "./home/SupportCta";
 
-// The Home dashboard: the last-sent presence preview, a rundown of what
-// League RPC adds over native detection, and a closing GitHub star ask.
+// The Home dashboard: the presence preview, what League RPC adds over native
+// detection, and the two closing asks.
 export function HomeScreen() {
   const status = useStatus();
 
@@ -14,6 +15,7 @@ export function HomeScreen() {
       <PresencePreview status={status} />
       <FeatureComparison />
       <GithubCta />
+      <SupportCta />
     </div>
   );
 }

@@ -1,10 +1,10 @@
-import { Eye, House, Info, LifeBuoy, MessageCircleQuestion, SlidersHorizontal, Wrench, type LucideIcon } from "lucide-react";
+import { Eye, Heart, House, Info, LifeBuoy, MessageCircleQuestion, SlidersHorizontal, Wrench, type LucideIcon } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
 import { useStatus } from "../../hooks/useStatus";
 import { useUpdateStatus } from "../../hooks/useUpdateStatus";
 import { summarizeConnection, type ConnectionTone } from "../../lib/connectionStatus";
 import { DiscordIcon, GitHubIcon } from "../icons";
-import { DISCORD_COMMUNITY_URL, GITHUB_REPO_URL, openExternal } from "../../lib/links";
+import { DISCORD_COMMUNITY_URL, GITHUB_REPO_URL, SUPPORT_URL, openExternal } from "../../lib/links";
 import { SECTIONS, type Section } from "../../lib/route";
 import { type ThemeSetting } from "../../lib/theme";
 import { ThemePicker } from "../ui";
@@ -112,6 +112,17 @@ export function Sidebar({ active, onNavigate, theme, onThemeChange, themeDisable
         </SidebarLink>
         <SidebarLink href={GITHUB_REPO_URL} icon={<GitHubIcon className="size-5" />}>
           GitHub
+        </SidebarLink>
+        <SidebarLink
+          href={SUPPORT_URL}
+          icon={
+            <span className="heart-rise size-5">
+              <Heart aria-hidden />
+              <Heart className="rise-fill" fill="currentColor" aria-hidden />
+            </span>
+          }
+        >
+          Support
         </SidebarLink>
         <div className="mt-1">
           <ThemePicker value={theme} onChange={onThemeChange} disabled={themeDisabled} compact />

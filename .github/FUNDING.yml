@@ -1,0 +1,4 @@
+# Drives the Sponsor button on the repo header and the funding link GitHub
+# puts on every release page. Ko-fi is here for players without a GitHub account.
+github: Its-Haze
+ko_fi: itshaze

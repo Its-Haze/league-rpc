@@ -3,8 +3,8 @@ import { GitHubIcon } from "../../icons";
 import { GITHUB_REPO_URL, openExternal } from "../../../lib/links";
 import { Button } from "../../ui";
 
-// Home's last card: the one ask we make of happy users, placed where it
-// won't compete with anything functional above it.
+// The free ask, paired with SupportCta below it. Both sit at the bottom of
+// Home so neither competes with anything functional above them.
 export function GithubCta() {
   return (
     <section className="border-border bg-surface flex items-center justify-between gap-4 rounded-lg border p-6">
@@ -17,11 +17,7 @@ export function GithubCta() {
           <p className="text-muted text-xs">A star on GitHub helps other players find it.</p>
         </div>
       </div>
-      <Button
-        variant="secondary"
-        asChild
-        className="shrink-0"
-      >
+      <Button variant="secondary" asChild className="shrink-0">
         <a
           href={GITHUB_REPO_URL}
           onClick={(e) => {
@@ -31,7 +27,7 @@ export function GithubCta() {
         >
           <span className="star-rise size-4">
             <Star aria-hidden />
-            <Star className="star-solid" fill="currentColor" aria-hidden />
+            <Star className="rise-fill" fill="currentColor" aria-hidden />
           </span>
           Star on GitHub
         </a>

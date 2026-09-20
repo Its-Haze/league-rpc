@@ -51,6 +51,7 @@ Got questions already? Don't hesitate to join the [Discord Community Server](htt
 - [Settings](#️-settings)
 - [FAQ](#-faq)
 - [Build from Source](#️-build-from-source)
+- [Support the project](#-support-the-project)
 - [Contact and Support](#-contact-and-support)
 - [History](#-history)
 
@@ -184,6 +185,22 @@ task build
 ```
 
 You'll need Go, Node and [Task](https://taskfile.dev/). [CONTRIBUTING.md](CONTRIBUTING.md) has the rest: exact versions, the Wails setup, how to build the installer, and how releases are signed.
+
+---
+
+## 💖 Support the project
+League RPC is free, and it stays that way. No ads, no accounts, no feature locked behind a payment.
+I build and maintain it in my spare time because I wanted it to exist.
+
+If it's earned a spot in your startup folder and you'd like to chip in toward keeping it maintained,
+there are two ways:
+
+- [**GitHub Sponsors**](https://github.com/sponsors/Its-Haze) takes no cut, and does one-time or monthly.
+- [**Ko-fi**](https://ko-fi.com/itshaze) needs no account, just a card or PayPal.
+
+[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/O0N227CV0N)
+
+Neither unlocks a feature. Supporters get a role in the [Discord](https://discord.haze.sh), and a star costs nothing at all.
 
 ---
 
