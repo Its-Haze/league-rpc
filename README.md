@@ -33,17 +33,15 @@
 
 ## About
 
-Welcome to League RPC. This application gives you the ability to choose how your League presence is shown on Discord.
+League RPC is a Discord Rich Presence application for League of Legends. It reads your League
+client and shows what you're doing on your Discord profile, in place of the generic status
+Discord gives you. You control what appears and how each line is worded.
 
-- **Every game mode.** Summoner's Rift, ARAM, Arena, TFT, Swarm, and more.
-- **All skins supported,** chromas and animated skins included.
-- **Rank, LP, KDA and CS.** You choose what to show and what to hide.
-- **Customization.** You have full control over how the text is displayed on your profile.
-- **A modern GUI with a tray icon.** It keeps running in the background, so the window is only open when you want it there. It can start with Windows too.
+⭐ If you enjoy it, don't forget to star this project! ⭐
 
 Got questions already? Don't hesitate to join the [Discord Community Server](https://discord.haze.sh)
 
-⭐ If you enjoy it, don't forget to star this project! ⭐
+> **NEW:** Get a better rich presence on Valorant with [Valorant RPC](https://github.com/Its-Haze/valorant-rpc).
 
 ## Table of Contents
 - [Installation](#installation)
